@@ -33,6 +33,39 @@ impl Params {
             .map(|(_, v)| v.as_str())
     }
 
+    /// All values of `name`, in request order (`getParameterValues`).
+    pub fn all(&self, name: &str) -> Vec<&str> {
+        self.0
+            .iter()
+            .filter(|(k, _)| k == name)
+            .map(|(_, v)| v.as_str())
+            .collect()
+    }
+
+    /// `@RequestParam(required = false) Set<String> name`: `None` when absent. A single value is
+    /// split at commas and each part trimmed (`StringToCollectionConverter`); several values are
+    /// taken as they are (`ArrayToCollectionConverter`). Duplicates keep their first position
+    /// (`LinkedHashSet`).
+    pub fn string_set(&self, name: &str) -> Option<Vec<String>> {
+        let values = self.all(name);
+        let items: Vec<String> = match values.as_slice() {
+            [] => return None,
+            [""] => vec![],
+            [single] => single
+                .split(',')
+                .map(|p| crate::java::string::trim(p).to_string())
+                .collect(),
+            many => many.iter().map(|v| v.to_string()).collect(),
+        };
+        let mut out: Vec<String> = Vec::with_capacity(items.len());
+        for i in items {
+            if !out.contains(&i) {
+                out.push(i);
+            }
+        }
+        Some(out)
+    }
+
     /// `@RequestParam(required = false, defaultValue = ...) Integer name`, with the
     /// `CrudControllerAdvice#methodArgumentTypeMismatchException` message on failure.
     pub fn integer_or(&self, name: &str, default: i32) -> Result<i32, WebMessage> {

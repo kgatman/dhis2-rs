@@ -45,6 +45,13 @@ pub fn user_definitions() -> &'static BTreeMap<String, SettingDef> {
     &DEFS.user
 }
 
+/// `LazySettings.isConfidential(key)`: confidential system or user setting (exact key).
+pub fn is_confidential(key: &str) -> bool {
+    [system_definitions(), user_definitions()]
+        .iter()
+        .any(|defs| defs.get(key).is_some_and(|d| d.confidential))
+}
+
 /// `LazySettings.keyOf(property)`.
 pub fn key_of(property: &str) -> Option<&'static str> {
     DEFS.key_by_property.get(property).map(String::as_str)
@@ -136,11 +143,12 @@ impl Settings {
         }
     }
 
-    /// `asLocale(key, default)`: `Locale.of(raw).toString()` (the language is lower-cased).
+    /// `asLocale(key, default)` rendered with `toString()`: `org.hisp.dhis.common.Locale.of(raw)`,
+    /// the default if the raw value is not a valid locale.
     pub fn as_locale(&self, key: &str, default: &str) -> String {
         self.raw(key)
-            .map(str::to_lowercase)
-            .unwrap_or_else(|| default.to_string())
+            .and_then(|r| crate::locale::Locale::parse(r).ok())
+            .map_or_else(|| default.to_string(), |l| l.to_string())
     }
 
     /// Typed access using the generated default of a system setting.
@@ -180,6 +188,8 @@ mod tests {
         assert_eq!(title.default, "DHIS 2");
         assert!(title.translatable);
         assert!(system_definitions()["keyEmailPassword"].confidential);
+        assert!(is_confidential("keyEmailPassword"));
+        assert!(!is_confidential("keyUiLocale"));
         assert_eq!(key_of("uiLocale"), Some("keyUiLocale"));
     }
 

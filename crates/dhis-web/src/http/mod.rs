@@ -2,6 +2,7 @@
 
 pub mod etag;
 pub mod negotiation;
+pub mod rfd;
 pub mod security_headers;
 pub mod web_message;
 
@@ -26,6 +27,18 @@ impl IntoResponse for JavaFallback {
 
 pub fn fallback(reason: &'static str) -> Response {
     JavaFallback { reason }.into_response()
+}
+
+/// A JSON `@ResponseBody` as Spring's Jackson converter writes it: `application/json;charset=UTF-8`,
+/// marked for the reflected-file-download check ([`rfd`]).
+pub fn json_response(body: impl Into<axum::body::Body>) -> Response {
+    let mut r = Response::new(body.into());
+    r.headers_mut().insert(
+        http::header::CONTENT_TYPE,
+        http::HeaderValue::from_static("application/json;charset=UTF-8"),
+    );
+    r.extensions_mut().insert(rfd::ConverterWritten);
+    r
 }
 
 /// What the gateway knows about the request before Java-style normalisation; inserted as a

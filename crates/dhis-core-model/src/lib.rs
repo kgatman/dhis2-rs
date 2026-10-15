@@ -4,5 +4,6 @@
 //! org.hisp.dhis.setting)
 
 pub mod java;
+pub mod locale;
 pub mod settings;
 pub mod uid;

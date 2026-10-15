@@ -2,25 +2,58 @@
 
 _Read this first at the start of every session; update it at the end._
 
-- **Last updated:** 2026-10-15 (session 1, continued)
+- **Last updated:** 2026-10-15 (session 2, continued)
 - **Java reference:** dhis2-core `2a7855b69e` (2.44-SNAPSHOT), pinned in `ci/dhis2-core.ref`
-- **Current phase:** 2 (read-only metadata). Slice 1 (`/api/system/{uid,id,uuid}`) is `rust`;
-  slice 2 (`/api/system/info` + the `fields=` engine) is routed to Rust, `rust-shadow` until CI e2e
-  confirms.
-- **CI:** GitHub `kgatman/dhis2-rs`. `ci` and `e2e-through-gateway` were green at `70dc1df`.
+- **Current phase:** 2 (read-only metadata). Slices 1 (`/api/system/{uid,id,uuid}`) and 2
+  (`/api/system/info` + the `fields=` engine) are `rust`. Slice 3 (`/api/me/authorities`,
+  `/authorization`, `/settings` and their `{...}` forms) is routed to Rust, `rust-shadow` until CI
+  e2e confirms.
+- **CI:** GitHub `kgatman/dhis2-rs`. `ci` and `e2e-through-gateway` green at `5e5a787` (with
+  `/api/system/info` on Rust).
 
 ## Ledger
 
 | Inventory | Total | `java` | `rust-shadow` | `rust` |
 |---|---:|---:|---:|---:|
-| Endpoint rows (method × path), `docs/inventory/endpoints.csv` | 3092 | 3086 | 1 | 5 |
-| — distinct handler methods | 770 | 766 | 1 | 3 |
+| Endpoint rows (method × path), `docs/inventory/endpoints.csv` | 3092 | 3080 | 6 | 6 |
+| — distinct handler methods | 770 | 762 | 4 | 4 |
 | — controllers | 195 | 195 | 0 | 0 |
 | Job types, `docs/inventory/jobs.csv` | 43 | 43 | 0 | 0 |
 | Config keys read by Rust, `docs/inventory/config-keys.csv` | 189 | — | — | 189 loadable |
 | Tables present after migrations, `docs/inventory/tables.csv` | 309 | — | — | 0 read/written |
 
 Regenerate the inventory with `tools/gen-inventory.sh`. CI fails if it is stale.
+
+## Phase 2, slice 3 (session 2): `/api/me` authorities and settings
+
+- Ported `MeController#getAuthorities`, `hasAuthority`, `getSettings`, `getSetting`
+  (`/api/me/{authorities,authorization}[/{authority}]`, `/api/me/settings[/{key}]`).
+- **Session state from the delegated auth call** (ADR 0006): Java keeps user settings per session
+  in memory (`SessionUserSettings`, stale after system-setting changes until the next
+  authentication), so the auth call now requests `settings` too and Rust replays Java's own
+  rendering, applying the `translate=true&locale=` override itself.
+- `dhis-core-model`: `java::hash` (`HashSet<String>` iteration order, JDK 21 sizing; 158
+  fixtures from the image, `tools/gen-hashset-fixtures.sh`), `locale` (port of
+  `org.hisp.dhis.common.Locale`; fixes `Settings::as_locale`, which only lower-cased),
+  `java::json` (Jackson's escaping and `Double.toString`, as a serde_json formatter),
+  `java::string::trim`.
+- **Latent bug fixed:** serde_json writes `\u001f`, Jackson `\u001F` (measured), so
+  `/api/system/info` and `WebMessage` bodies with control characters differed. All Rust JSON now
+  goes through the Jackson formatter.
+- `dhis-web`: Spring's reflected-file-download header (`Content-Disposition:
+  inline;filename=f.txt` for unsafe path extensions; safe list computed from the image's classes,
+  `tools/gen-rfd-safe-extensions.sh`); `Params::string_set` (Spring `Set<String>` binding: one
+  value is split at commas and trimmed, several are not).
+- Gateway: Spring Security's `StrictHttpFirewall` rules and Tomcat's malformed-`%` check send
+  requests Java rejects (400) to Java (`gateway::firewall`).
+- Evidence: diffcheck `corpus/phase2/me.jsonl` **328/328** (admin, plus `corpusbasic` with stored
+  settings from `setup.sh`); full phase-2 corpus **483/483**; shadow **197 match / 0 mismatch**.
+  diffcheck rule paths now match whole segments (`/api/me` no longer covers `/api/metadata`); new
+  rule: `lastUpdated` under `/api/me` (Java stamps it on every basic-auth login).
+  Fallbacks by design: non-JSON `Accept`/q-values, setting keys without the `key` prefix that
+  resolve to a stored key, keys that need JSON escaping (Java writes them raw or fails with 500).
+- Deviations M2 (tie order of `/api/me/authorities`, randomised per JVM in Java) and R1 (JDK 21
+  is the reference runtime).
 
 ## Phase 2, slice 2 (session 2): `fields=` engine and `/api/system/info`
 
@@ -128,14 +161,15 @@ Tracer bullet that built the shared Web API layer every later endpoint reuses:
 
 ## Next three tasks (end of session 2)
 
-1. **CI e2e with `/api/system/info` on Rust**, then mark `getSystemInfo` `rust`. (e2e calls
-   `/api/system/info` from `wait-for-it.sh` and several tests, so this one has real e2e traffic.)
-2. **`/api/me`** (MeController GET): user + settings + authorities through the same engine. Needs
-   user settings (definitions already generated), the registered `User` schema, and field
-   transformers (`rename`, `size`, `isEmpty`, `pluck`, `keyBy`).
+1. **CI e2e with the `/api/me` sub-resources on Rust**, then mark the six rows `rust`.
+2. **`/api/me`** (MeController GET): `MeDto` through the field filter. Needs the registered `User`
+   schema, ACL (`access`, filtered groups/roles), programs/data sets the user can read, PATs,
+   impersonation flags, field transformers (`rename`, `size`, `isEmpty`, `pluck`, `keyBy`), and
+   `settings[...]` with confidential values (not in the ADR 0006 snapshot).
 3. **Registered schemas** (`/api/schemas`, `dhis-schema`): generate descriptors for all ~150
    metadata classes from Java (`/api/schemas?fields=:all` of the pinned build, or the jshell
-   route), then port `SchemaController`.
+   route), then port `SchemaController`. Probably before task 2, since `/api/me` needs the
+   `User` schema.
 
 ## Earlier plan for slice 2 (done)
 

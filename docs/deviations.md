@@ -65,6 +65,13 @@ inherited rename plus one transform drops the transform (`a::rename(x)[b::size]`
 | # | Java | Rust | Why |
 |---|---|---|---|
 | M1 | `/api/system/info` JVM/build values (`version`, `revision`, `buildTime`, `systemId`, `jasperReportsVersion`, `java*`, `os*`, `memoryInfo`, `cpuCores`) computed at JVM start | Read once from Java's own `/api/system/info` and cached | No JVM in Rust; identical output while both run (ADR 0005). If Java restarts, Rust keeps the old snapshot until it restarts. Native values are due at cutover. |
+| M2 | `/api/me/authorities` lists a `HashSet`: by hash bucket, and within a bucket in the iteration order of an immutable set that Java randomises per JVM start (`ImmutableCollections.SALT`) | Same bucket order; within a bucket, the order Java's `/api/me` lists the authorities in (delegated auth) | That order is not observable otherwise. It matched in every measured case; a JDK simulation shows that ties can still come out differently for large sets. Java itself returns a different order after each restart, so no client can depend on it. |
+
+## Java runtime
+
+| # | Java | Rust | Why |
+|---|---|---|---|
+| R1 | DHIS2 2.44 runs on JDK 17 or 21, and some output depends on which: `HashSet(Collection)` sizing (key order of `/api/me/settings?key=...` with 12, 24, 48, ... keys), `Double.toString`, time-zone display names | Reproduces JDK 21, the runtime of the `dhis2/core` image (fixtures generated with it: `tools/gen-hashset-fixtures.sh`, `tools/gen-tz-names.sh`) | One reference runtime is needed; the official image is the drop-in target. `dev/java-local.sh` runs on JDK 17 and agrees on everything in the corpus. |
 
 ## HTTP responses produced by Rust
 

@@ -17,3 +17,318 @@
 {"name": "me settings one", "method": "GET", "path": "/api/me/settings/keyUiLocale", "tags": ["MeController"], "headers": {"Accept": "application/json"}}
 {"name": "me no credentials", "method": "GET", "path": "/api/me", "tags": ["MeController", "negative"], "headers": {"Accept": "application/json", "Authorization": ""}}
 {"name": "me bad credentials", "method": "GET", "path": "/api/me", "tags": ["MeController", "negative"], "headers": {"Accept": "application/json", "Authorization": "Basic YWRtaW46d3Jvbmc="}}
+
+# MeController#getAuthorities/hasAuthority/getSettings/getSetting (phase 2 slice 3).
+# admin (superuser, no stored user settings) and corpusbasic (F_DATAVALUE_ADD, stored settings;
+# corpus/phase2/setup.sh).
+{"name": "authorities", "method": "GET", "path": "/api/me/authorities", "tags": ["MeController"]}
+{"name": "authorization", "method": "GET", "path": "/api/me/authorization", "tags": ["MeController"]}
+{"name": "authorities versioned", "method": "GET", "path": "/api/41/me/authorities", "tags": ["MeController"]}
+{"name": "authorities .json", "method": "GET", "path": "/api/me/authorities.json", "tags": ["MeController"]}
+{"name": "authorities trailing slash", "method": "GET", "path": "/api/me/authorities/", "tags": ["MeController"]}
+{"name": "authorities HEAD", "method": "HEAD", "path": "/api/me/authorities", "tags": ["MeController"]}
+{"name": "has authority ALL", "method": "GET", "path": "/api/me/authorities/ALL", "tags": ["MeController"]}
+{"name": "has authority F_DATAVALUE_ADD", "method": "GET", "path": "/api/me/authorities/F_DATAVALUE_ADD", "tags": ["MeController"]}
+{"name": "has authority NOPE", "method": "GET", "path": "/api/me/authorities/NOPE", "tags": ["MeController"]}
+{"name": "has authority F_DATAVALUE_ADD.json", "method": "GET", "path": "/api/me/authorities/F_DATAVALUE_ADD.json", "tags": ["MeController"]}
+{"name": "has authority F_DATAVALUE_ADD.json.json", "method": "GET", "path": "/api/me/authorities/F_DATAVALUE_ADD.json.json", "tags": ["MeController"]}
+{"name": "has authority F_DATAVALUE_ADD.foo", "method": "GET", "path": "/api/me/authorities/F_DATAVALUE_ADD.foo", "tags": ["MeController"]}
+{"name": "has authority f_datavalue_add", "method": "GET", "path": "/api/me/authorities/f_datavalue_add", "tags": ["MeController"]}
+{"name": "has authority F_DATAVALUE_ADD%20", "method": "GET", "path": "/api/me/authorities/F_DATAVALUE_ADD%20", "tags": ["MeController"]}
+{"name": "has authority a%20b", "method": "GET", "path": "/api/me/authorities/a%20b", "tags": ["MeController"]}
+{"name": "has authority F_DATAVALUE_ADD/", "method": "GET", "path": "/api/me/authorities/F_DATAVALUE_ADD/", "tags": ["MeController"]}
+{"name": "has authority %C3%A9", "method": "GET", "path": "/api/me/authorities/%C3%A9", "tags": ["MeController"]}
+{"name": "has authority a+b", "method": "GET", "path": "/api/me/authorities/a+b", "tags": ["MeController"]}
+{"name": "has authority M_dhis-web-dashboard", "method": "GET", "path": "/api/me/authorities/M_dhis-web-dashboard", "tags": ["MeController"]}
+{"name": "authorization/ALL/", "method": "GET", "path": "/api/me/authorization/ALL/", "tags": ["MeController"]}
+{"name": "authorization versioned", "method": "GET", "path": "/api/40/me/authorization/F_DATAVALUE_ADD", "tags": ["MeController"]}
+{"name": "settings", "method": "GET", "path": "/api/me/settings", "tags": ["MeController"]}
+{"name": "settings .json", "method": "GET", "path": "/api/me/settings.json", "tags": ["MeController"]}
+{"name": "settings trailing slash", "method": "GET", "path": "/api/me/settings/", "tags": ["MeController"]}
+{"name": "settings versioned", "method": "GET", "path": "/api/42/me/settings", "tags": ["MeController"]}
+{"name": "settings HEAD", "method": "HEAD", "path": "/api/me/settings", "tags": ["MeController"]}
+{"name": "settings ?key=keyUiLocale", "method": "GET", "path": "/api/me/settings?key=keyUiLocale", "tags": ["MeController"]}
+{"name": "settings ?key=keyUiLocale&key=foo", "method": "GET", "path": "/api/me/settings?key=keyUiLocale&key=foo", "tags": ["MeController"]}
+{"name": "settings ?key=keyUiLocale,applicationTitle,keyEmailPassword", "method": "GET", "path": "/api/me/settings?key=keyUiLocale,applicationTitle,keyEmailPassword", "tags": ["MeController"]}
+{"name": "settings ?key=", "method": "GET", "path": "/api/me/settings?key=", "tags": ["MeController"]}
+{"name": "settings ?key=keyStyle&key=keyStyle", "method": "GET", "path": "/api/me/settings?key=keyStyle&key=keyStyle", "tags": ["MeController"]}
+{"name": "settings ?key=keyStyle,,keyUiLocale", "method": "GET", "path": "/api/me/settings?key=keyStyle,,keyUiLocale", "tags": ["MeController"]}
+{"name": "settings ?key=%20keyStyle%20", "method": "GET", "path": "/api/me/settings?key=%20keyStyle%20", "tags": ["MeController"]}
+{"name": "settings ?key=keyStyle&key=", "method": "GET", "path": "/api/me/settings?key=keyStyle&key=", "tags": ["MeController"]}
+{"name": "settings ?key=&key=", "method": "GET", "path": "/api/me/settings?key=&key=", "tags": ["MeController"]}
+{"name": "settings ?key=keyStyle&key=a,b", "method": "GET", "path": "/api/me/settings?key=keyStyle&key=a,b", "tags": ["MeController"]}
+{"name": "settings ?key=,", "method": "GET", "path": "/api/me/settings?key=,", "tags": ["MeController"]}
+{"name": "settings ?key=uiLocale", "method": "GET", "path": "/api/me/settings?key=uiLocale", "tags": ["MeController"]}
+{"name": "settings ?key=style", "method": "GET", "path": "/api/me/settings?key=style", "tags": ["MeController"]}
+{"name": "settings ?key=dbLocale", "method": "GET", "path": "/api/me/settings?key=dbLocale", "tags": ["MeController"]}
+{"name": "settings ?key=KEYSTYLE", "method": "GET", "path": "/api/me/settings?key=KEYSTYLE", "tags": ["MeController"]}
+{"name": "settings ?key=keyEmailPassword", "method": "GET", "path": "/api/me/settings?key=keyEmailPassword", "tags": ["MeController"]}
+{"name": "settings ?key=%20keyStyle%20&key=keyUiLocale", "method": "GET", "path": "/api/me/settings?key=%20keyStyle%20&key=keyUiLocale", "tags": ["MeController"]}
+{"name": "settings ?key=%01keyStyle%7F", "method": "GET", "path": "/api/me/settings?key=%01keyStyle%7F", "tags": ["MeController"]}
+{"name": "settings ?key=keyStyle+,+keyUiLocale", "method": "GET", "path": "/api/me/settings?key=keyStyle+,+keyUiLocale", "tags": ["MeController"]}
+{"name": "settings ?key=emailPassword", "method": "GET", "path": "/api/me/settings?key=emailPassword", "tags": ["MeController"]}
+{"name": "settings ?key=a%5Cb", "method": "GET", "path": "/api/me/settings?key=a%5Cb", "tags": ["MeController"]}
+{"name": "settings ?key=a%22b", "method": "GET", "path": "/api/me/settings?key=a%22b", "tags": ["MeController"]}
+{"name": "settings ?key=a%01b", "method": "GET", "path": "/api/me/settings?key=a%01b", "tags": ["MeController"]}
+{"name": "settings ?key=%C3%A9", "method": "GET", "path": "/api/me/settings?key=%C3%A9", "tags": ["MeController"]}
+{"name": "settings ?key=a%E2%80%A8b", "method": "GET", "path": "/api/me/settings?key=a%E2%80%A8b", "tags": ["MeController"]}
+{"name": "settings ?key=%3C%2F", "method": "GET", "path": "/api/me/settings?key=%3C%2F", "tags": ["MeController"]}
+{"name": "settings ?key=%F0%9F%98%80", "method": "GET", "path": "/api/me/settings?key=%F0%9F%98%80", "tags": ["MeController"]}
+{"name": "settings ?key=a%7Fb", "method": "GET", "path": "/api/me/settings?key=a%7Fb", "tags": ["MeController"]}
+{"name": "settings ?key=%C3%A9x", "method": "GET", "path": "/api/me/settings?key=%C3%A9x", "tags": ["MeController"]}
+{"name": "settings ?key=k0,k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12,k13,k14,k15,k16,k17,k18,k19,k20,k21,k22,k23,k24,k25,k26,k27,k28,k29", "method": "GET", "path": "/api/me/settings?key=k0,k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12,k13,k14,k15,k16,k17,k18,k19,k20,k21,k22,k23,k24,k25,k26,k27,k28,k29", "tags": ["MeController"]}
+{"name": "settings ?key=keyAnalysisDisplayProperty,keyDbLocale,keyMessageEmailNotification,keyMessageSmsNotification,keyStyle,keyTrackerDashboardLayout,keyUiLocale", "method": "GET", "path": "/api/me/settings?key=keyAnalysisDisplayProperty,keyDbLocale,keyMessageEmailNotification,keyMessageSmsNotification,keyStyle,keyTrackerDashboardLayout,keyUiLocale", "tags": ["MeController"]}
+{"name": "settings ?translate=true&locale=fr", "method": "GET", "path": "/api/me/settings?translate=true&locale=fr", "tags": ["MeController"]}
+{"name": "settings ?translate=true&locale=FR", "method": "GET", "path": "/api/me/settings?translate=true&locale=FR", "tags": ["MeController"]}
+{"name": "settings ?translate=TRUE&locale=fr", "method": "GET", "path": "/api/me/settings?translate=TRUE&locale=fr", "tags": ["MeController"]}
+{"name": "settings ?translate=true&locale=", "method": "GET", "path": "/api/me/settings?translate=true&locale=", "tags": ["MeController"]}
+{"name": "settings ?translate=true&locale=zh_Hant_TW", "method": "GET", "path": "/api/me/settings?translate=true&locale=zh_Hant_TW", "tags": ["MeController"]}
+{"name": "settings ?translate=true&locale=iw", "method": "GET", "path": "/api/me/settings?translate=true&locale=iw", "tags": ["MeController"]}
+{"name": "settings ?translate=true&translate=false&locale=fr&locale=de", "method": "GET", "path": "/api/me/settings?translate=true&translate=false&locale=fr&locale=de", "tags": ["MeController"]}
+{"name": "settings ?translate=false&locale=fr", "method": "GET", "path": "/api/me/settings?translate=false&locale=fr", "tags": ["MeController"]}
+{"name": "settings ?locale=fr", "method": "GET", "path": "/api/me/settings?locale=fr", "tags": ["MeController"]}
+{"name": "settings ?translate=true&locale=fr&key=keyDbLocale,keyUiLocale", "method": "GET", "path": "/api/me/settings?translate=true&locale=fr&key=keyDbLocale,keyUiLocale", "tags": ["MeController"]}
+{"name": "setting keyUiLocale", "method": "GET", "path": "/api/me/settings/keyUiLocale", "tags": ["MeController"]}
+{"name": "setting keyDbLocale", "method": "GET", "path": "/api/me/settings/keyDbLocale", "tags": ["MeController"]}
+{"name": "setting keyStyle", "method": "GET", "path": "/api/me/settings/keyStyle", "tags": ["MeController"]}
+{"name": "setting keyMessageSmsNotification", "method": "GET", "path": "/api/me/settings/keyMessageSmsNotification", "tags": ["MeController"]}
+{"name": "setting keyMessageEmailNotification", "method": "GET", "path": "/api/me/settings/keyMessageEmailNotification", "tags": ["MeController"]}
+{"name": "setting keyAnalysisDisplayProperty", "method": "GET", "path": "/api/me/settings/keyAnalysisDisplayProperty", "tags": ["MeController"]}
+{"name": "setting keyTrackerDashboardLayout", "method": "GET", "path": "/api/me/settings/keyTrackerDashboardLayout", "tags": ["MeController"]}
+{"name": "setting nonexistent", "method": "GET", "path": "/api/me/settings/nonexistent", "tags": ["MeController"]}
+{"name": "setting keyEmailPassword", "method": "GET", "path": "/api/me/settings/keyEmailPassword", "tags": ["MeController"]}
+{"name": "setting applicationTitle", "method": "GET", "path": "/api/me/settings/applicationTitle", "tags": ["MeController"]}
+{"name": "setting uiLocale", "method": "GET", "path": "/api/me/settings/uiLocale", "tags": ["MeController"]}
+{"name": "setting style", "method": "GET", "path": "/api/me/settings/style", "tags": ["MeController"]}
+{"name": "setting x", "method": "GET", "path": "/api/me/settings/x", "tags": ["MeController"]}
+{"name": "setting %20", "method": "GET", "path": "/api/me/settings/%20", "tags": ["MeController"]}
+{"name": "setting keyUiLocale.json", "method": "GET", "path": "/api/me/settings/keyUiLocale.json", "tags": ["MeController"]}
+{"name": "setting key.foo", "method": "GET", "path": "/api/me/settings/key.foo", "tags": ["MeController"]}
+{"name": "setting keyLastSuccessfulAnalyticsTablesUpdate", "method": "GET", "path": "/api/me/settings/keyLastSuccessfulAnalyticsTablesUpdate", "tags": ["MeController"]}
+{"name": "setting keyCacheStrategy", "method": "GET", "path": "/api/me/settings/keyCacheStrategy", "tags": ["MeController"]}
+{"name": "setting recaptchaSecret", "method": "GET", "path": "/api/me/settings/recaptchaSecret", "tags": ["MeController"]}
+{"name": "setting a%22b", "method": "GET", "path": "/api/me/settings/a%22b", "tags": ["MeController"]}
+{"name": "setting a%5Cb", "method": "GET", "path": "/api/me/settings/a%5Cb", "tags": ["MeController"]}
+{"name": "setting %C3%A9", "method": "GET", "path": "/api/me/settings/%C3%A9", "tags": ["MeController"]}
+{"name": "setting emailPassword", "method": "GET", "path": "/api/me/settings/emailPassword", "tags": ["MeController"]}
+{"name": "setting keyUiLocale.xml", "method": "GET", "path": "/api/me/settings/keyUiLocale.xml", "tags": ["MeController"]}
+{"name": "setting keyDbLocale ?translate=true&locale=fr", "method": "GET", "path": "/api/me/settings/keyDbLocale?translate=true&locale=fr", "tags": ["MeController"]}
+{"name": "setting keyDbLocale ?translate=true&locale=x%20y", "method": "GET", "path": "/api/me/settings/keyDbLocale?translate=true&locale=x%20y", "tags": ["MeController"]}
+{"name": "setting keyDbLocale ?translate=true&locale=", "method": "GET", "path": "/api/me/settings/keyDbLocale?translate=true&locale=", "tags": ["MeController"]}
+{"name": "setting keyUiLocale ?translate=true&locale=fr", "method": "GET", "path": "/api/me/settings/keyUiLocale?translate=true&locale=fr", "tags": ["MeController"]}
+{"name": "setting dbLocale ?translate=true&locale=fr", "method": "GET", "path": "/api/me/settings/dbLocale?translate=true&locale=fr", "tags": ["MeController"]}
+{"name": "authorities accept application/json", "method": "GET", "path": "/api/me/authorities", "tags": ["MeController"], "headers": {"Accept": "application/json"}}
+{"name": "settings accept application/json", "method": "GET", "path": "/api/me/settings", "tags": ["MeController"], "headers": {"Accept": "application/json"}}
+{"name": "setting accept application/json", "method": "GET", "path": "/api/me/settings/keyUiLocale", "tags": ["MeController"], "headers": {"Accept": "application/json"}}
+{"name": "has authority accept application/json", "method": "GET", "path": "/api/me/authorities/ALL", "tags": ["MeController"], "headers": {"Accept": "application/json"}}
+{"name": "authorities accept */*", "method": "GET", "path": "/api/me/authorities", "tags": ["MeController"], "headers": {"Accept": "*/*"}}
+{"name": "settings accept */*", "method": "GET", "path": "/api/me/settings", "tags": ["MeController"], "headers": {"Accept": "*/*"}}
+{"name": "setting accept */*", "method": "GET", "path": "/api/me/settings/keyUiLocale", "tags": ["MeController"], "headers": {"Accept": "*/*"}}
+{"name": "has authority accept */*", "method": "GET", "path": "/api/me/authorities/ALL", "tags": ["MeController"], "headers": {"Accept": "*/*"}}
+{"name": "authorities accept application/*", "method": "GET", "path": "/api/me/authorities", "tags": ["MeController"], "headers": {"Accept": "application/*"}}
+{"name": "settings accept application/*", "method": "GET", "path": "/api/me/settings", "tags": ["MeController"], "headers": {"Accept": "application/*"}}
+{"name": "setting accept application/*", "method": "GET", "path": "/api/me/settings/keyUiLocale", "tags": ["MeController"], "headers": {"Accept": "application/*"}}
+{"name": "has authority accept application/*", "method": "GET", "path": "/api/me/authorities/ALL", "tags": ["MeController"], "headers": {"Accept": "application/*"}}
+{"name": "authorities accept application/xml", "method": "GET", "path": "/api/me/authorities", "tags": ["MeController"], "headers": {"Accept": "application/xml"}}
+{"name": "settings accept application/xml", "method": "GET", "path": "/api/me/settings", "tags": ["MeController"], "headers": {"Accept": "application/xml"}}
+{"name": "setting accept application/xml", "method": "GET", "path": "/api/me/settings/keyUiLocale", "tags": ["MeController"], "headers": {"Accept": "application/xml"}}
+{"name": "has authority accept application/xml", "method": "GET", "path": "/api/me/authorities/ALL", "tags": ["MeController"], "headers": {"Accept": "application/xml"}}
+{"name": "authorities accept text/plain", "method": "GET", "path": "/api/me/authorities", "tags": ["MeController"], "headers": {"Accept": "text/plain"}}
+{"name": "settings accept text/plain", "method": "GET", "path": "/api/me/settings", "tags": ["MeController"], "headers": {"Accept": "text/plain"}}
+{"name": "setting accept text/plain", "method": "GET", "path": "/api/me/settings/keyUiLocale", "tags": ["MeController"], "headers": {"Accept": "text/plain"}}
+{"name": "has authority accept text/plain", "method": "GET", "path": "/api/me/authorities/ALL", "tags": ["MeController"], "headers": {"Accept": "text/plain"}}
+{"name": "authorities accept application/json;q=0.9", "method": "GET", "path": "/api/me/authorities", "tags": ["MeController"], "headers": {"Accept": "application/json;q=0.9"}}
+{"name": "settings accept application/json;q=0.9", "method": "GET", "path": "/api/me/settings", "tags": ["MeController"], "headers": {"Accept": "application/json;q=0.9"}}
+{"name": "setting accept application/json;q=0.9", "method": "GET", "path": "/api/me/settings/keyUiLocale", "tags": ["MeController"], "headers": {"Accept": "application/json;q=0.9"}}
+{"name": "has authority accept application/json;q=0.9", "method": "GET", "path": "/api/me/authorities/ALL", "tags": ["MeController"], "headers": {"Accept": "application/json;q=0.9"}}
+{"name": "authorities accept text/html,application/json", "method": "GET", "path": "/api/me/authorities", "tags": ["MeController"], "headers": {"Accept": "text/html,application/json"}}
+{"name": "settings accept text/html,application/json", "method": "GET", "path": "/api/me/settings", "tags": ["MeController"], "headers": {"Accept": "text/html,application/json"}}
+{"name": "setting accept text/html,application/json", "method": "GET", "path": "/api/me/settings/keyUiLocale", "tags": ["MeController"], "headers": {"Accept": "text/html,application/json"}}
+{"name": "has authority accept text/html,application/json", "method": "GET", "path": "/api/me/authorities/ALL", "tags": ["MeController"], "headers": {"Accept": "text/html,application/json"}}
+{"name": "authorities .xml", "method": "GET", "path": "/api/me/authorities.xml", "tags": ["MeController", "negative"]}
+{"name": "has authority .xml", "method": "GET", "path": "/api/me/authorities/F_X.xml", "tags": ["MeController", "negative"]}
+{"name": "has authority .csv", "method": "GET", "path": "/api/me/authorities/F_DATAVALUE_ADD.csv", "tags": ["MeController", "negative"]}
+{"name": "has authority semicolon", "method": "GET", "path": "/api/me/authorities/a;b=c", "tags": ["MeController", "negative"]}
+{"name": "has authority encoded slash", "method": "GET", "path": "/api/me/authorities/%2F", "tags": ["MeController", "negative"]}
+{"name": "has authority encoded dot", "method": "GET", "path": "/api/me/authorities/F_DATAVALUE_ADD%2Ejson", "tags": ["MeController", "negative"]}
+{"name": "has authority bad utf8", "method": "GET", "path": "/api/me/authorities/%FF", "tags": ["MeController", "negative"]}
+{"name": "setting bad utf8", "method": "GET", "path": "/api/me/settings/%FF", "tags": ["MeController", "negative"]}
+{"name": "settings bad query", "method": "GET", "path": "/api/me/settings?key=%FF", "tags": ["MeController", "negative"]}
+{"name": "basic authorities", "method": "GET", "path": "/api/me/authorities", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic authorization", "method": "GET", "path": "/api/me/authorization", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic authorities versioned", "method": "GET", "path": "/api/41/me/authorities", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic authorities .json", "method": "GET", "path": "/api/me/authorities.json", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic authorities trailing slash", "method": "GET", "path": "/api/me/authorities/", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic authorities HEAD", "method": "HEAD", "path": "/api/me/authorities", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority ALL", "method": "GET", "path": "/api/me/authorities/ALL", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority F_DATAVALUE_ADD", "method": "GET", "path": "/api/me/authorities/F_DATAVALUE_ADD", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority NOPE", "method": "GET", "path": "/api/me/authorities/NOPE", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority F_DATAVALUE_ADD.json", "method": "GET", "path": "/api/me/authorities/F_DATAVALUE_ADD.json", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority F_DATAVALUE_ADD.json.json", "method": "GET", "path": "/api/me/authorities/F_DATAVALUE_ADD.json.json", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority F_DATAVALUE_ADD.foo", "method": "GET", "path": "/api/me/authorities/F_DATAVALUE_ADD.foo", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority f_datavalue_add", "method": "GET", "path": "/api/me/authorities/f_datavalue_add", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority F_DATAVALUE_ADD%20", "method": "GET", "path": "/api/me/authorities/F_DATAVALUE_ADD%20", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority a%20b", "method": "GET", "path": "/api/me/authorities/a%20b", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority F_DATAVALUE_ADD/", "method": "GET", "path": "/api/me/authorities/F_DATAVALUE_ADD/", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority %C3%A9", "method": "GET", "path": "/api/me/authorities/%C3%A9", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority a+b", "method": "GET", "path": "/api/me/authorities/a+b", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority M_dhis-web-dashboard", "method": "GET", "path": "/api/me/authorities/M_dhis-web-dashboard", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic authorization/ALL/", "method": "GET", "path": "/api/me/authorization/ALL/", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic authorization versioned", "method": "GET", "path": "/api/40/me/authorization/F_DATAVALUE_ADD", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings", "method": "GET", "path": "/api/me/settings", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings .json", "method": "GET", "path": "/api/me/settings.json", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings trailing slash", "method": "GET", "path": "/api/me/settings/", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings versioned", "method": "GET", "path": "/api/42/me/settings", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings HEAD", "method": "HEAD", "path": "/api/me/settings", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=keyUiLocale", "method": "GET", "path": "/api/me/settings?key=keyUiLocale", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=keyUiLocale&key=foo", "method": "GET", "path": "/api/me/settings?key=keyUiLocale&key=foo", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=keyUiLocale,applicationTitle,keyEmailPassword", "method": "GET", "path": "/api/me/settings?key=keyUiLocale,applicationTitle,keyEmailPassword", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=", "method": "GET", "path": "/api/me/settings?key=", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=keyStyle&key=keyStyle", "method": "GET", "path": "/api/me/settings?key=keyStyle&key=keyStyle", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=keyStyle,,keyUiLocale", "method": "GET", "path": "/api/me/settings?key=keyStyle,,keyUiLocale", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=%20keyStyle%20", "method": "GET", "path": "/api/me/settings?key=%20keyStyle%20", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=keyStyle&key=", "method": "GET", "path": "/api/me/settings?key=keyStyle&key=", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=&key=", "method": "GET", "path": "/api/me/settings?key=&key=", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=keyStyle&key=a,b", "method": "GET", "path": "/api/me/settings?key=keyStyle&key=a,b", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=,", "method": "GET", "path": "/api/me/settings?key=,", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=uiLocale", "method": "GET", "path": "/api/me/settings?key=uiLocale", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=style", "method": "GET", "path": "/api/me/settings?key=style", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=dbLocale", "method": "GET", "path": "/api/me/settings?key=dbLocale", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=KEYSTYLE", "method": "GET", "path": "/api/me/settings?key=KEYSTYLE", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=keyEmailPassword", "method": "GET", "path": "/api/me/settings?key=keyEmailPassword", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=%20keyStyle%20&key=keyUiLocale", "method": "GET", "path": "/api/me/settings?key=%20keyStyle%20&key=keyUiLocale", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=%01keyStyle%7F", "method": "GET", "path": "/api/me/settings?key=%01keyStyle%7F", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=keyStyle+,+keyUiLocale", "method": "GET", "path": "/api/me/settings?key=keyStyle+,+keyUiLocale", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=emailPassword", "method": "GET", "path": "/api/me/settings?key=emailPassword", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=a%5Cb", "method": "GET", "path": "/api/me/settings?key=a%5Cb", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=a%22b", "method": "GET", "path": "/api/me/settings?key=a%22b", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=a%01b", "method": "GET", "path": "/api/me/settings?key=a%01b", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=%C3%A9", "method": "GET", "path": "/api/me/settings?key=%C3%A9", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=a%E2%80%A8b", "method": "GET", "path": "/api/me/settings?key=a%E2%80%A8b", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=%3C%2F", "method": "GET", "path": "/api/me/settings?key=%3C%2F", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=%F0%9F%98%80", "method": "GET", "path": "/api/me/settings?key=%F0%9F%98%80", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=a%7Fb", "method": "GET", "path": "/api/me/settings?key=a%7Fb", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=%C3%A9x", "method": "GET", "path": "/api/me/settings?key=%C3%A9x", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=k0,k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12,k13,k14,k15,k16,k17,k18,k19,k20,k21,k22,k23,k24,k25,k26,k27,k28,k29", "method": "GET", "path": "/api/me/settings?key=k0,k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12,k13,k14,k15,k16,k17,k18,k19,k20,k21,k22,k23,k24,k25,k26,k27,k28,k29", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?key=keyAnalysisDisplayProperty,keyDbLocale,keyMessageEmailNotification,keyMessageSmsNotification,keyStyle,keyTrackerDashboardLayout,keyUiLocale", "method": "GET", "path": "/api/me/settings?key=keyAnalysisDisplayProperty,keyDbLocale,keyMessageEmailNotification,keyMessageSmsNotification,keyStyle,keyTrackerDashboardLayout,keyUiLocale", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?translate=true&locale=fr", "method": "GET", "path": "/api/me/settings?translate=true&locale=fr", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?translate=true&locale=FR", "method": "GET", "path": "/api/me/settings?translate=true&locale=FR", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?translate=TRUE&locale=fr", "method": "GET", "path": "/api/me/settings?translate=TRUE&locale=fr", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?translate=true&locale=", "method": "GET", "path": "/api/me/settings?translate=true&locale=", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?translate=true&locale=zh_Hant_TW", "method": "GET", "path": "/api/me/settings?translate=true&locale=zh_Hant_TW", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?translate=true&locale=iw", "method": "GET", "path": "/api/me/settings?translate=true&locale=iw", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?translate=true&translate=false&locale=fr&locale=de", "method": "GET", "path": "/api/me/settings?translate=true&translate=false&locale=fr&locale=de", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?translate=false&locale=fr", "method": "GET", "path": "/api/me/settings?translate=false&locale=fr", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?locale=fr", "method": "GET", "path": "/api/me/settings?locale=fr", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings ?translate=true&locale=fr&key=keyDbLocale,keyUiLocale", "method": "GET", "path": "/api/me/settings?translate=true&locale=fr&key=keyDbLocale,keyUiLocale", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting keyUiLocale", "method": "GET", "path": "/api/me/settings/keyUiLocale", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting keyDbLocale", "method": "GET", "path": "/api/me/settings/keyDbLocale", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting keyStyle", "method": "GET", "path": "/api/me/settings/keyStyle", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting keyMessageSmsNotification", "method": "GET", "path": "/api/me/settings/keyMessageSmsNotification", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting keyMessageEmailNotification", "method": "GET", "path": "/api/me/settings/keyMessageEmailNotification", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting keyAnalysisDisplayProperty", "method": "GET", "path": "/api/me/settings/keyAnalysisDisplayProperty", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting keyTrackerDashboardLayout", "method": "GET", "path": "/api/me/settings/keyTrackerDashboardLayout", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting nonexistent", "method": "GET", "path": "/api/me/settings/nonexistent", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting keyEmailPassword", "method": "GET", "path": "/api/me/settings/keyEmailPassword", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting applicationTitle", "method": "GET", "path": "/api/me/settings/applicationTitle", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting uiLocale", "method": "GET", "path": "/api/me/settings/uiLocale", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting style", "method": "GET", "path": "/api/me/settings/style", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting x", "method": "GET", "path": "/api/me/settings/x", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting %20", "method": "GET", "path": "/api/me/settings/%20", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting keyUiLocale.json", "method": "GET", "path": "/api/me/settings/keyUiLocale.json", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting key.foo", "method": "GET", "path": "/api/me/settings/key.foo", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting keyLastSuccessfulAnalyticsTablesUpdate", "method": "GET", "path": "/api/me/settings/keyLastSuccessfulAnalyticsTablesUpdate", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting keyCacheStrategy", "method": "GET", "path": "/api/me/settings/keyCacheStrategy", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting recaptchaSecret", "method": "GET", "path": "/api/me/settings/recaptchaSecret", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting a%22b", "method": "GET", "path": "/api/me/settings/a%22b", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting a%5Cb", "method": "GET", "path": "/api/me/settings/a%5Cb", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting %C3%A9", "method": "GET", "path": "/api/me/settings/%C3%A9", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting emailPassword", "method": "GET", "path": "/api/me/settings/emailPassword", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting keyUiLocale.xml", "method": "GET", "path": "/api/me/settings/keyUiLocale.xml", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting keyDbLocale ?translate=true&locale=fr", "method": "GET", "path": "/api/me/settings/keyDbLocale?translate=true&locale=fr", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting keyDbLocale ?translate=true&locale=x%20y", "method": "GET", "path": "/api/me/settings/keyDbLocale?translate=true&locale=x%20y", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting keyDbLocale ?translate=true&locale=", "method": "GET", "path": "/api/me/settings/keyDbLocale?translate=true&locale=", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting keyUiLocale ?translate=true&locale=fr", "method": "GET", "path": "/api/me/settings/keyUiLocale?translate=true&locale=fr", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting dbLocale ?translate=true&locale=fr", "method": "GET", "path": "/api/me/settings/dbLocale?translate=true&locale=fr", "tags": ["MeController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic authorities accept application/json", "method": "GET", "path": "/api/me/authorities", "tags": ["MeController", "non-super"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings accept application/json", "method": "GET", "path": "/api/me/settings", "tags": ["MeController", "non-super"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting accept application/json", "method": "GET", "path": "/api/me/settings/keyUiLocale", "tags": ["MeController", "non-super"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority accept application/json", "method": "GET", "path": "/api/me/authorities/ALL", "tags": ["MeController", "non-super"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic authorities accept */*", "method": "GET", "path": "/api/me/authorities", "tags": ["MeController", "non-super"], "headers": {"Accept": "*/*", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings accept */*", "method": "GET", "path": "/api/me/settings", "tags": ["MeController", "non-super"], "headers": {"Accept": "*/*", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting accept */*", "method": "GET", "path": "/api/me/settings/keyUiLocale", "tags": ["MeController", "non-super"], "headers": {"Accept": "*/*", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority accept */*", "method": "GET", "path": "/api/me/authorities/ALL", "tags": ["MeController", "non-super"], "headers": {"Accept": "*/*", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic authorities accept application/*", "method": "GET", "path": "/api/me/authorities", "tags": ["MeController", "non-super"], "headers": {"Accept": "application/*", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings accept application/*", "method": "GET", "path": "/api/me/settings", "tags": ["MeController", "non-super"], "headers": {"Accept": "application/*", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting accept application/*", "method": "GET", "path": "/api/me/settings/keyUiLocale", "tags": ["MeController", "non-super"], "headers": {"Accept": "application/*", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority accept application/*", "method": "GET", "path": "/api/me/authorities/ALL", "tags": ["MeController", "non-super"], "headers": {"Accept": "application/*", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic authorities accept application/xml", "method": "GET", "path": "/api/me/authorities", "tags": ["MeController", "non-super"], "headers": {"Accept": "application/xml", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings accept application/xml", "method": "GET", "path": "/api/me/settings", "tags": ["MeController", "non-super"], "headers": {"Accept": "application/xml", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting accept application/xml", "method": "GET", "path": "/api/me/settings/keyUiLocale", "tags": ["MeController", "non-super"], "headers": {"Accept": "application/xml", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority accept application/xml", "method": "GET", "path": "/api/me/authorities/ALL", "tags": ["MeController", "non-super"], "headers": {"Accept": "application/xml", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic authorities accept text/plain", "method": "GET", "path": "/api/me/authorities", "tags": ["MeController", "non-super"], "headers": {"Accept": "text/plain", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings accept text/plain", "method": "GET", "path": "/api/me/settings", "tags": ["MeController", "non-super"], "headers": {"Accept": "text/plain", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting accept text/plain", "method": "GET", "path": "/api/me/settings/keyUiLocale", "tags": ["MeController", "non-super"], "headers": {"Accept": "text/plain", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority accept text/plain", "method": "GET", "path": "/api/me/authorities/ALL", "tags": ["MeController", "non-super"], "headers": {"Accept": "text/plain", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic authorities accept application/json;q=0.9", "method": "GET", "path": "/api/me/authorities", "tags": ["MeController", "non-super"], "headers": {"Accept": "application/json;q=0.9", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings accept application/json;q=0.9", "method": "GET", "path": "/api/me/settings", "tags": ["MeController", "non-super"], "headers": {"Accept": "application/json;q=0.9", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting accept application/json;q=0.9", "method": "GET", "path": "/api/me/settings/keyUiLocale", "tags": ["MeController", "non-super"], "headers": {"Accept": "application/json;q=0.9", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority accept application/json;q=0.9", "method": "GET", "path": "/api/me/authorities/ALL", "tags": ["MeController", "non-super"], "headers": {"Accept": "application/json;q=0.9", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic authorities accept text/html,application/json", "method": "GET", "path": "/api/me/authorities", "tags": ["MeController", "non-super"], "headers": {"Accept": "text/html,application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings accept text/html,application/json", "method": "GET", "path": "/api/me/settings", "tags": ["MeController", "non-super"], "headers": {"Accept": "text/html,application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting accept text/html,application/json", "method": "GET", "path": "/api/me/settings/keyUiLocale", "tags": ["MeController", "non-super"], "headers": {"Accept": "text/html,application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority accept text/html,application/json", "method": "GET", "path": "/api/me/authorities/ALL", "tags": ["MeController", "non-super"], "headers": {"Accept": "text/html,application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic authorities .xml", "method": "GET", "path": "/api/me/authorities.xml", "tags": ["MeController", "non-super", "negative"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority .xml", "method": "GET", "path": "/api/me/authorities/F_X.xml", "tags": ["MeController", "non-super", "negative"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority .csv", "method": "GET", "path": "/api/me/authorities/F_DATAVALUE_ADD.csv", "tags": ["MeController", "non-super", "negative"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority semicolon", "method": "GET", "path": "/api/me/authorities/a;b=c", "tags": ["MeController", "non-super", "negative"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority encoded slash", "method": "GET", "path": "/api/me/authorities/%2F", "tags": ["MeController", "non-super", "negative"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority encoded dot", "method": "GET", "path": "/api/me/authorities/F_DATAVALUE_ADD%2Ejson", "tags": ["MeController", "non-super", "negative"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic has authority bad utf8", "method": "GET", "path": "/api/me/authorities/%FF", "tags": ["MeController", "non-super", "negative"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic setting bad utf8", "method": "GET", "path": "/api/me/settings/%FF", "tags": ["MeController", "non-super", "negative"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "basic settings bad query", "method": "GET", "path": "/api/me/settings?key=%FF", "tags": ["MeController", "non-super", "negative"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "no credentials /api/me/authorities", "method": "GET", "path": "/api/me/authorities", "tags": ["MeController", "negative"], "headers": {"Authorization": ""}}
+{"name": "bad credentials /api/me/authorities", "method": "GET", "path": "/api/me/authorities", "tags": ["MeController", "negative"], "headers": {"Authorization": "Basic YWRtaW46d3Jvbmc="}}
+{"name": "no credentials /api/me/authorities/ALL", "method": "GET", "path": "/api/me/authorities/ALL", "tags": ["MeController", "negative"], "headers": {"Authorization": ""}}
+{"name": "bad credentials /api/me/authorities/ALL", "method": "GET", "path": "/api/me/authorities/ALL", "tags": ["MeController", "negative"], "headers": {"Authorization": "Basic YWRtaW46d3Jvbmc="}}
+{"name": "no credentials /api/me/settings", "method": "GET", "path": "/api/me/settings", "tags": ["MeController", "negative"], "headers": {"Authorization": ""}}
+{"name": "bad credentials /api/me/settings", "method": "GET", "path": "/api/me/settings", "tags": ["MeController", "negative"], "headers": {"Authorization": "Basic YWRtaW46d3Jvbmc="}}
+{"name": "no credentials /api/me/settings/keyUiLocale", "method": "GET", "path": "/api/me/settings/keyUiLocale", "tags": ["MeController", "negative"], "headers": {"Authorization": ""}}
+{"name": "bad credentials /api/me/settings/keyUiLocale", "method": "GET", "path": "/api/me/settings/keyUiLocale", "tags": ["MeController", "negative"], "headers": {"Authorization": "Basic YWRtaW46d3Jvbmc="}}
+{"name": "rfd has authority F.mp3", "method": "GET", "path": "/api/me/authorities/F.mp3", "tags": ["MeController", "rfd"]}
+{"name": "rfd has authority F.MP3", "method": "GET", "path": "/api/me/authorities/F.MP3", "tags": ["MeController", "rfd"]}
+{"name": "rfd has authority F.svg", "method": "GET", "path": "/api/me/authorities/F.svg", "tags": ["MeController", "rfd"]}
+{"name": "rfd has authority F.xhtml", "method": "GET", "path": "/api/me/authorities/F.xhtml", "tags": ["MeController", "rfd"]}
+{"name": "rfd has authority F.webp", "method": "GET", "path": "/api/me/authorities/F.webp", "tags": ["MeController", "rfd"]}
+{"name": "rfd has authority F.avif", "method": "GET", "path": "/api/me/authorities/F.avif", "tags": ["MeController", "rfd"]}
+{"name": "rfd has authority F.js", "method": "GET", "path": "/api/me/authorities/F.js", "tags": ["MeController", "rfd"]}
+{"name": "rfd has authority F.exe", "method": "GET", "path": "/api/me/authorities/F.exe", "tags": ["MeController", "rfd"]}
+{"name": "rfd has authority F.html", "method": "GET", "path": "/api/me/authorities/F.html", "tags": ["MeController", "rfd"]}
+{"name": "rfd has authority F.htm", "method": "GET", "path": "/api/me/authorities/F.htm", "tags": ["MeController", "rfd"]}
+{"name": "rfd has authority F.yml", "method": "GET", "path": "/api/me/authorities/F.yml", "tags": ["MeController", "rfd"]}
+{"name": "rfd has authority F.properties", "method": "GET", "path": "/api/me/authorities/F.properties", "tags": ["MeController", "rfd"]}
+{"name": "rfd has authority F.atom", "method": "GET", "path": "/api/me/authorities/F.atom", "tags": ["MeController", "rfd"]}
+{"name": "rfd has authority F.wbmp", "method": "GET", "path": "/api/me/authorities/F.wbmp", "tags": ["MeController", "rfd"]}
+{"name": "rfd has authority F.b", "method": "GET", "path": "/api/me/authorities/F.b", "tags": ["MeController", "rfd"]}
+{"name": "rfd has authority F.txt", "method": "GET", "path": "/api/me/authorities/F.txt", "tags": ["MeController", "rfd"]}
+{"name": "rfd has authority F.mp%33", "method": "GET", "path": "/api/me/authorities/F.mp%33", "tags": ["MeController", "rfd"]}
+{"name": "rfd has authority F.%20", "method": "GET", "path": "/api/me/authorities/F.%20", "tags": ["MeController", "rfd"]}
+{"name": "rfd setting key.", "method": "GET", "path": "/api/me/settings/key.", "tags": ["MeController", "rfd"]}
+{"name": "rfd trailing slash", "method": "GET", "path": "/api/me/authorities/F.foo/", "tags": ["MeController", "rfd"]}
+{"name": "rfd setting k.foo with query", "method": "GET", "path": "/api/me/settings/k.foo?key=x", "tags": ["MeController", "rfd"]}
+{"name": "rfd versioned double ext", "method": "GET", "path": "/api/41/me/authorities/F.foo.json", "tags": ["MeController", "rfd"]}
+{"name": "firewall /api/me/authorities/%zz", "method": "GET", "path": "/api/me/authorities/%zz", "tags": ["MeController", "negative", "firewall"]}
+{"name": "firewall /api/me/authorities/a%25b", "method": "GET", "path": "/api/me/authorities/a%25b", "tags": ["MeController", "negative", "firewall"]}
+{"name": "firewall /api/me/authorities/a%5Cb", "method": "GET", "path": "/api/me/authorities/a%5Cb", "tags": ["MeController", "negative", "firewall"]}
+{"name": "firewall /api/me/authorities/a%E2%80%A8b", "method": "GET", "path": "/api/me/authorities/a%E2%80%A8b", "tags": ["MeController", "negative", "firewall"]}
+{"name": "firewall /api/me/./authorities", "method": "GET", "path": "/api/me/./authorities", "tags": ["MeController", "negative", "firewall"]}
+{"name": "firewall /api/me/authorities/..", "method": "GET", "path": "/api/me/authorities/..", "tags": ["MeController", "negative", "firewall"]}
+{"name": "firewall /api//me/authorities", "method": "GET", "path": "/api//me/authorities", "tags": ["MeController", "negative", "firewall"]}
+{"name": "firewall /api/me/authorities/a%3Bb", "method": "GET", "path": "/api/me/authorities/a%3Bb", "tags": ["MeController", "negative", "firewall"]}
+{"name": "firewall /api/me/authorities/a%0Ab", "method": "GET", "path": "/api/me/authorities/a%0Ab", "tags": ["MeController", "negative", "firewall"]}
+{"name": "firewall /api/me/authorities/a%00b", "method": "GET", "path": "/api/me/authorities/a%00b", "tags": ["MeController", "negative", "firewall"]}
+{"name": "firewall /api/me/authorities/a%7Fb", "method": "GET", "path": "/api/me/authorities/a%7Fb", "tags": ["MeController", "negative", "firewall"]}
+{"name": "firewall /api/me/authorities/a%09b", "method": "GET", "path": "/api/me/authorities/a%09b", "tags": ["MeController", "negative", "firewall"]}
+{"name": "firewall /api/me/authorities/...", "method": "GET", "path": "/api/me/authorities/...", "tags": ["MeController", "negative", "firewall"]}
+{"name": "firewall /api/me/settings/a%2Fb", "method": "GET", "path": "/api/me/settings/a%2Fb", "tags": ["MeController", "negative", "firewall"]}
+{"name": "firewall /api/me/settings;x=1", "method": "GET", "path": "/api/me/settings;x=1", "tags": ["MeController", "negative", "firewall"]}

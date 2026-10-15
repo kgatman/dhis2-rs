@@ -48,3 +48,44 @@ methods = ["GET", "HEAD"]
 path = "/api/system/info"
 backend = "rust"
 note = "SystemController#getSystemInfo"
+
+# MeController#getAuthorities/hasAuthority/getSettings/getSetting. diffcheck
+# corpus/phase2/me.jsonl: 328/328 (superuser and non-superuser with stored settings; Spring's
+# reflected-file-download header; firewall rejections); shadow: 197 matched, 0 mismatched. Session
+# state (authorities, user settings) comes from the delegated /api/me call. Non-JSON Accept,
+# prefix-resolved setting keys and keys needing JSON escaping fall back to Java.
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/me/authorities"
+backend = "rust"
+note = "MeController#getAuthorities"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/me/authorization"
+backend = "rust"
+note = "MeController#getAuthorities"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/me/authorities/{authority}"
+backend = "rust"
+note = "MeController#hasAuthority"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/me/authorization/{authority}"
+backend = "rust"
+note = "MeController#hasAuthority"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/me/settings"
+backend = "rust"
+note = "MeController#getSettings"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/me/settings/{key}"
+backend = "rust"
+note = "MeController#getSetting"

@@ -10,7 +10,7 @@
 //!
 //! [[ignore_key]]
 //! key = "serverDate"
-//! paths = ["/api/system/info"]   # optional: only for cases whose path starts with one of these
+//! paths = ["/api/system/info"]   # optional: only for cases under one of these paths
 //! reason = "Wall clock time of the server."
 //!
 //!
@@ -35,6 +35,15 @@ use serde::Deserialize;
 use serde_json::Value;
 
 use crate::corpus::Case;
+
+/// Whether a rule's `paths` entry covers the case path: the same path, or that path followed by
+/// a sub-path, query, extension or path parameter (`/api/me` covers `/api/me?fields=id` and
+/// `/api/me/settings`, not `/api/metadata`).
+fn path_matches(case_path: &str, rule_path: &str) -> bool {
+    case_path
+        .strip_prefix(rule_path)
+        .is_some_and(|rest| rest.is_empty() || rest.starts_with(['/', '?', '.', ';']))
+}
 
 const DEFAULT_HEADERS: &[&str] = &["content-type", "content-disposition", "location"];
 
@@ -117,7 +126,7 @@ impl Rules {
     pub fn normalize_body(&self, case: &Case, headers: &HeaderMap, body: &[u8]) -> String {
         let mut text = self.canonical(case, headers, body);
         for r in &self.replace {
-            if r.paths.is_empty() || r.paths.iter().any(|p| case.path.starts_with(p)) {
+            if r.paths.is_empty() || r.paths.iter().any(|p| path_matches(&case.path, p)) {
                 text = r.regex.replace_all(&text, r.with.as_str()).into_owned();
             }
         }
@@ -133,7 +142,9 @@ impl Rules {
             let keys: Vec<&str> = self
                 .ignore_key
                 .iter()
-                .filter(|r| r.paths.is_empty() || r.paths.iter().any(|p| case.path.starts_with(p)))
+                .filter(|r| {
+                    r.paths.is_empty() || r.paths.iter().any(|p| path_matches(&case.path, p))
+                })
                 .map(|r| r.key.as_str())
                 .collect();
             strip_keys(&mut v, &keys);
@@ -220,6 +231,15 @@ mod tests {
         assert!(!n.contains("serverDate"));
         let n = r.normalize_body(&case("/api/me"), &json_headers(), body);
         assert!(n.contains("serverDate"));
+    }
+
+    #[test]
+    fn paths_match_whole_segments() {
+        assert!(path_matches("/api/me", "/api/me"));
+        assert!(path_matches("/api/me?fields=id", "/api/me"));
+        assert!(path_matches("/api/me/settings", "/api/me"));
+        assert!(path_matches("/api/me.json", "/api/me"));
+        assert!(!path_matches("/api/metadata", "/api/me"));
     }
 
     #[test]

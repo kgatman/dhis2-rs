@@ -76,9 +76,11 @@ impl IntoResponse for WebMessage {
     fn into_response(self) -> Response {
         let status = StatusCode::from_u16(self.http_status_code)
             .unwrap_or(StatusCode::INTERNAL_SERVER_ERROR);
-        let body = serde_json::to_vec(&self).unwrap_or_default();
+        let body = dhis_core_model::java::json::to_vec(&self);
         let mut resp = Response::new(Body::from(body));
         *resp.status_mut() = status;
+        // Written by the Jackson converter (@ResponseBody of the controller advice).
+        resp.extensions_mut().insert(super::rfd::ConverterWritten);
         // Measured: WebMessage bodies are `application/json` without a charset (unlike other
         // JSON responses).
         resp.headers_mut().insert(
@@ -106,7 +108,7 @@ mod tests {
             "Value 'abc' is not valid for parameter limit. For input string: \"abc\"",
         );
         assert_eq!(
-            serde_json::to_string(&m).unwrap(),
+            dhis_core_model::java::json::to_string(&m),
             r#"{"httpStatus":"Bad Request","httpStatusCode":400,"status":"ERROR","message":"Value 'abc' is not valid for parameter limit. For input string: \"abc\""}"#
         );
     }

@@ -13,7 +13,6 @@
 
 use std::sync::Arc;
 
-use axum::body::Body;
 use axum::extract::{Request, State};
 use axum::response::{IntoResponse, Response};
 use dhis_auth::CurrentUser;
@@ -253,14 +252,7 @@ pub async fn get_system_info(
     );
 
     let mut resp = match render(&node, fields) {
-        Ok(json) => {
-            let mut r = Response::new(Body::from(json));
-            r.headers_mut().insert(
-                header::CONTENT_TYPE,
-                HeaderValue::from_static("application/json;charset=UTF-8"),
-            );
-            r
-        }
+        Ok(json) => crate::http::json_response(json),
         Err(RenderError::Parse(msg)) => WebMessage::bad_request(msg).into_response(),
         Err(RenderError::Unsupported) => return fallback("field transformers"),
     };

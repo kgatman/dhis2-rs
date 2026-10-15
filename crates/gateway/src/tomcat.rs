@@ -41,6 +41,17 @@ pub fn is_valid_request_target(target: &str) -> bool {
         && query.is_none_or(|q| q.iter().all(|b| *b < 0x80 && is_query_char(*b)))
 }
 
+/// Whether the path has a `%` not followed by two hex digits; Tomcat's URI decoding
+/// (`CoyoteAdapter#postParseRequest`) answers 400 for it (measured: `/api/me/authorities/%zz`).
+pub fn has_malformed_path_escape(path: &str) -> bool {
+    let b = path.as_bytes();
+    b.iter().enumerate().any(|(i, c)| {
+        *c == b'%'
+            && !(b.get(i + 1).is_some_and(u8::is_ascii_hexdigit)
+                && b.get(i + 2).is_some_and(u8::is_ascii_hexdigit))
+    })
+}
+
 /// Whether decoding the query parameters fails the way Tomcat's `Parameters#processParameters`
 /// fails (malformed `%XX` escape, or bytes that are not UTF-8). Java then answers 409
 /// ("Character decoding failed. Parameter [...] has been ignored. ...").
@@ -81,6 +92,7 @@ pub fn has_parameter_decode_failure(query: Option<&str>) -> bool {
 
 #[cfg(test)]
 mod tests {
+    use super::has_malformed_path_escape;
     use super::has_parameter_decode_failure as bad;
     use super::is_valid_request_target as ok;
 
@@ -113,5 +125,8 @@ mod tests {
         assert!(!ok("/api/x?a=`b`"));
         assert!(!ok("/api/x?a=^"));
         assert!(!ok("/api/x?a#b"));
+        assert!(has_malformed_path_escape("/api/me/authorities/%zz"));
+        assert!(has_malformed_path_escape("/api/me/authorities/%2"));
+        assert!(!has_malformed_path_escape("/api/me/authorities/%20%C3%A9"));
     }
 }

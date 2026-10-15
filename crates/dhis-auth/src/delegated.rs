@@ -20,8 +20,8 @@ use hyper_util::rt::TokioExecutor;
 
 use crate::CurrentUser;
 
-/// Fields requested from `/api/me`; enough for authority checks.
-pub const ME_FIELDS: &str = "id,username,authorities";
+/// Fields requested from `/api/me`: authority checks, plus the session-bound user settings.
+pub const ME_FIELDS: &str = "id,username,authorities,settings";
 
 #[derive(Debug)]
 pub enum AuthOutcome {

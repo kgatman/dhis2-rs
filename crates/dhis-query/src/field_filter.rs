@@ -34,7 +34,7 @@ pub enum Node {
 }
 
 impl Node {
-    /// Compact JSON, keeping property order.
+    /// Compact JSON as Jackson writes it, keeping property order.
     pub fn write_json(&self, out: &mut String) {
         match self {
             Node::Bean { props, .. } | Node::Map(props) => {
@@ -43,7 +43,7 @@ impl Node {
                     if i > 0 {
                         out.push(',');
                     }
-                    out.push_str(&serde_json::to_string(k).unwrap_or_default());
+                    dhis_core_model::java::json::write_string(out, k);
                     out.push(':');
                     v.write_json(out);
                 }
@@ -59,7 +59,7 @@ impl Node {
                 }
                 out.push(']');
             }
-            Node::Scalar(v) => out.push_str(&serde_json::to_string(v).unwrap_or_default()),
+            Node::Scalar(v) => out.push_str(&dhis_core_model::java::json::to_string(v)),
         }
     }
 

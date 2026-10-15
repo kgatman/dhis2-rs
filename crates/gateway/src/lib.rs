@@ -18,6 +18,7 @@
 //!
 //! Rust requests are authenticated by Java and may fall back to Java ([`rust_side`], ADR 0004).
 
+pub mod firewall;
 pub mod routes;
 pub mod rust_side;
 mod shadow;
@@ -141,11 +142,14 @@ impl Gateway {
         let method = req.method().clone();
         let path = req.uri().path().to_string();
         let (mut backend, _) = self.routes().route(&method, &path);
-        // Requests Tomcat rejects (HTML 400) never reach a servlet; let Java answer them.
+        // Requests Tomcat or Spring Security's firewall reject (400) never reach a controller;
+        // let Java answer them.
         let target = req.uri().path_and_query().map_or("/", |p| p.as_str());
         if backend != Backend::Java
             && (!tomcat::is_valid_request_target(target)
-                || tomcat::has_parameter_decode_failure(req.uri().query()))
+                || tomcat::has_parameter_decode_failure(req.uri().query())
+                || tomcat::has_malformed_path_escape(req.uri().path())
+                || firewall::rejects(req.uri().path()))
         {
             backend = Backend::Java;
         }

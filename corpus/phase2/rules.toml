@@ -42,3 +42,8 @@ reason = "Derived from the request time (seconds resolution); can tick between t
 key = "intervalSinceLastAnalyticsTablePartitionSuccess"
 paths = ["/api/system/info", "/api/40/system/info"]
 reason = "Derived from the request time (seconds resolution); can tick between the two requests."
+
+[[ignore_key]]
+key = "lastUpdated"
+paths = ["/api/me"]
+reason = "Java stamps the user's lastUpdated on every basic-auth login (measured: consecutive basic-auth requests differ, requests on one session do not), so the Java and gateway requests see different values."

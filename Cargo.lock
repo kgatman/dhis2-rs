@@ -544,6 +544,7 @@ version = "0.1.0"
 name = "dhis-query"
 version = "0.1.0"
 dependencies = [
+ "dhis-core-model",
  "dhis-schema",
  "serde_json",
  "thiserror",

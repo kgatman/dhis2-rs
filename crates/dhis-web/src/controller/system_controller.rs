@@ -21,7 +21,7 @@ use serde::Serialize;
 
 pub use super::system_info::SystemInfoCache;
 use crate::http::negotiation::{Representation, choose};
-use crate::http::{RequestContext, fallback};
+use crate::http::{RequestContext, fallback, json_response};
 use crate::params::Params;
 use crate::{AppState, Authenticated};
 
@@ -45,14 +45,8 @@ struct CodeList {
 /// `ContextUtils.setNoStore(response)`.
 const NO_STORE: &str = "no-cache, no-store, max-age=0, must-revalidate";
 
-/// JSON as written by Spring's Jackson converter for a `@ResponseBody`.
 fn json_body(value: &impl Serialize) -> Response {
-    let mut r = Response::new(Body::from(serde_json::to_vec(value).unwrap_or_default()));
-    r.headers_mut().insert(
-        header::CONTENT_TYPE,
-        HeaderValue::from_static("application/json;charset=UTF-8"),
-    );
-    r
+    json_response(dhis_core_model::java::json::to_vec(value))
 }
 
 fn codes(limit: i32, generate: fn() -> String) -> Vec<String> {

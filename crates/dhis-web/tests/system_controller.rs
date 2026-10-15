@@ -29,6 +29,7 @@ fn admin() -> CurrentUser {
         id: "M5zQapPyTZI".into(),
         username: "admin".into(),
         authorities: vec!["ALL".into()],
+        settings: None,
     }
 }
 
