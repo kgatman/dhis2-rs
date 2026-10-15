@@ -1,4 +1,4 @@
-//! Hibernate mappings of hbm-mapped classes, generated from the pinned Java source by
+//! Hibernate mappings (hbm and JPA-annotated classes), generated from the pinned Java source by
 //! `dhis-inventory` (`data/hibernate/hbm-entities.json`, drift-checked in CI): the table, the
 //! identifier column and the column or relation behind each property name used in HQL.
 //! Every recorded column was checked against a Java-migrated database (all present).
@@ -25,14 +25,17 @@ pub struct Entity {
     pub has_subclasses: bool,
     #[serde(default)]
     pub discriminator: bool,
+    #[serde(default)]
+    pub composite_id: bool,
     pub properties: BTreeMap<String, MappedProperty>,
 }
 
 impl Entity {
-    /// A plain `<class>` mapped to one table, without inheritance: the only shape whose SQL is
-    /// derived directly so far.
+    /// A plain class (hbm `<class>` or JPA `@Entity`) mapped to one table, without inheritance:
+    /// the only shape whose SQL is derived directly so far.
     pub fn is_plain_class(&self) -> bool {
-        self.mapping == "class"
+        (self.mapping == "class" || self.mapping == "jpa")
+            && !self.composite_id
             && self.extends.is_none()
             && !self.has_subclasses
             && !self.discriminator
@@ -62,6 +65,26 @@ pub struct MappedProperty {
     pub class: Option<String>,
     #[serde(default)]
     pub formula: bool,
+    /// Collections: the join table, the owner's key column and the element class/column.
+    #[serde(default)]
+    pub table: Option<String>,
+    #[serde(default)]
+    pub key_column: Option<String>,
+    #[serde(default)]
+    pub element_class: Option<String>,
+    #[serde(default)]
+    pub element_column: Option<String>,
+    #[serde(default)]
+    pub inverse: bool,
+    /// The (secondary) table a join column lives in, when not the entity's own.
+    #[serde(default)]
+    pub column_table: Option<String>,
+    /// JPA `mappedBy`: the owning side's property on the element class.
+    #[serde(default)]
+    pub mapped_by: Option<String>,
+    /// JPA embeddable collapsed to its single column.
+    #[serde(default)]
+    pub embedded: bool,
     #[serde(default)]
     pub not_null: bool,
 }

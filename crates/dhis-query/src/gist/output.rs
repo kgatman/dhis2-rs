@@ -20,6 +20,7 @@ pub enum Cell {
     Int(i64),
     Bool(bool),
     Map(Vec<(String, String)>),
+    Array(Vec<String>),
 }
 
 /// `GistPager`.
@@ -185,6 +186,30 @@ fn write_value(out: &mut String, ty: OutputType, cell: &Cell, unwrapped: bool) -
         }
         (OutputType::Integer, Cell::Int(i)) => out.push_str(&i.to_string()),
         (OutputType::Boolean, Cell::Bool(b)) => out.push_str(if *b { "true" } else { "false" }),
+        (OutputType::StringArray, Cell::Array(items)) => {
+            out.push('[');
+            for (i, s) in items.iter().enumerate() {
+                if i > 0 {
+                    out.push(',');
+                }
+                write_string(out, s);
+            }
+            out.push(']');
+        }
+        // toIdObjects: an empty array is null (left out)
+        (OutputType::IdObjects, Cell::Array(items)) if items.is_empty() => return Ok(false),
+        (OutputType::IdObjects, Cell::Array(items)) => {
+            out.push('[');
+            for (i, s) in items.iter().enumerate() {
+                if i > 0 {
+                    out.push(',');
+                }
+                out.push_str("{\"id\":");
+                write_string(out, s);
+                out.push('}');
+            }
+            out.push(']');
+        }
         (OutputType::StringMap, Cell::Map(m)) => {
             out.push('{');
             for (i, (k, v)) in m.iter().enumerate() {

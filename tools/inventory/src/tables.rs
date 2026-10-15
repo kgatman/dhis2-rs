@@ -342,16 +342,16 @@ fn add_column(
 // JPA annotations
 // ---------------------------------------------------------------------------------------------
 
-fn has(anns: &[Annotation], name: &str) -> bool {
+pub(crate) fn has(anns: &[Annotation], name: &str) -> bool {
     anns.iter().any(|a| a.name == name)
 }
 
-fn ann<'a>(anns: &'a [Annotation], name: &str) -> Option<&'a Annotation> {
+pub(crate) fn ann<'a>(anns: &'a [Annotation], name: &str) -> Option<&'a Annotation> {
     anns.iter().find(|a| a.name == name)
 }
 
 /// Nested annotations in an attribute (single or array).
-fn nested(e: Option<&Expr>) -> Vec<&Annotation> {
+pub(crate) fn nested(e: Option<&Expr>) -> Vec<&Annotation> {
     match e {
         Some(Expr::Annotation(a)) => vec![a],
         Some(Expr::Array(items)) => items

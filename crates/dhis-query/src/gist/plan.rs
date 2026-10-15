@@ -12,7 +12,8 @@
 //! - filters: non-nested simple persisted properties, all operators but access checks, no
 //!   filter groups; values of type text, number, integer and boolean;
 //! - orders: simple persisted properties and translations;
-//! - superusers only (no sharing filter), plain hbm-mapped classes only.
+//! - plain hbm-mapped classes only; for other users than superusers, readable types only (field
+//!   access checks then pass for every field) and the sharing filter on the listed type.
 
 use std::collections::{HashMap, HashSet};
 
@@ -47,10 +48,27 @@ pub struct ListParams {
     pub context_root: String,
 }
 
-/// The current user as far as the query depends on it.
-#[derive(Debug, Clone, Copy)]
+/// The current user as far as the query depends on it (`DefaultGistAccessControl`).
+#[derive(Debug, Clone)]
 pub struct Access {
     pub superuser: bool,
+    /// `isAuthorized("Test_skipSharingCheck")`: no sharing filter.
+    pub skip_sharing_check: bool,
+    /// `aclService.canRead(user, elementType)` (the type's `READ` authorities).
+    pub can_read_type: bool,
+    /// The session's user id and sorted group ids; needed for the sharing filter.
+    pub user: Option<(String, Vec<String>)>,
+}
+
+impl Access {
+    pub fn superuser() -> Self {
+        Self {
+            superuser: true,
+            skip_sharing_check: true,
+            can_read_type: true,
+            user: None,
+        }
+    }
 }
 
 /// A database column value type, from the property's Java class.
@@ -61,6 +79,8 @@ pub enum ColumnType {
     Int,
     Long,
     Bool,
+    /// `text[]`/`varchar[]` (`array_agg`).
+    TextArray,
     /// `timestamp`; selected as text (`YYYY-MM-DD HH24:MI:SS.US`), rendered as Java renders the
     /// `java.util.Date` it becomes.
     Timestamp,
@@ -101,6 +121,10 @@ pub enum OutputType {
     Integer,
     Boolean,
     StringMap,
+    /// `String[]`: an array of strings.
+    StringArray,
+    /// `IdObject[]`: `[{"id": ...}]`, null when empty (`toIdObjects`).
+    IdObjects,
 }
 
 #[derive(Debug, Clone)]
@@ -243,20 +267,36 @@ fn transform_of_preference(p: &Property) -> Transform {
 }
 
 /// `GistLogic.effectiveTransform` for non-collection properties.
-fn effective_transform(p: &Property, target: Transform) -> Result<Transform> {
-    let target = if target == Transform::Auto {
+fn effective_transform(p: &Property, fallback: Transform, target: Transform) -> Transform {
+    let mut target = if target == Transform::Auto {
         transform_of_preference(p)
     } else {
         target
     };
-    if p.collection {
-        return Err(Unsupported("collection field"));
+    if !p.collection {
+        return if target == Transform::From {
+            Transform::From
+        } else {
+            Transform::None
+        };
     }
-    Ok(if target == Transform::From {
-        Transform::From
-    } else {
+    if target == Transform::Auto {
+        target = fallback;
+    }
+    if matches!(target, Transform::Ids | Transform::IdObjects)
+        && p.embedded_object
+        && is_persistent_collection_field(p)
+    {
+        return Transform::Size;
+    }
+    if target == Transform::None {
+        return Transform::Size;
+    }
+    if target == Transform::Auto {
         Transform::None
-    })
+    } else {
+        target
+    }
 }
 
 /// `GistPlanner#planFields`.
@@ -372,7 +412,7 @@ fn plan_fields(ctx: &Ctx, params: &ListParams) -> Result<Vec<Field>> {
             continue;
         }
         let p = ctx.resolve_mandatory(&f.property_path)?;
-        let t = effective_transform(p, f.transformation)?;
+        let t = effective_transform(p, params.auto.default_transformation(), f.transformation);
         if t != f.transformation {
             f.transformation = t;
             f.args.clear();
@@ -489,6 +529,13 @@ fn column(entity: &Entity, p: &Property) -> Result<(String, ColumnType)> {
         return Err(Unsupported("mapped property kind"));
     }
     let col = mapped.column.clone().ok_or(Unsupported("no column"))?;
+    // an enum stored by name: a text column, written with Enum#name()
+    if p.property_type.name() == "CONSTANT" {
+        return match mapped.hibernate_type.as_deref() {
+            Some("enum-string") => Ok((col, ColumnType::Text)),
+            _ => Err(Unsupported("enum mapping")),
+        };
+    }
     let ty = match p.klass.as_deref() {
         Some("java.lang.String") => ColumnType::Text,
         Some("java.lang.Double" | "double") => ColumnType::Double,
@@ -501,7 +548,8 @@ fn column(entity: &Entity, p: &Property) -> Result<(String, ColumnType)> {
     let type_ok = match mapped.hibernate_type.as_deref() {
         None => true,
         Some("text" | "string") => ty == ColumnType::Text,
-        Some("timestamp") => ty == ColumnType::Timestamp,
+        // `date` columns become a java.sql.Date at midnight, printed the same way
+        Some("timestamp" | "date") => ty == ColumnType::Timestamp,
         Some("double") => ty == ColumnType::Double,
         Some("integer") => ty == ColumnType::Int,
         Some("long") => ty == ColumnType::Long,
@@ -521,6 +569,7 @@ fn output_type(ty: ColumnType) -> OutputType {
         ColumnType::Int | ColumnType::Long => OutputType::Integer,
         ColumnType::Bool => OutputType::Boolean,
         ColumnType::Timestamp => OutputType::Date,
+        ColumnType::TextArray => OutputType::StringArray,
     }
 }
 
@@ -644,6 +693,10 @@ fn filter_sql(
     if !p.simple {
         return Err(Unsupported("filter on non-simple property"));
     }
+    if p.property_type.name() == "CONSTANT" {
+        // Jackson rejects names that are no constant of the enum; the constants are not known here
+        return Err(Unsupported("enum filter"));
+    }
     let (col, ty) = column(entity, p)?;
     let op = f.op;
     let string_length = ty == ColumnType::Text
@@ -727,13 +780,32 @@ fn complete_like_expression(op: Comparison, value: &str) -> String {
 /// `GistBuilder#createOrderByHQL`.
 fn order_sql(ctx: &Ctx, entity: &Entity, orders: &[Order], locale: &str) -> Result<String> {
     if orders.is_empty() {
-        if ctx
+        // properties with a gist order, by that order (stable): `<fieldName> asc`, which
+        // Hibernate resolves on the root entity (a reference sorts by its foreign key)
+        let mut by_order: Vec<&Property> = ctx
             .home
             .properties
             .iter()
-            .any(|p| p.gist_preferences.order.is_some())
-        {
-            return Err(Unsupported("gist default order"));
+            .filter(|p| p.gist_preferences.order.is_some())
+            .collect();
+        if !by_order.is_empty() {
+            by_order.sort_by_key(|p| p.gist_preferences.order);
+            let mut out = Vec::new();
+            for p in by_order {
+                let field = p.field_name.as_deref().ok_or(Unsupported("no field"))?;
+                let m = entity
+                    .properties
+                    .get(field)
+                    .ok_or(Unsupported("order property not mapped"))?;
+                let col = match m.kind.as_str() {
+                    "property" | "many-to-one" if !m.formula && m.column_table.is_none() => {
+                        m.column.as_deref().ok_or(Unsupported("no column"))?
+                    }
+                    _ => return Err(Unsupported("gist default order mapping")),
+                };
+                out.push(format!("e.{col} asc"));
+            }
+            return Ok(out.join(", "));
         }
         let id = entity.id.as_ref().ok_or(Unsupported("no id"))?;
         return Ok(format!("e.{} asc", id.column));
@@ -762,9 +834,9 @@ pub fn plan_list(
     params: &ListParams,
     access: Access,
 ) -> Result<ListPlan> {
-    if !access.superuser {
-        // the sharing filter needs the user's id and groups
-        return Err(Unsupported("non-superuser"));
+    if !access.superuser && !access.can_read_type {
+        // Java denies the fields (403) or, in presets, leaves most of them out
+        return Err(Unsupported("type not readable"));
     }
     let entity = hibernate::entity(&schema.klass).ok_or(Unsupported("not hbm-mapped"))?;
     if !entity.is_plain_class() || schema.klass == "org.hisp.dhis.attribute.Attribute" {
@@ -839,6 +911,7 @@ pub fn plan_list(
     let mut selects: Vec<String> = Vec::new();
     let mut slots: Vec<Slot> = Vec::new();
     let mut ref_entries: Vec<RefEntry> = Vec::new();
+    let mut joins: Vec<(String, String)> = Vec::new();
     let mut output: Vec<OutputProperty> = Vec::new();
     for (i, f) in fetch.iter().enumerate() {
         if is_refs(f) {
@@ -871,7 +944,9 @@ pub fn plan_list(
         } else if f.transformation == Transform::From {
             return Err(Unsupported("from transformation"));
         } else if is_persistent_reference_field(p) {
-            selects.push(reference_expr(entity, p, i)?);
+            let r = reference_expr(entity, p, i)?;
+            selects.push(r.select);
+            joins.extend(r.join);
             slots.push(Slot::Sql(ColumnType::Text));
             if p.identifiable_object
                 && params.references
@@ -887,6 +962,39 @@ pub fn plan_list(
             output.push(OutputProperty {
                 path: out_path,
                 ty: OutputType::String,
+            });
+        } else if is_persistent_collection_field(p) {
+            // createCollectionFieldHQL: apiEndpoints entry, then the transformation
+            if params.references
+                && let (Some(root), Some(id)) = (&endpoint_root, id_slot)
+            {
+                ref_entries.push(RefEntry {
+                    key: f.path().to_string(),
+                    id_slot: id,
+                    prefix: format!("{root}/"),
+                    suffix: format!("/{}/gist{url_params}", p.key()),
+                });
+            }
+            let join = collection_join(entity, p)?;
+            let owner_id = &entity.id.as_ref().ok_or(Unsupported("no id"))?.column;
+            let (expr, ty, out) =
+                collection_expr(&join, p, f.transformation, &access, owner_id, i)?;
+            selects.push(expr);
+            slots.push(Slot::Sql(ty));
+            output.push(OutputProperty {
+                path: out_path,
+                ty: out,
+            });
+        } else if p.collection && p.owning_role.is_some() {
+            // other mapped collections (element collections): `size(e.path)`, an Integer
+            let join = collection_join(entity, p)?;
+            let owner_id = &entity.id.as_ref().ok_or(Unsupported("no id"))?.column;
+            let (expr, ty, out) = collection_expr(&join, p, Transform::Size, &access, owner_id, i)?;
+            selects.push(expr);
+            slots.push(Slot::Sql(ty));
+            output.push(OutputProperty {
+                path: out_path,
+                ty: out,
             });
         } else if p.collection {
             return Err(Unsupported("collection field"));
@@ -926,15 +1034,21 @@ pub fn plan_list(
         }
         parts.join(junction)
     };
-    let access_sql = "1=1";
+    // createAccessFilterHQL: the sharing filter unless superuser or no persisted sharing
+    let access_sql = match ctx.home.property("sharing") {
+        Some(p) if p.persisted && !access.superuser => sharing_filter(entity, &access)?,
+        _ => "1=1".to_string(),
+    };
     let order = order_sql(&ctx, entity, &orders, &params.translation_locale)?;
     if selects.is_empty() {
         // only computed fields (cannot happen: href brings its id)
         return Err(Unsupported("no selected column"));
     }
     let select_list = selects.join(", ");
+    let join_from: String = joins.iter().map(|(j, _)| j.as_str()).collect();
+    let join_where: String = joins.iter().map(|(_, c)| format!("{c} and ")).collect();
     let fetch_sql = format!(
-        "select {select_list} from {table} e where ({filter_sql}) and ({access_sql}) order by {order} limit {} offset {offset}",
+        "select {select_list} from {table} e{join_from} where {join_where}({filter_sql}) and ({access_sql}) order by {order} limit {} offset {offset}",
         size.max(1)
     );
     let count_sql = params
@@ -952,13 +1066,252 @@ pub fn plan_list(
     })
 }
 
+/// How a persistent collection is stored.
+enum Join<'m> {
+    /// A join table (many-to-many, both sides): `key` points to the owner, `elem` to the item.
+    Table {
+        table: &'m str,
+        key: &'m str,
+        elem: &'m str,
+        item: &'m str,
+    },
+    /// Rows of the item table with a foreign key to the owner (one-to-many).
+    Child { table: &'m str, fk: &'m str },
+    /// An element collection table (values, not entities).
+    Elements { table: &'m str, key: &'m str },
+}
+
+/// The mapping of a persistent collection property of `entity`.
+fn collection_join<'m>(entity: &'m Entity, p: &Property) -> Result<Join<'m>> {
+    let field = p.field_name.as_deref().ok_or(Unsupported("no field"))?;
+    let m = entity
+        .properties
+        .get(field)
+        .ok_or(Unsupported("collection not in the mapping"))?;
+    let unsupported = Unsupported("collection mapping");
+    match m.kind.as_str() {
+        "set" | "list" | "bag" | "idbag" => {}
+        "element-collection" => {
+            return Ok(Join::Elements {
+                table: m.table.as_deref().ok_or(unsupported)?,
+                key: m.key_column.as_deref().ok_or(unsupported)?,
+            });
+        }
+        _ => return Err(unsupported),
+    }
+    let item = m.element_class.as_deref().ok_or(unsupported)?;
+    if let (Some(table), Some(key), Some(elem)) = (
+        m.table.as_deref(),
+        m.key_column.as_deref(),
+        m.element_column.as_deref(),
+    ) {
+        return Ok(Join::Table {
+            table,
+            key,
+            elem,
+            item,
+        });
+    }
+    let item_entity = hibernate::entity(item).ok_or(unsupported)?;
+    if !item_entity.is_plain_class() {
+        return Err(unsupported);
+    }
+    let item_table = item_entity.table.as_deref().ok_or(unsupported)?;
+    // JPA mappedBy: the owning side on the item class
+    if let Some(owner_prop) = m.mapped_by.as_deref() {
+        let o = item_entity.properties.get(owner_prop).ok_or(unsupported)?;
+        return match (o.kind.as_str(), &o.table, &o.key_column, &o.element_column) {
+            ("set" | "list" | "bag", Some(t), Some(k), Some(el)) => Ok(Join::Table {
+                table: t,
+                key: el,
+                elem: k,
+                item,
+            }),
+            ("many-to-one", _, _, _) if o.column_table.is_none() => Ok(Join::Child {
+                table: item_table,
+                fk: o.column.as_deref().ok_or(unsupported)?,
+            }),
+            _ => Err(unsupported),
+        };
+    }
+    // hbm one-to-many: the key column is on the item table
+    if m.table.is_none() && m.element_column.is_none() {
+        return Ok(Join::Child {
+            table: item_table,
+            fk: m.key_column.as_deref().ok_or(unsupported)?,
+        });
+    }
+    Err(unsupported)
+}
+
+/// `createCollectionFieldHQL` for the supported transformations, as Hibernate 5 renders them
+/// (`size()`: a count of the collection's rows; `elements()`: `item.id in (join.elem)` over a
+/// cross join).
+fn collection_expr(
+    join: &Join<'_>,
+    p: &Property,
+    t: Transform,
+    access: &Access,
+    owner_id: &str,
+    index: usize,
+) -> Result<(String, ColumnType, OutputType)> {
+    let item_entity = match join {
+        Join::Table { item, .. } => hibernate::entity(item).filter(|e| e.is_plain_class()),
+        _ => None,
+    };
+    let item_schema = p.item_klass.as_deref().and_then(registered::by_klass);
+    let filter_by_sharing = !access.superuser
+        && item_schema
+            .and_then(|s| s.property("sharing"))
+            .is_some_and(|s| s.persisted);
+    let a = format!("i{index}");
+    let j = format!("j{index}");
+    match t {
+        Transform::Size if !filter_by_sharing => {
+            let (table, key) = match join {
+                Join::Table { table, key, .. } | Join::Elements { table, key } => (table, key),
+                Join::Child { table, fk } => (table, fk),
+            };
+            Ok((
+                format!(
+                    "(select count({j}.{key}) from {table} {j} where e.{owner_id} = {j}.{key})"
+                ),
+                ColumnType::Long,
+                OutputType::Integer,
+            ))
+        }
+        Transform::Size | Transform::Ids | Transform::IdObjects => {
+            // `elements()`: the item rows whose id is in the collection's join rows; for a
+            // one-to-many those join rows are the item table itself
+            let child_entity;
+            let (table, key, elem, item_entity) = match join {
+                Join::Table {
+                    table, key, elem, ..
+                } => (
+                    *table,
+                    *key,
+                    *elem,
+                    item_entity.ok_or(Unsupported("item mapping"))?,
+                ),
+                Join::Child { table, fk } => {
+                    child_entity = p
+                        .item_klass
+                        .as_deref()
+                        .and_then(hibernate::entity)
+                        .filter(|e| e.is_plain_class())
+                        .ok_or(Unsupported("item mapping"))?;
+                    let id = &child_entity
+                        .id
+                        .as_ref()
+                        .ok_or(Unsupported("item id"))?
+                        .column;
+                    (*table, *fk, id.as_str(), child_entity)
+                }
+                Join::Elements { .. } => {
+                    return Err(Unsupported("collection transformation on this mapping"));
+                }
+            };
+            let item_table = item_entity
+                .table
+                .as_deref()
+                .ok_or(Unsupported("item table"))?;
+            let item_id = &item_entity
+                .id
+                .as_ref()
+                .ok_or(Unsupported("item id"))?
+                .column;
+            let access_sql = if filter_by_sharing {
+                sharing_filter_on(item_entity, access, &a)?
+            } else {
+                "1=1".to_string()
+            };
+            let from = format!(
+                "from {item_table} {a} cross join {table} {j} where e.{owner_id}={j}.{key} and ({a}.{item_id} in ({j}.{elem})) and {access_sql}"
+            );
+            if t == Transform::Size {
+                return Ok((
+                    format!("(select count(*) {from})"),
+                    ColumnType::Long,
+                    OutputType::Integer,
+                ));
+            }
+            // determineReferenceProperty: the item's id property (uid)
+            let item_schema = item_schema.ok_or(Unsupported("item schema"))?;
+            let id = item_schema
+                .property("id")
+                .filter(|p| p.persisted)
+                .ok_or(Unsupported("item without id"))?;
+            if item_schema.klass.ends_with(".Period") || item_schema.klass.ends_with(".PeriodType")
+            {
+                return Err(Unsupported("period items"));
+            }
+            let (uid, _) = column(item_entity, id)?;
+            Ok((
+                format!("(select array_agg({a}.{uid}) {from})"),
+                ColumnType::TextArray,
+                if t == Transform::Ids {
+                    OutputType::StringArray
+                } else {
+                    OutputType::IdObjects
+                },
+            ))
+        }
+        _ => Err(Unsupported("collection transformation")),
+    }
+}
+
+/// `JpaQueryUtils.generateHqlQueryForSharingCheck(alias, user, "r%")` on `e` (HQL's
+/// `jsonb_extract_path_text` for `->>`).
+fn sharing_filter(entity: &Entity, access: &Access) -> Result<String> {
+    sharing_filter_on(entity, access, "e")
+}
+
+/// The sharing filter on the rows of `entity` aliased `alias`.
+fn sharing_filter_on(entity: &Entity, access: &Access, alias: &str) -> Result<String> {
+    if access.skip_sharing_check {
+        return Ok("1=1".into());
+    }
+    let (uid, groups) = access
+        .user
+        .as_ref()
+        .ok_or(Unsupported("session identity unknown"))?;
+    let column = entity
+        .properties
+        .get("sharing")
+        .filter(|m| m.kind == "property")
+        .and_then(|m| m.column.as_deref())
+        .ok_or(Unsupported("no sharing column"))?;
+    let s = format!("{alias}.{column}");
+    let uid = sql_literal_safe(uid)?;
+    for g in groups {
+        sql_literal_safe(g)?;
+    }
+    let access_pattern = "r%";
+    let mut sql = format!(
+        " ( jsonb_extract_path_text({s}, 'owner') is null or jsonb_extract_path_text({s}, 'owner') = '{uid}')  \
+         or jsonb_extract_path_text({s}, 'public') like '{access_pattern}' or jsonb_extract_path_text({s}, 'public') is null  \
+         or (jsonb_has_user_id( {s}, '{uid}') = true  and jsonb_check_user_access( {s}, '{uid}', '{access_pattern}' ) = true )  "
+    );
+    if !groups.is_empty() {
+        let ids = format!("{{{}}}", groups.join(","));
+        sql.push_str(&format!(
+            " or ( jsonb_has_user_group_ids( {s}, '{ids}') = true  and jsonb_check_user_groups_access( {s}, '{access_pattern}', '{ids}') = true )"
+        ));
+    }
+    Ok(format!("({sql})"))
+}
+
 /// `GistBuilder#createReferenceFieldHQL` for a non-required reference to an identifiable type
 /// with its own endpoint: `(select R.uid from Target R where R = e.ref)`.
-fn reference_expr(entity: &Entity, p: &Property, index: usize) -> Result<String> {
-    if p.required {
-        // Java navigates `e.ref.uid` (an implicit join) then
-        return Err(Unsupported("required reference"));
-    }
+/// How a reference field is selected.
+struct Reference {
+    /// The selected expression.
+    select: String,
+    /// For required references: the inner join Hibernate makes for `e.ref.uid` (fetch query only).
+    join: Option<(String, String)>,
+}
+
+fn reference_expr(entity: &Entity, p: &Property, index: usize) -> Result<Reference> {
     let target_klass = p.klass.as_deref().ok_or(Unsupported("no class"))?;
     if target_klass.ends_with(".PeriodType") || target_klass.ends_with(".Period") {
         return Err(Unsupported("period reference"));
@@ -982,7 +1335,10 @@ fn reference_expr(entity: &Entity, p: &Property, index: usize) -> Result<String>
         .properties
         .get(field_name)
         .ok_or(Unsupported("reference not in the mapping"))?;
-    if mapped.kind != "many-to-one" || mapped.class.as_deref() != Some(target_klass) {
+    if mapped.kind != "many-to-one"
+        || mapped.class.as_deref() != Some(target_klass)
+        || mapped.column_table.is_some()
+    {
         return Err(Unsupported("reference mapping"));
     }
     let fk = mapped
@@ -1006,9 +1362,23 @@ fn reference_expr(entity: &Entity, p: &Property, index: usize) -> Result<String>
         .collect::<String>()
         .to_lowercase()
         + &index.to_string();
-    Ok(format!(
-        "(select {alias}.{uid_col} from {t_table} {alias} where {alias}.{t_id} = e.{fk})"
-    ))
+    if p.required {
+        // `e.ref.uid`: Hibernate 5 renders an inner (theta) join, so rows without the reference
+        // drop out of the page (not of the count, which has no join)
+        return Ok(Reference {
+            select: format!("{alias}.{uid_col}"),
+            join: Some((
+                format!(" cross join {t_table} {alias}"),
+                format!("e.{fk}={alias}.{t_id}"),
+            )),
+        });
+    }
+    Ok(Reference {
+        select: format!(
+            "(select {alias}.{uid_col} from {t_table} {alias} where {alias}.{t_id} = e.{fk})"
+        ),
+        join: None,
+    })
 }
 
 #[cfg(test)]
@@ -1036,11 +1406,13 @@ mod tests {
         registered::by_singular("constant").unwrap()
     }
 
-    const SUPER: Access = Access { superuser: true };
+    fn sup() -> Access {
+        Access::superuser()
+    }
 
     #[test]
     fn default_bridge_fields() {
-        let p = plan_list(constant(), &params("id,displayName"), SUPER).unwrap();
+        let p = plan_list(constant(), &params("id,displayName"), sup()).unwrap();
         assert_eq!(
             p.fetch_sql,
             "select e.uid, coalesce(jsonb_get_translated_value(e.translations, 'NAME', 'en'), e.name) from constant e where (1=1) and (1=1) order by e.constantid asc limit 50 offset 0"
@@ -1051,7 +1423,7 @@ mod tests {
 
     #[test]
     fn all_fields_of_constant() {
-        let p = plan_list(constant(), &params("*"), SUPER).unwrap();
+        let p = plan_list(constant(), &params("*"), sup()).unwrap();
         let mut names: Vec<&str> = p.output.iter().map(|o| o.path.as_str()).collect();
         // apiEndpoints comes last; the rest follows Java's HashMap order within a type
         assert_eq!(names.pop(), Some("apiEndpoints"));
@@ -1085,7 +1457,7 @@ mod tests {
         q.page = 2;
         q.page_size = 3;
         q.total = true;
-        let p = plan_list(constant(), &q, SUPER).unwrap();
+        let p = plan_list(constant(), &q, sup()).unwrap();
         assert!(p.fetch_sql.contains(
             "where (e.value > $1 and lower(e.name) like lower($2) and e.code is not null and length(e.name) > $3)"
         ), "{}", p.fetch_sql);
@@ -1113,7 +1485,7 @@ mod tests {
         let un = |fields: &str, filter: &str| {
             let mut q = params(fields);
             q.filter = filter.into();
-            plan_list(constant(), &q, SUPER).err()
+            plan_list(constant(), &q, sup()).err()
         };
         assert!(un("sharing", "").is_some());
         assert!(un("access", "").is_some());
@@ -1129,13 +1501,93 @@ mod tests {
         assert!(un("id", "name:ilike:é").is_some());
         let mut q = params("id");
         q.page_size = 0;
-        assert!(plan_list(constant(), &q, SUPER).is_err());
-        assert!(plan_list(constant(), &params("id"), Access { superuser: false }).is_err());
+        assert!(plan_list(constant(), &q, sup()).is_err());
+        let user = |id: Option<(String, Vec<String>)>, readable| Access {
+            superuser: false,
+            skip_sharing_check: false,
+            can_read_type: readable,
+            user: id,
+        };
+        assert!(plan_list(constant(), &params("id"), user(None, true)).is_err());
+        assert!(
+            plan_list(
+                constant(),
+                &params("id"),
+                user(Some(("Crp0User001".into(), vec![])), false)
+            )
+            .is_err()
+        );
+    }
+
+    #[test]
+    fn sharing_filter_for_users() {
+        let a = Access {
+            superuser: false,
+            skip_sharing_check: false,
+            can_read_type: true,
+            user: Some((
+                "Crp0User001".into(),
+                vec!["Crp0Grp0001".into(), "Grp2".into()],
+            )),
+        };
+        let p = plan_list(constant(), &params("id"), a.clone()).unwrap();
+        assert!(p.fetch_sql.contains(
+            "where (1=1) and (( ( jsonb_extract_path_text(e.sharing, 'owner') is null or jsonb_extract_path_text(e.sharing, 'owner') = 'Crp0User001')"
+        ), "{}", p.fetch_sql);
+        assert!(p.fetch_sql.contains(
+            "jsonb_check_user_groups_access( e.sharing, 'r%', '{Crp0Grp0001,Grp2}') = true ))"
+        ));
+        let no_groups = Access {
+            user: Some(("Crp0User001".into(), vec![])),
+            ..a.clone()
+        };
+        let p = plan_list(constant(), &params("id"), no_groups).unwrap();
+        assert!(!p.fetch_sql.contains("group"));
+        let skip = Access {
+            skip_sharing_check: true,
+            user: None,
+            ..a
+        };
+        let p = plan_list(constant(), &params("id"), skip).unwrap();
+        assert!(p.fetch_sql.contains("where (1=1) and (1=1)"));
+        let bad = Access {
+            superuser: false,
+            skip_sharing_check: false,
+            can_read_type: true,
+            user: Some(("x'y".into(), vec![])),
+        };
+        assert!(plan_list(constant(), &params("id"), bad).is_err());
+    }
+
+    #[test]
+    fn collections_required_references_and_default_order() {
+        let ug = registered::by_singular("userGroup").unwrap();
+        let p = plan_list(ug, &params("id,users::size,users::ids"), sup()).unwrap();
+        assert!(p.fetch_sql.contains(
+            "(select count(j1.usergroupid) from usergroupmembers j1 where e.usergroupid = j1.usergroupid)"
+        ), "{}", p.fetch_sql);
+        assert!(p.fetch_sql.contains(
+            "(select array_agg(i2.uid) from userinfo i2 cross join usergroupmembers j2 where e.usergroupid=j2.usergroupid and (i2.userinfoid in (j2.userid)) and 1=1)"
+        ), "{}", p.fetch_sql);
+        let os = registered::by_singular("optionSet").unwrap();
+        let p = plan_list(os, &params("id,options::ids"), sup()).unwrap();
+        assert!(p.fetch_sql.contains(
+            "from optionvalue i1 cross join optionvalue j1 where e.optionsetid=j1.optionsetid and (i1.optionvalueid in (j1.optionvalueid))"
+        ), "{}", p.fetch_sql);
+        let de = registered::by_singular("dataElement").unwrap();
+        let p = plan_list(de, &params("id,categoryCombo"), sup()).unwrap();
+        assert!(p.fetch_sql.contains(
+            "from dataelement e cross join categorycombo cc1 where e.categorycomboid=cc1.categorycomboid and (1=1)"
+        ), "{}", p.fetch_sql);
+        assert!(p.count_sql.is_none());
+        let opt = registered::by_singular("option").unwrap();
+        let p = plan_list(opt, &params("id"), sup()).unwrap();
+        assert!(p.fetch_sql.contains("order by e.optionsetid asc, e.code asc"), "{}", p.fetch_sql);
     }
 
     #[test]
     fn href_adds_id_support_field() {
-        let p = plan_list(constant(), &params("href"), SUPER).unwrap();
+        let p = plan_list(constant(), &params("href"), sup()).unwrap();
         assert_eq!(p.output.len(), 1);
         assert_eq!(p.slots.len(), 2);
         assert!(p.fetch_sql.starts_with("select e.uid from constant e"));

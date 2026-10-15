@@ -22,8 +22,12 @@ columns from `*.hbm.xml` files and JPA annotations.
 1. `dhis-inventory` generates `crates/dhis-schema/data/hibernate/hbm-entities.json` from the
    `*.hbm.xml` files of the pinned source: per class its table, identifier column and, per
    property, its column, type, relation target, plus inheritance flags. CI checks it for drift
-   like the other inventory outputs. All 1694 recorded columns were checked against a
-   Java-migrated database (all present). JPA-annotated classes are not covered yet.
+   like the other inventory outputs. JPA-annotated (`@Entity`) classes are added in the same
+   shape from their annotations (JPA defaults where no name is given). All 2549 recorded columns
+   were checked against a Java-migrated database (all present). Where the mapping and the
+   database could disagree (not-null flags), the SQL follows Hibernate's own form instead of
+   relying on the flag. The SQL forms for collections and references were taken from the
+   statements Hibernate 5 actually sends (PostgreSQL statement log).
 2. `dhis_query::gist` ports the engine for list queries and writes the SQL Hibernate's
    translation amounts to (`e.<property>` → `e.<column>`, entity comparison → identifier
    columns, `setFirstResult`/`setMaxResults` → `offset`/`limit`, HQL functions DHIS2 registers

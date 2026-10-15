@@ -8,9 +8,8 @@
 //! | `getObjectListCsv`, `getObject`, `getObjectProperty`, the other Gist handlers | | Java |
 //!
 //! Requests the Gist engine port cannot answer, including every request Java answers with an
-//! error, go to Java (`dhis_query::gist::Unsupported`). Only superusers are served so far: the
-//! sharing filter needs the user's id and groups, which the delegated authentication does not
-//! provide (see PORT_STATUS.md).
+//! error, go to Java (`dhis_query::gist::Unsupported`). Other users than superusers need the
+//! session's identity for the sharing filter (ADR 0009); without it the request goes to Java.
 
 use std::sync::Arc;
 
@@ -34,7 +33,23 @@ use crate::params::Params;
 use crate::{AppState, Authenticated};
 
 /// Metadata types (singular names) whose list endpoints are routed here.
-pub const GIST_TYPES: &[&str] = &["constant"];
+pub const GIST_TYPES: &[&str] = &[
+    "constant",
+    "dataElement",
+    "dataElementGroup",
+    "option",
+    "optionSet",
+    "legendSet",
+    "categoryOption",
+    "category",
+    "categoryCombo",
+    "indicator",
+    "indicatorType",
+    "organisationUnit",
+    "organisationUnitGroup",
+    "userGroup",
+    "userRole",
+];
 
 pub fn routes() -> Router<Arc<AppState>> {
     let mut r = Router::new();
@@ -217,13 +232,27 @@ fn json_requested(req: &Request) -> bool {
     ) == Some(Representation::Json)
 }
 
-fn superuser(user: &CurrentUser) -> Result<Access, JavaFallback> {
-    match user.is_super() {
-        Some(true) => Ok(Access { superuser: true }),
-        // the sharing filter needs the user's id and groups (not available yet)
-        Some(false) => Err(fb("gist for non-superusers")),
-        None => Err(fb("no authorities")),
-    }
+/// `DefaultGistAccessControl` inputs for `user` listing `schema`: `aclService.canRead(user,
+/// type)` (any of the type's `READ` authorities, if it has some), and the session identity for
+/// the sharing filter (`CurrentUser::identity`, ADR 0009).
+fn access(user: &CurrentUser, schema: &RegisteredSchema) -> Result<Access, JavaFallback> {
+    let authorities = user
+        .authorities
+        .as_ref()
+        .ok_or_else(|| fb("no authorities"))?;
+    let superuser = user.is_super() == Some(true);
+    let read = schema.authorities_by_type("READ");
+    Ok(Access {
+        superuser,
+        skip_sharing_check: user.is_authorized("Test_skipSharingCheck") == Some(true),
+        can_read_type: superuser
+            || read.is_empty()
+            || read.iter().any(|a| authorities.iter().any(|u| u == a)),
+        user: user
+            .identity
+            .as_ref()
+            .map(|i| (i.uid.clone(), i.group_ids.clone())),
+    })
 }
 
 /// `getObjectListGist`: `GET /api/{type}/gist`.
@@ -236,7 +265,7 @@ async fn get_object_list_gist(
     if !json_requested(&req) {
         return fallback("content negotiation");
     }
-    let access = match superuser(&user) {
+    let access = match access(&user, schema) {
         Ok(a) => a,
         Err(r) => return r.into_response(),
     };
@@ -262,11 +291,14 @@ async fn get_object_list(
     if !json_requested(&req) {
         return fallback("content negotiation");
     }
-    // aclService.canRead(currentUser, type): superusers only here
-    let access = match superuser(&user) {
+    let access = match access(&user, schema) {
         Ok(a) => a,
         Err(r) => return r.into_response(),
     };
+    if !access.can_read_type {
+        // ForbiddenException: "You don't have the proper permissions to read objects of this type."
+        return fallback("type not readable");
+    }
     let params = Params::parse(req.uri().query());
     let binder = Binder { params: &params };
     // GetObjectListParams binding (errors are Java's to report)
@@ -548,6 +580,7 @@ fn decode(row: &sqlx::postgres::PgRow, i: usize, ty: ColumnType) -> Option<Cell>
         ColumnType::Int => get::<i32>(row, i)?.map_or(Cell::Null, |v| Cell::Int(v.into())),
         ColumnType::Long => get::<i64>(row, i)?.map_or(Cell::Null, Cell::Int),
         ColumnType::Bool => get::<bool>(row, i)?.map_or(Cell::Null, Cell::Bool),
+        ColumnType::TextArray => get::<Vec<String>>(row, i)?.map_or(Cell::Null, Cell::Array),
         ColumnType::Timestamp => match get::<String>(row, i)? {
             None => Cell::Null,
             Some(t) => Cell::Text(java_date(&t)?),

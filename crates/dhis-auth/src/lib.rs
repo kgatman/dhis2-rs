@@ -7,6 +7,7 @@
 //! [`delegated::JavaAuthenticator`].
 
 pub mod delegated;
+pub mod sessions;
 
 use serde::de::{MapAccess, Visitor};
 use serde::{Deserialize, Deserializer};
@@ -25,6 +26,9 @@ pub struct CurrentUser {
     /// (`SessionUserSettings`, refreshed on authentication and on user-setting writes, not on
     /// system-setting writes), so they cannot be recomputed from the database (ADR 0006).
     pub settings: Option<JsonMembers>,
+    /// The user id and group ids of the session's `UserDetails`, for sharing checks; `None`
+    /// unless the route needs them and they are known (`sessions`, ADR 0009).
+    pub identity: Option<sessions::Identity>,
 }
 
 /// The members of a JSON object in document order, each value as the exact JSON text Java wrote.

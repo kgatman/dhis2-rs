@@ -19,6 +19,7 @@
 //! Rust requests are authenticated by Java and may fall back to Java ([`rust_side`], ADR 0004).
 
 pub mod firewall;
+pub mod identity;
 pub mod routes;
 pub mod rust_side;
 mod shadow;
@@ -61,6 +62,9 @@ pub struct Config {
     /// Authenticate Rust-routed requests through Java (`dhis_auth::delegated`, phases 1–6). Off only in
     /// tests and for routers without authenticated endpoints.
     pub delegate_auth: bool,
+    /// Records session identities from the relayed traffic for Rust's sharing checks (ADR
+    /// 0009); `None` disables them (Rust then serves superusers only on those routes).
+    pub identity: Option<Arc<identity::IdentityTracker>>,
 }
 
 pub struct Gateway {
@@ -84,7 +88,7 @@ impl Gateway {
             .delegate_auth
             .then(|| dhis_auth::delegated::JavaAuthenticator::new(config.java_upstream.clone()));
         Self {
-            rust: Arc::new(RustSide::new(rust, auth)),
+            rust: Arc::new(RustSide::new(rust, auth, config.identity.clone())),
             config,
             routes: RwLock::new(Arc::new(routes)),
             client,
@@ -153,11 +157,19 @@ impl Gateway {
         {
             backend = Backend::Java;
         }
+        let observed = self
+            .config
+            .identity
+            .as_ref()
+            .map(|t| t.observe(&path, req.headers()));
         let resp = match backend {
             Backend::Java => self.to_java(req.map(box_incoming), peer).await,
             Backend::Rust => self.to_rust(req, peer).await,
             Backend::Shadow => self.to_shadow(req, peer).await,
         };
+        if let (Some(t), Some(o)) = (&self.config.identity, observed) {
+            t.after_response(o, resp.status(), resp.headers());
+        }
         debug!(
             %method, %path, ?backend, status = resp.status().as_u16(),
             elapsed_ms = start.elapsed().as_millis() as u64, "request"

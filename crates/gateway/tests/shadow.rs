@@ -72,6 +72,7 @@ async fn setup(rules: &str) -> (Arc<Gateway>, std::net::SocketAddr) {
                 ..ShadowConfig::default()
             },
             delegate_auth: false,
+            identity: None,
         },
         routes,
         rust,

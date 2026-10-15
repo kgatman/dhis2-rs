@@ -7,8 +7,8 @@ _Read this first at the start of every session; update it at the end._
 - **Current phase:** 2 (read-only metadata). Slices 1–3 (`/api/system/{uid,id,uuid}`,
   `/api/system/info` + the `fields=` engine, the `/api/me` authorities and settings sub-resources)
   and slice 4 (`/api/schemas`, `/{type}`, `/{type}/{property}`) are `rust`. Slice 5 (the Gist
-  engine: `/api/constants` via the Gist bridge and `/api/constants/gist`) is `rust-shadow`
-  (superusers only, see open problem 8).
+  engine: `/api/constants` via the Gist bridge and `/api/constants/gist`) is routed to Rust for
+  all users with a known session identity (ADR 0009), `rust-shadow` until CI e2e confirms.
 - **CI:** GitHub `kgatman/dhis2-rs`. `ci` and `e2e-through-gateway` green at `b7f2d1f` (with the
   `/api/schemas` handlers on Rust).
 
@@ -16,7 +16,7 @@ _Read this first at the start of every session; update it at the end._
 
 | Inventory | Total | `java` | `rust-shadow` | `rust` |
 |---|---:|---:|---:|---:|
-| Endpoint rows (method × path), `docs/inventory/endpoints.csv` | 3092 | 3075 | 2 | 15 |
+| Endpoint rows (method × path), `docs/inventory/endpoints.csv` | 3092 | 3047 | 30 | 15 |
 | — distinct handler methods | 770 | 757 | 2 | 11 |
 | — controllers | 195 | 195 | 0 | 0 |
 | Job types, `docs/inventory/jobs.csv` | 43 | 43 | 0 | 0 |
@@ -56,8 +56,40 @@ Regenerate the inventory with `tools/gen-inventory.sh`. CI fails if it is stale.
 - Latency (release, session cookie, p95 Java vs Rust): `/api/constants` 2.4 vs 2.8 ms, 60 rows
   with 5 fields 2.7 vs 2.8, `/gist?fields=id,name` 1.9 vs 2.3, `/gist` (all fields) 2.2 vs 3.1,
   filtered+ordered page with total 8.3 vs 3.3 (G7).
-- Routes are `shadow`: non-superusers fall back after the two auth calls, which would make their
-  requests slower than Java.
+- Then (same session, decided with the owner): **session identity records** (ADR 0009). Java
+  fixes a session's user id and group ids at login (measured: a removed group member's old
+  session still reads the group's objects); the gateway records them when it sees a session
+  created (database lookup for basic auth, `/api/me` right after other logins) and drops them on
+  impersonation, account creation and logout paths. Rust then applies the sharing filter
+  (`JpaQueryUtils.generateHqlQueryForSharingCheck`) and the type's `READ` authorities.
+  Native sessions were ruled out before cutover: Java keeps sessions in Tomcat memory.
+- The mapping generator now also records collection joins (table, key and element columns; 225
+  checked against the DB). `dhis_db::users::identity_by_username` is built from them.
+- Evidence: corpus 259/259 with a non-superuser (basic auth) served by Rust; through the gateway
+  on cookie sessions (form login and basic-auth-created sessions) served by Rust and equal to
+  Java on the same session, including the stale-group case (old session 45 rows, new 30);
+  sessions unknown to the gateway fall back and match. Latency, non-superuser cookie session, p95
+  Java vs Rust: `/api/constants` 3.3 vs 3.1 ms, `/gist?fields=id,name` 2.8 vs 2.7, filtered page
+  with total 3.5 vs 3.5; basic auth ~70 ms on both (password hashing).
+- Routes `rust` in `config/routes.toml`.
+- Then: **14 more types** on the same handlers (`GIST_TYPES`: dataElement, dataElementGroup,
+  option, optionSet, legendSet, categoryOption, category, categoryCombo, indicator,
+  indicatorType, organisationUnit, organisationUnitGroup, userGroup, userRole; their controllers
+  were checked for list-hook overrides). Needed: **JPA-annotated entities** in the generated
+  mappings (44 classes; fields, `@MappedSuperclass` chains, embedded `TranslationProperty`,
+  `@JoinTable`/`mappedBy`/`@JoinColumn` collections, enums, secondary-table join columns,
+  composite ids), hbm enum types, and in the planner: collection `size`/`ids`/`idObjects`
+  (join tables, one-to-many, element collections; sharing-filtered items), required references
+  as Hibernate's inner join, the Gist default order (`option`), `date` columns, enums stored by
+  name. The SQL forms were taken from Hibernate's own statements (PostgreSQL statement log).
+  All 2549 mapped columns verified against the DB; mapping not-null flags are not reliable (8
+  differ from the DB), so nothing relies on them.
+- Fixtures: option sets, a legend set, categories/combo, 12 data elements, groups, indicators,
+  an org unit tree. Evidence: `corpus/phase2/gist-types.jsonl` **226/226**, with the constants
+  corpus 485/485 (345 answered by Rust).
+- Not yet (fall back): JSONB values (`sharing`, `translations`, `attributeValues`, `style`; the
+  `L`/`M`/`XL` auto levels include them), enum filters, custom user types (`category`
+  `dataDimensionType`), `isEmpty`/`isNotEmpty`/`pluck`/`member`, nested fields.
 
 ## Delegated auth cost (session 2)
 
@@ -237,23 +269,23 @@ Tracer bullet that built the shared Web API layer every later endpoint reuses:
    record which tests fail without the gateway.
 7. **Delegated auth adds ~1–2 ms at p95** to the smallest Rust responses (one cheap Java request
    plus the proxy hop; deviation G7). Removed by native auth (phase 7).
-8. **Identity for sharing checks.** Every list of a shareable type needs, for non-superusers, a
-   sharing filter on the session user's id and group ids (`UserDetails`, a snapshot taken at
-   login). No cheap Java endpoint returns them (`/api/me` builds the whole `MeDto`, 2.5–8 ms);
-   sessions live in Tomcat's memory. Until decided, Gist routes serve superusers only and stay
-   `shadow`. Options: an expensive `/api/me?fields=id,userGroups[id]` probe (slower than Java),
-   the database for basic auth only (Java rebuilds `UserDetails` per basic-auth request, so that
-   is exact) with fallback for sessions, or native sessions earlier than phase 7 (phase-order
-   change: owner decision).
+9. **Latency evidence is informal** (owner decision, 2026-10-15: benchmarks after the porting
+   work). The p95 figures in this file are one-off shell loops on a tiny local DB (Java on JDK
+   17), not the charter's demo-DB comparison. To do later: a benchmark script with fixed
+   endpoints and recorded environment, `docs/perf/latency.md` with history, and runs on the
+   Sierra Leone demo DB before the cutover gate.
+8. **Session identity records** (ADR 0009) depend on all traffic passing through one gateway and
+   are lost on a gateway restart (those sessions fall back until their users log in again, G8).
+   Token (PAT/OAuth2 bearer) requests always fall back on identity routes; supporting them needs
+   the token's user (Java resolves it per request: a database lookup like basic auth).
 
 ## Next three tasks (end of session 2)
 
-1. **Decide identity for non-superusers** (open problem 8, owner decision), then the sharing
-   filter (`JpaQueryUtils.generateHqlQueryForSharingCheck`) and `aclService.canRead(user, type)`,
-   and flip the Gist routes to `rust` once CI e2e is green.
-2. **Widen the Gist port**: JSONB values (`sharing`, `translations`, `attributeValues`, `access`),
-   collections (`size`, `ids`, `pluck`), nested reference fields, date filters, single-object
-   `/api/{type}/{uid}/gist`; then more types (needs JPA mappings in the generator for some).
+1. **CI e2e with the Gist routes on Rust**, then mark the two constants rows `rust`.
+2. **Java value serialisation** for JSONB-backed values (`Sharing`, translations sets,
+   `AttributeValues`, `ObjectStyle`) with Jackson's output and `HashSet`/`HashMap` orders: needed
+   by the Gist `L`/`M`/`XL` levels and by the metadata query engine. Then nested fields, enum
+   filters (enum constants from the source), single-object `/api/{type}/{uid}/gist`, more types.
 3. **Metadata query engine** for the non-Gist lists (`fields=*`, presets) and
    `getObject`: `QueryService`, the field filter over DB-loaded entities, `href`/`access`.
    `/api/me` (`MeDto`) follows, as it needs the same pieces.

@@ -9,7 +9,8 @@
     "properties": {
       "analyticsTableType": {
         "column": "analyticstabletype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "code": {
         "column": "code",
@@ -40,11 +41,13 @@
       "phase": {
         "column": "analyticstablephase",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "resourceTableType": {
         "column": "resourcetabletype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "sql": {
         "column": "sql",
@@ -150,7 +153,8 @@
       "valueType": {
         "column": "valuetype",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       }
     },
     "table": "attribute"
@@ -169,10 +173,19 @@
         "type": "jsbAttributeValues"
       },
       "categoryCombos": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.category.CategoryCombo",
+        "elementColumn": "categorycomboid",
+        "inverse": true,
+        "keyColumn": "categoryid",
+        "kind": "set",
+        "table": "categorycombos_categories"
       },
       "categoryOptions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.category.CategoryOption",
+        "elementColumn": "categoryoptionid",
+        "keyColumn": "categoryid",
+        "kind": "list",
+        "table": "categories_categoryoptions"
       },
       "code": {
         "column": "code",
@@ -244,6 +257,88 @@
     },
     "table": "category"
   },
+  "org.hisp.dhis.category.CategoryCombo": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/category/CategoryCombo.java",
+    "id": {
+      "column": "categorycomboid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "categories": {
+        "elementClass": "org.hisp.dhis.category.Category",
+        "elementColumn": "categoryid",
+        "keyColumn": "categorycomboid",
+        "kind": "list",
+        "table": "categorycombos_categories"
+      },
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "createdBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "userid",
+        "kind": "many-to-one"
+      },
+      "dataDimensionType": {
+        "column": "datadimensiontype",
+        "kind": "property",
+        "notNull": true,
+        "type": "enum-string"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "name": {
+        "column": "name",
+        "kind": "property",
+        "notNull": true
+      },
+      "optionCombos": {
+        "elementClass": "org.hisp.dhis.category.CategoryOptionCombo",
+        "inverse": true,
+        "kind": "set",
+        "mappedBy": "categoryCombo"
+      },
+      "sharing": {
+        "column": "sharing",
+        "kind": "property",
+        "type": "jsbObjectSharing"
+      },
+      "skipTotal": {
+        "column": "skiptotal",
+        "kind": "property",
+        "notNull": true
+      },
+      "translations": {
+        "column": "translations",
+        "embedded": true,
+        "kind": "property",
+        "type": "jblTranslations"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "categorycombo"
+  },
   "org.hisp.dhis.category.CategoryDimension": {
     "file": "dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/category/hibernate/CategoryDimension.hbm.xml",
     "id": {
@@ -258,10 +353,380 @@
         "kind": "many-to-one"
       },
       "items": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.category.CategoryOption",
+        "elementColumn": "categoryoptionid",
+        "keyColumn": "categorydimensionid",
+        "kind": "list",
+        "table": "categorydimension_items"
       }
     },
     "table": "categorydimension"
+  },
+  "org.hisp.dhis.category.CategoryOption": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/category/CategoryOption.java",
+    "id": {
+      "column": "categoryoptionid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "attributeValues": {
+        "column": "attributevalues",
+        "kind": "property",
+        "type": "jsbAttributeValues"
+      },
+      "categories": {
+        "elementClass": "org.hisp.dhis.category.Category",
+        "inverse": true,
+        "kind": "set",
+        "mappedBy": "categoryOptions"
+      },
+      "categoryOptionCombos": {
+        "elementClass": "org.hisp.dhis.category.CategoryOptionCombo",
+        "inverse": true,
+        "kind": "set",
+        "mappedBy": "categoryOptions"
+      },
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "createdBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "userid",
+        "kind": "many-to-one"
+      },
+      "description": {
+        "column": "description",
+        "kind": "property",
+        "type": "text"
+      },
+      "endDate": {
+        "column": "enddate",
+        "kind": "property",
+        "type": "date"
+      },
+      "formName": {
+        "column": "formname",
+        "kind": "property"
+      },
+      "groups": {
+        "elementClass": "org.hisp.dhis.category.CategoryOptionGroup",
+        "inverse": true,
+        "kind": "set",
+        "mappedBy": "members"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "name": {
+        "column": "name",
+        "kind": "property",
+        "notNull": true
+      },
+      "organisationUnits": {
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnit",
+        "elementColumn": "organisationunitid",
+        "keyColumn": "categoryoptionid",
+        "kind": "set",
+        "table": "categoryoption_organisationunits"
+      },
+      "sharing": {
+        "column": "sharing",
+        "kind": "property",
+        "type": "jsbObjectSharing"
+      },
+      "shortName": {
+        "column": "shortname",
+        "kind": "property",
+        "notNull": true
+      },
+      "startDate": {
+        "column": "startdate",
+        "kind": "property",
+        "type": "date"
+      },
+      "style": {
+        "column": "style",
+        "kind": "property",
+        "type": "jbObjectStyle"
+      },
+      "translations": {
+        "column": "translations",
+        "embedded": true,
+        "kind": "property",
+        "type": "jblTranslations"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "categoryoption"
+  },
+  "org.hisp.dhis.category.CategoryOptionCombo": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/category/CategoryOptionCombo.java",
+    "id": {
+      "column": "categoryoptioncomboid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "attributeValues": {
+        "column": "attributevalues",
+        "kind": "property",
+        "type": "jsbAttributeValues"
+      },
+      "categoryCombo": {
+        "class": "org.hisp.dhis.category.CategoryCombo",
+        "column": "categorycomboid",
+        "columnTable": "categorycombos_optioncombos",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "categoryOptions": {
+        "elementClass": "org.hisp.dhis.category.CategoryOption",
+        "elementColumn": "categoryoptionid",
+        "keyColumn": "categoryoptioncomboid",
+        "kind": "set",
+        "table": "categoryoptioncombos_categoryoptions"
+      },
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "ignoreApproval": {
+        "column": "ignoreapproval",
+        "kind": "property"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "translations": {
+        "column": "translations",
+        "embedded": true,
+        "kind": "property",
+        "type": "jblTranslations"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "categoryoptioncombo"
+  },
+  "org.hisp.dhis.category.CategoryOptionGroup": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/category/CategoryOptionGroup.java",
+    "id": {
+      "column": "categoryoptiongroupid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "attributeValues": {
+        "column": "attributevalues",
+        "kind": "property",
+        "type": "jsbAttributeValues"
+      },
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "createdBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "userid",
+        "kind": "many-to-one"
+      },
+      "dataDimensionType": {
+        "column": "datadimensiontype",
+        "kind": "property",
+        "notNull": true,
+        "type": "enum-string"
+      },
+      "description": {
+        "column": "description",
+        "kind": "property",
+        "type": "text"
+      },
+      "groupSets": {
+        "elementClass": "org.hisp.dhis.category.CategoryOptionGroupSet",
+        "inverse": true,
+        "kind": "set",
+        "mappedBy": "members"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "members": {
+        "elementClass": "org.hisp.dhis.category.CategoryOption",
+        "elementColumn": "categoryoptionid",
+        "keyColumn": "categoryoptiongroupid",
+        "kind": "set",
+        "table": "categoryoptiongroupmembers"
+      },
+      "name": {
+        "column": "name",
+        "kind": "property",
+        "notNull": true
+      },
+      "sharing": {
+        "column": "sharing",
+        "kind": "property",
+        "type": "jsbObjectSharing"
+      },
+      "shortName": {
+        "column": "shortname",
+        "kind": "property",
+        "notNull": true
+      },
+      "translations": {
+        "column": "translations",
+        "embedded": true,
+        "kind": "property",
+        "type": "jblTranslations"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "categoryoptiongroup"
+  },
+  "org.hisp.dhis.category.CategoryOptionGroupSet": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/category/CategoryOptionGroupSet.java",
+    "id": {
+      "column": "categoryoptiongroupsetid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "attributeValues": {
+        "column": "attributevalues",
+        "kind": "property",
+        "type": "jsbAttributeValues"
+      },
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "createdBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "userid",
+        "kind": "many-to-one"
+      },
+      "dataDimension": {
+        "column": "datadimension",
+        "kind": "property",
+        "notNull": true
+      },
+      "dataDimensionType": {
+        "column": "datadimensiontype",
+        "kind": "property",
+        "notNull": true,
+        "type": "enum-string"
+      },
+      "description": {
+        "column": "description",
+        "kind": "property",
+        "type": "text"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "members": {
+        "elementClass": "org.hisp.dhis.category.CategoryOptionGroup",
+        "elementColumn": "categoryoptiongroupid",
+        "keyColumn": "categoryoptiongroupsetid",
+        "kind": "list",
+        "table": "categoryoptiongroupsetmembers"
+      },
+      "name": {
+        "column": "name",
+        "kind": "property",
+        "notNull": true
+      },
+      "sharing": {
+        "column": "sharing",
+        "kind": "property",
+        "type": "jsbObjectSharing"
+      },
+      "shortName": {
+        "column": "shortname",
+        "kind": "property",
+        "notNull": true
+      },
+      "translations": {
+        "column": "translations",
+        "embedded": true,
+        "kind": "property",
+        "type": "jblTranslations"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "categoryoptiongroupset"
   },
   "org.hisp.dhis.category.CategoryOptionGroupSetDimension": {
     "file": "dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/category/hibernate/CategoryOptionGroupSetDimension.hbm.xml",
@@ -277,7 +742,11 @@
         "kind": "many-to-one"
       },
       "items": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.category.CategoryOptionGroup",
+        "elementColumn": "categoryoptiongroupid",
+        "keyColumn": "categoryoptiongroupsetdimensionid",
+        "kind": "list",
+        "table": "categoryoptiongroupsetdimension_items"
       }
     },
     "table": "categoryoptiongroupsetdimension"
@@ -340,10 +809,16 @@
     "mapping": "class",
     "properties": {
       "corsWhitelist": {
-        "kind": "set"
+        "keyColumn": "configurationid",
+        "kind": "set",
+        "table": "configuration_corswhitelist"
       },
       "dataOutputPeriodTypes": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.period.PeriodType",
+        "elementColumn": "periodtypeid",
+        "keyColumn": "configurationid",
+        "kind": "set",
+        "table": "configuration_dataoutputperiodtype"
       },
       "facilityOrgUnitGroupSet": {
         "class": "org.hisp.dhis.organisationunit.OrganisationUnitGroupSet",
@@ -479,6 +954,750 @@
     },
     "table": "constant"
   },
+  "org.hisp.dhis.dashboard.Dashboard": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/dashboard/Dashboard.java",
+    "id": {
+      "column": "dashboardid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "allowedFilters": {
+        "column": "allowedfilters",
+        "kind": "property",
+        "type": "jbList"
+      },
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "createdBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "userid",
+        "kind": "many-to-one"
+      },
+      "description": {
+        "column": "description",
+        "kind": "property"
+      },
+      "embedded": {
+        "column": "embedded",
+        "kind": "property",
+        "type": "jbEmbeddedDashboard"
+      },
+      "favorites": {
+        "column": "favorites",
+        "kind": "property",
+        "type": "jbSet"
+      },
+      "itemConfig": {
+        "column": "itemconfig",
+        "kind": "property",
+        "type": "jbDashboardItemConfig"
+      },
+      "items": {
+        "elementClass": "org.hisp.dhis.dashboard.DashboardItem",
+        "elementColumn": "dashboarditemid",
+        "keyColumn": "dashboardid",
+        "kind": "list",
+        "table": "dashboard_items"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "layout": {
+        "column": "layout",
+        "kind": "property",
+        "type": "jblDashboardLayout"
+      },
+      "name": {
+        "column": "name",
+        "kind": "property",
+        "notNull": true
+      },
+      "restrictFilters": {
+        "column": "restrictfilters",
+        "kind": "property"
+      },
+      "sharing": {
+        "column": "sharing",
+        "kind": "property",
+        "type": "jsbObjectSharing"
+      },
+      "translations": {
+        "column": "translations",
+        "embedded": true,
+        "kind": "property",
+        "type": "jblTranslations"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "dashboard"
+  },
+  "org.hisp.dhis.dashboard.DashboardItem": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/dashboard/DashboardItem.java",
+    "id": {
+      "column": "dashboarditemid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "appKey": {
+        "column": "appkey",
+        "kind": "property"
+      },
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "eventChart": {
+        "class": "org.hisp.dhis.eventchart.EventChart",
+        "column": "eventchartid",
+        "kind": "many-to-one"
+      },
+      "eventReport": {
+        "class": "org.hisp.dhis.eventreport.EventReport",
+        "column": "eventreport",
+        "kind": "many-to-one"
+      },
+      "eventVisualization": {
+        "class": "org.hisp.dhis.eventvisualization.EventVisualization",
+        "column": "eventvisualizationid",
+        "kind": "many-to-one"
+      },
+      "height": {
+        "column": "height",
+        "kind": "property"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "map": {
+        "class": "org.hisp.dhis.mapping.Map",
+        "column": "mapid",
+        "kind": "many-to-one"
+      },
+      "messages": {
+        "column": "messages",
+        "kind": "property"
+      },
+      "reports": {
+        "elementClass": "org.hisp.dhis.report.Report",
+        "elementColumn": "reportid",
+        "keyColumn": "dashboarditemid",
+        "kind": "list",
+        "table": "dashboarditem_reports"
+      },
+      "resources": {
+        "elementClass": "org.hisp.dhis.document.Document",
+        "elementColumn": "resourceid",
+        "keyColumn": "dashboarditemid",
+        "kind": "list",
+        "table": "dashboarditem_resources"
+      },
+      "shape": {
+        "column": "shape",
+        "kind": "property",
+        "type": "enum-string"
+      },
+      "text": {
+        "column": "textcontent",
+        "kind": "property",
+        "type": "text"
+      },
+      "translations": {
+        "column": "translations",
+        "embedded": true,
+        "kind": "property",
+        "type": "jblTranslations"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      },
+      "users": {
+        "elementClass": "org.hisp.dhis.user.User",
+        "elementColumn": "userid",
+        "keyColumn": "dashboarditemid",
+        "kind": "list",
+        "table": "dashboarditem_users"
+      },
+      "visualization": {
+        "class": "org.hisp.dhis.visualization.Visualization",
+        "column": "visualizationid",
+        "kind": "many-to-one"
+      },
+      "width": {
+        "column": "width",
+        "kind": "property"
+      },
+      "x": {
+        "column": "x",
+        "kind": "property"
+      },
+      "y": {
+        "column": "y",
+        "kind": "property"
+      }
+    },
+    "table": "dashboarditem"
+  },
+  "org.hisp.dhis.dataapproval.DataApproval": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/dataapproval/DataApproval.java",
+    "id": {
+      "column": "dataapprovalid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "accepted": {
+        "column": "accepted",
+        "kind": "property"
+      },
+      "attributeOptionCombo": {
+        "class": "org.hisp.dhis.category.CategoryOptionCombo",
+        "column": "attributeoptioncomboid",
+        "kind": "many-to-one"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true
+      },
+      "creator": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "creator",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "dataApprovalLevel": {
+        "class": "org.hisp.dhis.dataapproval.DataApprovalLevel",
+        "column": "dataapprovallevelid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "organisationUnit": {
+        "class": "org.hisp.dhis.organisationunit.OrganisationUnit",
+        "column": "organisationunitid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "period": {
+        "class": "org.hisp.dhis.period.Period",
+        "column": "periodid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "workflow": {
+        "class": "org.hisp.dhis.dataapproval.DataApprovalWorkflow",
+        "column": "workflowid",
+        "kind": "many-to-one",
+        "notNull": true
+      }
+    },
+    "table": "dataapproval"
+  },
+  "org.hisp.dhis.dataapproval.DataApprovalAudit": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/dataapproval/DataApprovalAudit.java",
+    "id": {
+      "column": "dataapprovalauditid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "action": {
+        "column": "action",
+        "kind": "property",
+        "notNull": true,
+        "type": "enum-string"
+      },
+      "attributeOptionCombo": {
+        "class": "org.hisp.dhis.category.CategoryOptionCombo",
+        "column": "attributeoptioncomboid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true
+      },
+      "creator": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "creator",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "level": {
+        "class": "org.hisp.dhis.dataapproval.DataApprovalLevel",
+        "column": "levelid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "organisationUnit": {
+        "class": "org.hisp.dhis.organisationunit.OrganisationUnit",
+        "column": "organisationunitid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "period": {
+        "class": "org.hisp.dhis.period.Period",
+        "column": "periodid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "workflow": {
+        "class": "org.hisp.dhis.dataapproval.DataApprovalWorkflow",
+        "column": "workflowid",
+        "kind": "many-to-one",
+        "notNull": true
+      }
+    },
+    "table": "dataapprovalaudit"
+  },
+  "org.hisp.dhis.dataapproval.DataApprovalLevel": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/dataapproval/DataApprovalLevel.java",
+    "id": {
+      "column": "dataapprovallevelid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "categoryOptionGroupSet": {
+        "class": "org.hisp.dhis.category.CategoryOptionGroupSet",
+        "column": "categoryoptiongroupsetid",
+        "kind": "many-to-one"
+      },
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "createdBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "userid",
+        "kind": "many-to-one"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "level": {
+        "column": "level",
+        "kind": "property",
+        "notNull": true
+      },
+      "name": {
+        "column": "name",
+        "kind": "property",
+        "notNull": true
+      },
+      "orgUnitLevel": {
+        "column": "orgunitlevel",
+        "kind": "property",
+        "notNull": true
+      },
+      "sharing": {
+        "column": "sharing",
+        "kind": "property",
+        "type": "jsbObjectSharing"
+      },
+      "translations": {
+        "column": "translations",
+        "embedded": true,
+        "kind": "property",
+        "type": "jblTranslations"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "dataapprovallevel"
+  },
+  "org.hisp.dhis.dataapproval.DataApprovalWorkflow": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/dataapproval/DataApprovalWorkflow.java",
+    "id": {
+      "column": "workflowid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "categoryCombo": {
+        "class": "org.hisp.dhis.category.CategoryCombo",
+        "column": "categorycomboid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "createdBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "userid",
+        "kind": "many-to-one"
+      },
+      "dataSets": {
+        "elementClass": "org.hisp.dhis.dataset.DataSet",
+        "inverse": true,
+        "kind": "set",
+        "mappedBy": "workflow"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "levels": {
+        "elementClass": "org.hisp.dhis.dataapproval.DataApprovalLevel",
+        "elementColumn": "dataapprovallevelid",
+        "keyColumn": "workflowid",
+        "kind": "set",
+        "table": "dataapprovalworkflowlevels"
+      },
+      "name": {
+        "column": "name",
+        "kind": "property",
+        "notNull": true
+      },
+      "periodType": {
+        "class": "org.hisp.dhis.period.PeriodType",
+        "column": "periodtypeid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "sharing": {
+        "column": "sharing",
+        "kind": "property",
+        "type": "jsbObjectSharing"
+      },
+      "translations": {
+        "column": "translations",
+        "embedded": true,
+        "kind": "property",
+        "type": "jblTranslations"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "dataapprovalworkflow"
+  },
+  "org.hisp.dhis.dataelement.DataElement": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/dataelement/DataElement.java",
+    "id": {
+      "column": "dataelementid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "aggregationLevels": {
+        "elementColumn": "aggregationlevel",
+        "keyColumn": "dataelementid",
+        "kind": "element-collection",
+        "table": "dataelementaggregationlevels"
+      },
+      "aggregationType": {
+        "column": "aggregationtype",
+        "kind": "property",
+        "notNull": true,
+        "type": "enum-string"
+      },
+      "attributeValues": {
+        "column": "attributevalues",
+        "kind": "property",
+        "type": "jsbAttributeValues"
+      },
+      "categoryCombo": {
+        "class": "org.hisp.dhis.category.CategoryCombo",
+        "column": "categorycomboid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "commentOptionSet": {
+        "class": "org.hisp.dhis.option.OptionSet",
+        "column": "commentoptionsetid",
+        "kind": "many-to-one"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "createdBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "userid",
+        "kind": "many-to-one"
+      },
+      "dataSetElements": {
+        "elementClass": "org.hisp.dhis.dataset.DataSetElement",
+        "inverse": true,
+        "kind": "set",
+        "mappedBy": "dataElement"
+      },
+      "description": {
+        "column": "description",
+        "kind": "property",
+        "type": "text"
+      },
+      "domainType": {
+        "column": "domaintype",
+        "kind": "property",
+        "notNull": true,
+        "type": "enum-string"
+      },
+      "fieldMask": {
+        "column": "fieldmask",
+        "kind": "property"
+      },
+      "formName": {
+        "column": "formname",
+        "kind": "property"
+      },
+      "groups": {
+        "elementClass": "org.hisp.dhis.dataelement.DataElementGroup",
+        "inverse": true,
+        "kind": "set",
+        "mappedBy": "members"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "legendSets": {
+        "elementClass": "org.hisp.dhis.legend.LegendSet",
+        "elementColumn": "legendsetid",
+        "keyColumn": "dataelementid",
+        "kind": "list",
+        "table": "dataelementlegendsets"
+      },
+      "name": {
+        "column": "name",
+        "kind": "property",
+        "notNull": true
+      },
+      "optionSet": {
+        "class": "org.hisp.dhis.option.OptionSet",
+        "column": "optionsetid",
+        "kind": "many-to-one"
+      },
+      "sharing": {
+        "column": "sharing",
+        "kind": "property",
+        "type": "jsbObjectSharing"
+      },
+      "shortName": {
+        "column": "shortname",
+        "kind": "property",
+        "notNull": true
+      },
+      "style": {
+        "column": "style",
+        "kind": "property",
+        "type": "jbObjectStyle"
+      },
+      "translations": {
+        "column": "translations",
+        "embedded": true,
+        "kind": "property",
+        "type": "jblTranslations"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      },
+      "url": {
+        "column": "url",
+        "kind": "property"
+      },
+      "valueType": {
+        "column": "valuetype",
+        "kind": "property",
+        "notNull": true,
+        "type": "enum-string"
+      },
+      "valueTypeOptions": {
+        "column": "valuetypeoptions",
+        "kind": "property",
+        "type": "jbValueTypeOptions"
+      },
+      "zeroIsSignificant": {
+        "column": "zeroissignificant",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "dataelement"
+  },
+  "org.hisp.dhis.dataelement.DataElementGroup": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/dataelement/DataElementGroup.java",
+    "id": {
+      "column": "dataelementgroupid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "attributeValues": {
+        "column": "attributevalues",
+        "kind": "property",
+        "type": "jsbAttributeValues"
+      },
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "createdBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "userid",
+        "kind": "many-to-one"
+      },
+      "description": {
+        "column": "description",
+        "kind": "property",
+        "type": "text"
+      },
+      "groupSets": {
+        "elementClass": "org.hisp.dhis.dataelement.DataElementGroupSet",
+        "inverse": true,
+        "kind": "set",
+        "mappedBy": "members"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "members": {
+        "elementClass": "org.hisp.dhis.dataelement.DataElement",
+        "elementColumn": "dataelementid",
+        "keyColumn": "dataelementgroupid",
+        "kind": "set",
+        "table": "dataelementgroupmembers"
+      },
+      "name": {
+        "column": "name",
+        "kind": "property",
+        "notNull": true
+      },
+      "sharing": {
+        "column": "sharing",
+        "kind": "property",
+        "type": "jsbObjectSharing"
+      },
+      "shortName": {
+        "column": "shortname",
+        "kind": "property",
+        "notNull": true
+      },
+      "translations": {
+        "column": "translations",
+        "embedded": true,
+        "kind": "property",
+        "type": "jblTranslations"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "dataelementgroup"
+  },
   "org.hisp.dhis.dataelement.DataElementGroupSet": {
     "file": "dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/dataelement/hibernate/DataElementGroupSet.hbm.xml",
     "id": {
@@ -533,7 +1752,11 @@
         "kind": "many-to-one"
       },
       "members": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.dataelement.DataElementGroup",
+        "elementColumn": "dataelementgroupid",
+        "keyColumn": "dataelementgroupsetid",
+        "kind": "list",
+        "table": "dataelementgroupsetmembers"
       },
       "name": {
         "column": "name",
@@ -562,6 +1785,50 @@
       }
     },
     "table": "dataelementgroupset"
+  },
+  "org.hisp.dhis.dataelement.DataElementGroupSetDimension": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/dataelement/DataElementGroupSetDimension.java",
+    "id": {
+      "column": "dataelementgroupsetdimensionid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "dimension": {
+        "class": "org.hisp.dhis.dataelement.DataElementGroupSet",
+        "column": "dataelementgroupsetid",
+        "kind": "many-to-one"
+      },
+      "items": {
+        "elementClass": "org.hisp.dhis.dataelement.DataElementGroup",
+        "elementColumn": "dataelementgroupid",
+        "keyColumn": "dataelementgroupsetdimensionid",
+        "kind": "list",
+        "table": "dataelementgroupsetdimension_items"
+      }
+    },
+    "table": "dataelementgroupsetdimension"
+  },
+  "org.hisp.dhis.dataelement.DataElementOperand": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/dataelement/DataElementOperand.java",
+    "id": {
+      "column": "dataelementoperandid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "categoryOptionCombo": {
+        "class": "org.hisp.dhis.category.CategoryOptionCombo",
+        "column": "categoryoptioncomboid",
+        "kind": "many-to-one"
+      },
+      "dataElement": {
+        "class": "org.hisp.dhis.dataelement.DataElement",
+        "column": "dataelementid",
+        "kind": "many-to-one"
+      }
+    },
+    "table": "dataelementoperand"
   },
   "org.hisp.dhis.dataentryform.DataEntryForm": {
     "file": "dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/dataentryform/hibernate/DataEntryForm.hbm.xml",
@@ -608,7 +1875,8 @@
       },
       "style": {
         "column": "style",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "translations": {
         "column": "translations",
@@ -728,6 +1996,283 @@
     },
     "table": "completedatasetregistration"
   },
+  "org.hisp.dhis.dataset.DataInputPeriod": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/dataset/DataInputPeriod.java",
+    "id": {
+      "column": "datainputperiodid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "closingDate": {
+        "column": "closingdate",
+        "kind": "property"
+      },
+      "openingDate": {
+        "column": "openingdate",
+        "kind": "property"
+      },
+      "period": {
+        "class": "org.hisp.dhis.period.Period",
+        "column": "periodid",
+        "kind": "many-to-one",
+        "notNull": true
+      }
+    },
+    "table": "datainputperiod"
+  },
+  "org.hisp.dhis.dataset.DataSet": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/dataset/DataSet.java",
+    "id": {
+      "column": "datasetid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "attributeValues": {
+        "column": "attributevalues",
+        "kind": "property",
+        "type": "jsbAttributeValues"
+      },
+      "categoryCombo": {
+        "class": "org.hisp.dhis.category.CategoryCombo",
+        "column": "categorycomboid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "compulsoryDataElementOperands": {
+        "elementClass": "org.hisp.dhis.dataelement.DataElementOperand",
+        "elementColumn": "dataelementoperandid",
+        "keyColumn": "datasetid",
+        "kind": "set",
+        "table": "datasetoperands"
+      },
+      "compulsoryFieldsCompleteOnly": {
+        "column": "compulsoryfieldscompleteonly",
+        "kind": "property"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "createdBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "userid",
+        "kind": "many-to-one"
+      },
+      "dataElementDecoration": {
+        "column": "dataelementdecoration",
+        "kind": "property"
+      },
+      "dataEntryForm": {
+        "class": "org.hisp.dhis.dataentryform.DataEntryForm",
+        "column": "dataentryform",
+        "kind": "many-to-one"
+      },
+      "dataInputPeriods": {
+        "elementClass": "org.hisp.dhis.dataset.DataInputPeriod",
+        "keyColumn": "datasetid",
+        "kind": "set"
+      },
+      "dataSetElements": {
+        "elementClass": "org.hisp.dhis.dataset.DataSetElement",
+        "keyColumn": "datasetid",
+        "kind": "set"
+      },
+      "description": {
+        "column": "description",
+        "kind": "property",
+        "type": "text"
+      },
+      "displayOptions": {
+        "column": "displayoptions",
+        "kind": "property",
+        "type": "jbPlainString"
+      },
+      "expiryDays": {
+        "column": "expirydays",
+        "kind": "property"
+      },
+      "fieldCombinationRequired": {
+        "column": "fieldcombinationrequired",
+        "kind": "property"
+      },
+      "formName": {
+        "column": "formname",
+        "kind": "property",
+        "type": "text"
+      },
+      "indicators": {
+        "elementClass": "org.hisp.dhis.indicator.Indicator",
+        "elementColumn": "indicatorid",
+        "keyColumn": "datasetid",
+        "kind": "set",
+        "table": "datasetindicators"
+      },
+      "interpretations": {
+        "elementClass": "org.hisp.dhis.interpretation.Interpretation",
+        "inverse": true,
+        "kind": "set",
+        "mappedBy": "dataSet"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "legendSets": {
+        "elementClass": "org.hisp.dhis.legend.LegendSet",
+        "elementColumn": "legendsetid",
+        "keyColumn": "datasetid",
+        "kind": "list",
+        "table": "datasetlegendsets"
+      },
+      "mobile": {
+        "column": "mobile",
+        "kind": "property"
+      },
+      "name": {
+        "column": "name",
+        "kind": "property",
+        "notNull": true
+      },
+      "noValueRequiresComment": {
+        "column": "novaluerequirescomment",
+        "kind": "property"
+      },
+      "notificationRecipients": {
+        "class": "org.hisp.dhis.user.UserGroup",
+        "column": "notificationrecipients",
+        "kind": "many-to-one"
+      },
+      "notifyCompletingUser": {
+        "column": "notifycompletinguser",
+        "kind": "property"
+      },
+      "openFuturePeriods": {
+        "column": "openfutureperiods",
+        "kind": "property"
+      },
+      "openPeriodsAfterCoEndDate": {
+        "column": "openperiodsaftercoenddate",
+        "kind": "property"
+      },
+      "periodType": {
+        "class": "org.hisp.dhis.period.PeriodType",
+        "column": "periodtypeid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "renderAsTabs": {
+        "column": "renderastabs",
+        "kind": "property"
+      },
+      "renderHorizontally": {
+        "column": "renderhorizontally",
+        "kind": "property"
+      },
+      "sections": {
+        "elementClass": "org.hisp.dhis.dataset.Section",
+        "inverse": true,
+        "kind": "set",
+        "mappedBy": "dataSet"
+      },
+      "sharing": {
+        "column": "sharing",
+        "kind": "property",
+        "type": "jsbObjectSharing"
+      },
+      "shortName": {
+        "column": "shortname",
+        "kind": "property",
+        "notNull": true
+      },
+      "skipOffline": {
+        "column": "skipoffline",
+        "kind": "property"
+      },
+      "sources": {
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnit",
+        "elementColumn": "sourceid",
+        "keyColumn": "datasetid",
+        "kind": "set",
+        "table": "datasetsource"
+      },
+      "style": {
+        "column": "style",
+        "kind": "property",
+        "type": "jbObjectStyle"
+      },
+      "timelyDays": {
+        "column": "timelydays",
+        "kind": "property"
+      },
+      "translations": {
+        "column": "translations",
+        "embedded": true,
+        "kind": "property",
+        "type": "jblTranslations"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      },
+      "validCompleteOnly": {
+        "column": "validcompleteonly",
+        "kind": "property"
+      },
+      "version": {
+        "column": "version",
+        "kind": "property"
+      },
+      "workflow": {
+        "class": "org.hisp.dhis.dataapproval.DataApprovalWorkflow",
+        "column": "workflowid",
+        "kind": "many-to-one"
+      }
+    },
+    "table": "dataset"
+  },
+  "org.hisp.dhis.dataset.DataSetElement": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/dataset/DataSetElement.java",
+    "id": {
+      "column": "datasetelementid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "categoryCombo": {
+        "class": "org.hisp.dhis.category.CategoryCombo",
+        "column": "categorycomboid",
+        "kind": "many-to-one"
+      },
+      "dataElement": {
+        "class": "org.hisp.dhis.dataelement.DataElement",
+        "column": "dataelementid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "dataSet": {
+        "class": "org.hisp.dhis.dataset.DataSet",
+        "column": "datasetid",
+        "kind": "many-to-one"
+      }
+    },
+    "table": "datasetelement"
+  },
   "org.hisp.dhis.dataset.LockException": {
     "file": "dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/dataset/hibernate/LockException.hbm.xml",
     "id": {
@@ -760,6 +2305,111 @@
     },
     "table": "lockexception"
   },
+  "org.hisp.dhis.dataset.Section": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/dataset/Section.java",
+    "id": {
+      "column": "sectionid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "attributeValues": {
+        "column": "attributevalues",
+        "kind": "property",
+        "type": "jsbAttributeValues"
+      },
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "dataElements": {
+        "elementClass": "org.hisp.dhis.dataelement.DataElement",
+        "elementColumn": "dataelementid",
+        "keyColumn": "sectionid",
+        "kind": "list",
+        "table": "sectiondataelements"
+      },
+      "dataSet": {
+        "class": "org.hisp.dhis.dataset.DataSet",
+        "column": "datasetid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "description": {
+        "column": "description",
+        "kind": "property",
+        "type": "text"
+      },
+      "disableDataElementAutoGroup": {
+        "column": "disabledataelementautogroup",
+        "kind": "property"
+      },
+      "displayOptions": {
+        "column": "displayoptions",
+        "kind": "property",
+        "type": "jbPlainString"
+      },
+      "greyedFields": {
+        "elementClass": "org.hisp.dhis.dataelement.DataElementOperand",
+        "elementColumn": "dataelementoperandid",
+        "keyColumn": "sectionid",
+        "kind": "set",
+        "table": "sectiongreyedfields"
+      },
+      "indicators": {
+        "elementClass": "org.hisp.dhis.indicator.Indicator",
+        "elementColumn": "indicatorid",
+        "keyColumn": "sectionid",
+        "kind": "list",
+        "table": "sectionindicators"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "name": {
+        "column": "name",
+        "kind": "property",
+        "notNull": true
+      },
+      "showColumnTotals": {
+        "column": "showcolumntotals",
+        "kind": "property"
+      },
+      "showRowTotals": {
+        "column": "showrowtotals",
+        "kind": "property"
+      },
+      "sortOrder": {
+        "column": "sortorder",
+        "kind": "property",
+        "notNull": true
+      },
+      "translations": {
+        "column": "translations",
+        "embedded": true,
+        "kind": "property",
+        "type": "jblTranslations"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "section"
+  },
   "org.hisp.dhis.dataset.notifications.DataSetNotificationTemplate": {
     "file": "dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/dataset/hibernate/DataSetNotificationTemplate.hbm.xml",
     "id": {
@@ -780,13 +2430,20 @@
       },
       "dataSetNotificationTrigger": {
         "column": "datasetnotificationtrigger",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "dataSets": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.dataset.DataSet",
+        "elementColumn": "datasetid",
+        "keyColumn": "datasetnotificationtemplateid",
+        "kind": "set",
+        "table": "datasetnotification_datasets"
       },
       "deliveryChannels": {
-        "kind": "set"
+        "keyColumn": "datasetnotificationtemplateid",
+        "kind": "set",
+        "table": "datasetnotificationtemplate_deliverychannel"
       },
       "lastUpdated": {
         "column": "lastupdated",
@@ -812,7 +2469,8 @@
       },
       "notificationRecipient": {
         "column": "notificationrecipienttype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "notifyParentOrganisationUnitOnly": {
         "column": "notifyparentorganisationunitonly",
@@ -833,7 +2491,8 @@
       },
       "sendStrategy": {
         "column": "sendstrategy",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "subjectTemplate": {
         "column": "subjecttemplate",
@@ -994,7 +2653,8 @@
     "properties": {
       "eventType": {
         "column": "eventtype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "favoriteUid": {
         "column": "favoriteuid",
@@ -1175,7 +2835,8 @@
       "type": {
         "column": "audittype",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "value": {
         "column": "value",
@@ -1183,6 +2844,41 @@
       }
     },
     "table": "datavalueaudit"
+  },
+  "org.hisp.dhis.deletedobject.DeletedObject": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/deletedobject/DeletedObject.java",
+    "id": {
+      "column": "deletedobjectid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "deletedAt": {
+        "column": "deleted_at",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "deletedBy": {
+        "column": "deleted_by",
+        "kind": "property"
+      },
+      "klass": {
+        "column": "klass",
+        "kind": "property",
+        "notNull": true
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "deletedobject"
   },
   "org.hisp.dhis.document.Document": {
     "file": "dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/document/hibernate/Document.hbm.xml",
@@ -1280,10 +2976,15 @@
     "properties": {
       "aggregationType": {
         "column": "aggregationtype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "attributeDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityAttributeDimension",
+        "elementColumn": "trackedentityattributedimensionid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_attributedimensions"
       },
       "attributeValueDimension": {
         "class": "org.hisp.dhis.trackedentity.TrackedEntityAttribute",
@@ -1304,10 +3005,18 @@
         "kind": "property"
       },
       "categoryDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.category.CategoryDimension",
+        "elementColumn": "categorydimensionid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_categorydimensions"
       },
       "categoryOptionGroupSetDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.category.CategoryOptionGroupSetDimension",
+        "elementColumn": "categoryoptiongroupsetdimensionid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_categoryoptiongroupsetdimensions"
       },
       "code": {
         "column": "code",
@@ -1326,7 +3035,9 @@
         "kind": "property"
       },
       "columnDimensions": {
-        "kind": "list"
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_columns"
       },
       "completedOnly": {
         "column": "completedonly",
@@ -1348,7 +3059,11 @@
         "kind": "property"
       },
       "dataElementDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityDataElementDimension",
+        "elementColumn": "trackedentitydataelementdimensionid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_dataelementdimensions"
       },
       "dataElementValueDimension": {
         "class": "org.hisp.dhis.dataelement.DataElement",
@@ -1370,7 +3085,8 @@
       },
       "eventStatus": {
         "column": "eventstatus",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "favorites": {
         "column": "favorites",
@@ -1378,7 +3094,9 @@
         "type": "jbSet"
       },
       "filterDimensions": {
-        "kind": "list"
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_filters"
       },
       "fixColumnHeaders": {
         "column": "fixcolumnheaders",
@@ -1394,7 +3112,8 @@
       },
       "hideEmptyRowItems": {
         "column": "hideemptyrowitems",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "hideEmptyRows": {
         "column": "hideemptyrows",
@@ -1417,10 +3136,17 @@
         "kind": "property"
       },
       "interpretations": {
+        "elementClass": "org.hisp.dhis.interpretation.Interpretation",
+        "inverse": true,
+        "keyColumn": "eventchartid",
         "kind": "set"
       },
       "itemOrganisationUnitGroups": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroup",
+        "elementColumn": "orgunitgroupid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_itemorgunitgroups"
       },
       "lastUpdated": {
         "column": "lastupdated",
@@ -1451,24 +3177,39 @@
         "kind": "property"
       },
       "organisationUnitGroupSetDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroupSetDimension",
+        "elementColumn": "orgunitgroupsetdimensionid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_orgunitgroupsetdimensions"
       },
       "organisationUnitLevels": {
-        "kind": "list"
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_orgunitlevels"
       },
       "organisationUnits": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnit",
+        "elementColumn": "organisationunitid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_organisationunits"
       },
       "outputType": {
         "column": "outputtype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "percentStackedValues": {
         "column": "percentstackedvalues",
         "kind": "property"
       },
       "persistedPeriods": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.period.Period",
+        "elementColumn": "periodid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_periods"
       },
       "program": {
         "class": "org.hisp.dhis.program.Program",
@@ -1476,7 +3217,11 @@
         "kind": "many-to-one"
       },
       "programIndicatorDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityProgramIndicatorDimension",
+        "elementColumn": "trackedentityprogramindicatordimensionid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_programindicatordimensions"
       },
       "programStage": {
         "class": "org.hisp.dhis.program.ProgramStage",
@@ -1485,7 +3230,8 @@
       },
       "programStatus": {
         "column": "programstatus",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "rangeAxisDecimals": {
         "column": "rangeaxisdecimals",
@@ -1514,10 +3260,13 @@
       },
       "regressionType": {
         "column": "regressiontype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "rowDimensions": {
-        "kind": "list"
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_rows"
       },
       "rowSubTotals": {
         "column": "rowsubtotals",
@@ -1593,7 +3342,8 @@
       "type": {
         "column": "type",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "uid": {
         "column": "uid",
@@ -1602,7 +3352,8 @@
       },
       "userOrgUnitType": {
         "column": "userorgunittype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "userOrganisationUnit": {
         "column": "userorganisationunit",
@@ -1713,10 +3464,15 @@
     "properties": {
       "aggregationType": {
         "column": "aggregationtype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "attributeDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityAttributeDimension",
+        "elementColumn": "trackedentityattributedimensionid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_attributedimensions"
       },
       "attributeValueDimension": {
         "class": "org.hisp.dhis.trackedentity.TrackedEntityAttribute",
@@ -1729,10 +3485,18 @@
         "type": "jsbAttributeValues"
       },
       "categoryDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.category.CategoryDimension",
+        "elementColumn": "categorydimensionid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_categorydimensions"
       },
       "categoryOptionGroupSetDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.category.CategoryOptionGroupSetDimension",
+        "elementColumn": "categoryoptiongroupsetdimensionid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_categoryoptiongroupsetdimensions"
       },
       "code": {
         "column": "code",
@@ -1751,7 +3515,9 @@
         "kind": "property"
       },
       "columnDimensions": {
-        "kind": "list"
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_columns"
       },
       "completedOnly": {
         "column": "completedonly",
@@ -1773,7 +3539,11 @@
         "kind": "property"
       },
       "dataElementDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityDataElementDimension",
+        "elementColumn": "trackedentitydataelementdimensionid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_dataelementdimensions"
       },
       "dataElementValueDimension": {
         "class": "org.hisp.dhis.dataelement.DataElement",
@@ -1782,7 +3552,8 @@
       },
       "dataType": {
         "column": "datatype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "description": {
         "column": "description",
@@ -1791,11 +3562,13 @@
       },
       "digitGroupSeparator": {
         "column": "digitgroupseparator",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "displayDensity": {
         "column": "displaydensity",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "endDate": {
         "column": "enddate",
@@ -1803,7 +3576,8 @@
       },
       "eventStatus": {
         "column": "eventstatus",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "favorites": {
         "column": "favorites",
@@ -1811,7 +3585,9 @@
         "type": "jbSet"
       },
       "filterDimensions": {
-        "kind": "list"
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_filters"
       },
       "fixColumnHeaders": {
         "column": "fixcolumnheaders",
@@ -1823,7 +3599,8 @@
       },
       "fontSize": {
         "column": "fontsize",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "hideEmptyColumns": {
         "column": "hideemptycolumns",
@@ -1850,10 +3627,17 @@
         "kind": "property"
       },
       "interpretations": {
+        "elementClass": "org.hisp.dhis.interpretation.Interpretation",
+        "inverse": true,
+        "keyColumn": "eventreportid",
         "kind": "set"
       },
       "itemOrganisationUnitGroups": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroup",
+        "elementColumn": "orgunitgroupid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_itemorgunitgroups"
       },
       "lastUpdated": {
         "column": "lastupdated",
@@ -1884,24 +3668,39 @@
         "kind": "property"
       },
       "organisationUnitGroupSetDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroupSetDimension",
+        "elementColumn": "orgunitgroupsetdimensionid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_orgunitgroupsetdimensions"
       },
       "organisationUnitLevels": {
-        "kind": "list"
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_orgunitlevels"
       },
       "organisationUnits": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnit",
+        "elementColumn": "organisationunitid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_organisationunits"
       },
       "outputType": {
         "column": "outputtype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "percentStackedValues": {
         "column": "percentstackedvalues",
         "kind": "property"
       },
       "persistedPeriods": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.period.Period",
+        "elementColumn": "periodid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_periods"
       },
       "program": {
         "class": "org.hisp.dhis.program.Program",
@@ -1909,7 +3708,11 @@
         "kind": "many-to-one"
       },
       "programIndicatorDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityProgramIndicatorDimension",
+        "elementColumn": "trackedentityprogramindicatordimensionid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_programindicatordimensions"
       },
       "programStage": {
         "class": "org.hisp.dhis.program.ProgramStage",
@@ -1918,7 +3721,8 @@
       },
       "programStatus": {
         "column": "programstatus",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "rawPeriods": {
         "column": "relativeperiods",
@@ -1926,7 +3730,9 @@
         "type": "jbList"
       },
       "rowDimensions": {
-        "kind": "list"
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_rows"
       },
       "rowSubTotals": {
         "column": "rowsubtotals",
@@ -1999,7 +3805,8 @@
       "type": {
         "column": "type",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "uid": {
         "column": "uid",
@@ -2008,7 +3815,8 @@
       },
       "userOrgUnitType": {
         "column": "userorgunittype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "userOrganisationUnit": {
         "column": "userorganisationunit",
@@ -2035,10 +3843,15 @@
     "properties": {
       "aggregationType": {
         "column": "aggregationtype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "attributeDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityAttributeDimension",
+        "elementColumn": "trackedentityattributedimensionid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_attributedimensions"
       },
       "attributeValueDimension": {
         "class": "org.hisp.dhis.trackedentity.TrackedEntityAttribute",
@@ -2059,10 +3872,18 @@
         "kind": "property"
       },
       "categoryDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.category.CategoryDimension",
+        "elementColumn": "categorydimensionid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_categorydimensions"
       },
       "categoryOptionGroupSetDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.category.CategoryOptionGroupSetDimension",
+        "elementColumn": "categoryoptiongroupsetdimensionid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_categoryoptiongroupsetdimensions"
       },
       "code": {
         "column": "code",
@@ -2081,7 +3902,9 @@
         "kind": "property"
       },
       "columnDimensions": {
-        "kind": "list"
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_columns"
       },
       "completedOnly": {
         "column": "completedonly",
@@ -2103,7 +3926,11 @@
         "kind": "property"
       },
       "dataElementDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityDataElementDimension",
+        "elementColumn": "trackedentitydataelementdimensionid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_dataelementdimensions"
       },
       "dataElementValueDimension": {
         "class": "org.hisp.dhis.dataelement.DataElement",
@@ -2112,7 +3939,8 @@
       },
       "dataType": {
         "column": "datatype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "description": {
         "column": "description",
@@ -2121,11 +3949,13 @@
       },
       "digitGroupSeparator": {
         "column": "digitgroupseparator",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "displayDensity": {
         "column": "displaydensity",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "domainAxisLabel": {
         "column": "domainaxislabel",
@@ -2142,7 +3972,8 @@
       },
       "eventStatus": {
         "column": "eventstatus",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "favorites": {
         "column": "favorites",
@@ -2150,7 +3981,9 @@
         "type": "jbSet"
       },
       "filterDimensions": {
-        "kind": "list"
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_filters"
       },
       "fixColumnHeaders": {
         "column": "fixcolumnheaders",
@@ -2162,7 +3995,8 @@
       },
       "fontSize": {
         "column": "fontsize",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "hideEmptyColumns": {
         "column": "hideemptycolumns",
@@ -2170,7 +4004,8 @@
       },
       "hideEmptyRowItems": {
         "column": "hideemptyrowitems",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "hideEmptyRows": {
         "column": "hideemptyrows",
@@ -2193,10 +4028,17 @@
         "kind": "property"
       },
       "interpretations": {
+        "elementClass": "org.hisp.dhis.interpretation.Interpretation",
+        "inverse": true,
+        "keyColumn": "eventvisualizationid",
         "kind": "set"
       },
       "itemOrganisationUnitGroups": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroup",
+        "elementColumn": "orgunitgroupid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_itemorgunitgroups"
       },
       "lastUpdated": {
         "column": "lastupdated",
@@ -2230,24 +4072,39 @@
         "kind": "property"
       },
       "organisationUnitGroupSetDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroupSetDimension",
+        "elementColumn": "orgunitgroupsetdimensionid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_orgunitgroupsetdimensions"
       },
       "organisationUnitLevels": {
-        "kind": "list"
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_orgunitlevels"
       },
       "organisationUnits": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnit",
+        "elementColumn": "organisationunitid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_organisationunits"
       },
       "outputType": {
         "column": "outputtype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "percentStackedValues": {
         "column": "percentstackedvalues",
         "kind": "property"
       },
       "persistedPeriods": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.period.Period",
+        "elementColumn": "periodid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_periods"
       },
       "program": {
         "class": "org.hisp.dhis.program.Program",
@@ -2255,7 +4112,11 @@
         "kind": "many-to-one"
       },
       "programIndicatorDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityProgramIndicatorDimension",
+        "elementColumn": "trackedentityprogramindicatordimensionid",
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_programindicatordimensions"
       },
       "programStage": {
         "class": "org.hisp.dhis.program.ProgramStage",
@@ -2264,7 +4125,8 @@
       },
       "programStatus": {
         "column": "programstatus",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "rangeAxisDecimals": {
         "column": "rangeaxisdecimals",
@@ -2293,10 +4155,13 @@
       },
       "regressionType": {
         "column": "regressiontype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "rowDimensions": {
-        "kind": "list"
+        "keyColumn": "eventvisualizationid",
+        "kind": "list",
+        "table": "eventvisualization_rows"
       },
       "rowSubTotals": {
         "column": "rowsubtotals",
@@ -2387,7 +4252,8 @@
       "type": {
         "column": "type",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "uid": {
         "column": "uid",
@@ -2396,7 +4262,8 @@
       },
       "userOrgUnitType": {
         "column": "userorgunittype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "userOrganisationUnit": {
         "column": "userorganisationunit",
@@ -2432,7 +4299,8 @@
       },
       "missingValueStrategy": {
         "column": "missingvaluestrategy",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "slidingWindow": {
         "column": "slidingwindow",
@@ -2502,7 +4370,8 @@
       },
       "missingValueStrategy": {
         "column": "missingvaluestrategy",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "name": {
         "column": "name",
@@ -2582,7 +4451,8 @@
       },
       "domain": {
         "column": "domain",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "fileResourceOwner": {
         "column": "fileresourceowner",
@@ -2710,7 +4580,12 @@
         "kind": "many-to-one"
       },
       "dataSets": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.dataset.DataSet",
+        "elementColumn": "datasetid",
+        "inverse": true,
+        "keyColumn": "indicatorid",
+        "kind": "set",
+        "table": "datasetindicators"
       },
       "decimals": {
         "column": "decimals",
@@ -2738,7 +4613,12 @@
         "type": "text"
       },
       "groups": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.indicator.IndicatorGroup",
+        "elementColumn": "indicatorgroupid",
+        "inverse": true,
+        "keyColumn": "indicatorid",
+        "kind": "set",
+        "table": "indicatorgroupmembers"
       },
       "indicatorType": {
         "class": "org.hisp.dhis.indicator.IndicatorType",
@@ -2758,7 +4638,11 @@
         "kind": "many-to-one"
       },
       "legendSets": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.legend.LegendSet",
+        "elementColumn": "legendsetid",
+        "keyColumn": "indicatorid",
+        "kind": "list",
+        "table": "indicatorlegendsets"
       },
       "name": {
         "column": "name",
@@ -2807,6 +4691,166 @@
       }
     },
     "table": "indicator"
+  },
+  "org.hisp.dhis.indicator.IndicatorGroup": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/indicator/IndicatorGroup.java",
+    "id": {
+      "column": "indicatorgroupid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "attributeValues": {
+        "column": "attributevalues",
+        "kind": "property",
+        "type": "jsbAttributeValues"
+      },
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "createdBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "userid",
+        "kind": "many-to-one"
+      },
+      "description": {
+        "column": "description",
+        "kind": "property",
+        "type": "text"
+      },
+      "groupSets": {
+        "elementClass": "org.hisp.dhis.indicator.IndicatorGroupSet",
+        "inverse": true,
+        "kind": "set",
+        "mappedBy": "members"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "members": {
+        "elementClass": "org.hisp.dhis.indicator.Indicator",
+        "elementColumn": "indicatorid",
+        "keyColumn": "indicatorgroupid",
+        "kind": "set",
+        "table": "indicatorgroupmembers"
+      },
+      "name": {
+        "column": "name",
+        "kind": "property",
+        "notNull": true
+      },
+      "sharing": {
+        "column": "sharing",
+        "kind": "property",
+        "type": "jsbObjectSharing"
+      },
+      "translations": {
+        "column": "translations",
+        "embedded": true,
+        "kind": "property",
+        "type": "jblTranslations"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "indicatorgroup"
+  },
+  "org.hisp.dhis.indicator.IndicatorGroupSet": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/indicator/IndicatorGroupSet.java",
+    "id": {
+      "column": "indicatorgroupsetid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "compulsory": {
+        "column": "compulsory",
+        "kind": "property"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "createdBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "userid",
+        "kind": "many-to-one"
+      },
+      "description": {
+        "column": "description",
+        "kind": "property",
+        "type": "text"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "members": {
+        "elementClass": "org.hisp.dhis.indicator.IndicatorGroup",
+        "elementColumn": "indicatorgroupid",
+        "keyColumn": "indicatorgroupsetid",
+        "kind": "list",
+        "table": "indicatorgroupsetmembers"
+      },
+      "name": {
+        "column": "name",
+        "kind": "property",
+        "notNull": true
+      },
+      "sharing": {
+        "column": "sharing",
+        "kind": "property",
+        "type": "jsbObjectSharing"
+      },
+      "shortName": {
+        "column": "shortname",
+        "kind": "property",
+        "notNull": true
+      },
+      "translations": {
+        "column": "translations",
+        "embedded": true,
+        "kind": "property",
+        "type": "jblTranslations"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "indicatorgroupset"
   },
   "org.hisp.dhis.indicator.IndicatorType": {
     "file": "dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/indicator/hibernate/IndicatorType.hbm.xml",
@@ -2873,7 +4917,11 @@
     "mapping": "class",
     "properties": {
       "comments": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.interpretation.InterpretationComment",
+        "elementColumn": "interpretationcommentid",
+        "keyColumn": "interpretationid",
+        "kind": "list",
+        "table": "interpretation_comments"
       },
       "created": {
         "column": "created",
@@ -2913,7 +4961,11 @@
         "type": "timestamp"
       },
       "likedBy": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.user.User",
+        "elementColumn": "userid",
+        "keyColumn": "interpretationid",
+        "kind": "set",
+        "table": "interpretation_likedby"
       },
       "likes": {
         "column": "likes",
@@ -3004,6 +5056,146 @@
       }
     },
     "table": "interpretationcomment"
+  },
+  "org.hisp.dhis.legend.Legend": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/legend/Legend.java",
+    "id": {
+      "column": "maplegendid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "color": {
+        "column": "color",
+        "kind": "property"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "endValue": {
+        "column": "endvalue",
+        "kind": "property"
+      },
+      "image": {
+        "column": "image",
+        "kind": "property"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "legendSet": {
+        "class": "org.hisp.dhis.legend.LegendSet",
+        "column": "maplegendsetid",
+        "kind": "many-to-one"
+      },
+      "name": {
+        "column": "name",
+        "kind": "property"
+      },
+      "startValue": {
+        "column": "startvalue",
+        "kind": "property"
+      },
+      "translations": {
+        "column": "translations",
+        "embedded": true,
+        "kind": "property",
+        "type": "jblTranslations"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "maplegend"
+  },
+  "org.hisp.dhis.legend.LegendSet": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/legend/LegendSet.java",
+    "id": {
+      "column": "maplegendsetid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "attributeValues": {
+        "column": "attributevalues",
+        "kind": "property",
+        "type": "jsbAttributeValues"
+      },
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "createdBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "userid",
+        "kind": "many-to-one"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "legends": {
+        "elementClass": "org.hisp.dhis.legend.Legend",
+        "keyColumn": "maplegendsetid",
+        "kind": "set"
+      },
+      "name": {
+        "column": "name",
+        "kind": "property",
+        "notNull": true
+      },
+      "sharing": {
+        "column": "sharing",
+        "kind": "property",
+        "type": "jsbObjectSharing"
+      },
+      "symbolizer": {
+        "column": "symbolizer",
+        "kind": "property"
+      },
+      "translations": {
+        "column": "translations",
+        "embedded": true,
+        "kind": "property",
+        "type": "jblTranslations"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "maplegendset"
   },
   "org.hisp.dhis.mapping.ExternalMapLayer": {
     "file": "dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/mapping/hibernate/ExternalMapLayer.hbm.xml",
@@ -3166,6 +5358,9 @@
         "type": "jbSet"
       },
       "interpretations": {
+        "elementClass": "org.hisp.dhis.interpretation.Interpretation",
+        "inverse": true,
+        "keyColumn": "mapid",
         "kind": "set"
       },
       "lastUpdated": {
@@ -3188,7 +5383,11 @@
         "kind": "property"
       },
       "mapViews": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.mapping.MapView",
+        "elementColumn": "mapviewid",
+        "keyColumn": "mapid",
+        "kind": "list",
+        "table": "mapmapviews"
       },
       "name": {
         "column": "name",
@@ -3236,20 +5435,33 @@
     "properties": {
       "aggregationType": {
         "column": "aggregationtype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "areaRadius": {
         "column": "arearadius",
         "kind": "property"
       },
       "attributeDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityAttributeDimension",
+        "elementColumn": "trackedentityattributedimensionid",
+        "keyColumn": "mapviewid",
+        "kind": "list",
+        "table": "mapview_attributedimensions"
       },
       "categoryDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.category.CategoryDimension",
+        "elementColumn": "categorydimensionid",
+        "keyColumn": "mapviewid",
+        "kind": "list",
+        "table": "mapview_categorydimensions"
       },
       "categoryOptionGroupSetDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.category.CategoryOptionGroupSetDimension",
+        "elementColumn": "categoryoptiongroupsetdimensionid",
+        "keyColumn": "mapviewid",
+        "kind": "list",
+        "table": "mapview_categoryoptiongroupsetdimensions"
       },
       "classes": {
         "column": "classes",
@@ -3272,7 +5484,9 @@
         "kind": "property"
       },
       "columnDimensions": {
-        "kind": "list"
+        "keyColumn": "mapviewid",
+        "kind": "list",
+        "table": "mapview_columns"
       },
       "config": {
         "column": "config",
@@ -3286,10 +5500,18 @@
         "type": "timestamp"
       },
       "dataDimensionItems": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.common.DataDimensionItem",
+        "elementColumn": "datadimensionitemid",
+        "keyColumn": "mapviewid",
+        "kind": "list",
+        "table": "mapview_datadimensionitems"
       },
       "dataElementDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityDataElementDimension",
+        "elementColumn": "trackedentitydataelementdimensionid",
+        "keyColumn": "mapviewid",
+        "kind": "list",
+        "table": "mapview_dataelementdimensions"
       },
       "description": {
         "column": "description",
@@ -3322,10 +5544,13 @@
       },
       "eventStatus": {
         "column": "eventstatus",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "filterDimensions": {
-        "kind": "list"
+        "keyColumn": "mapviewid",
+        "kind": "list",
+        "table": "mapview_filters"
       },
       "followUp": {
         "column": "followup",
@@ -3336,7 +5561,11 @@
         "kind": "property"
       },
       "itemOrganisationUnitGroups": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroup",
+        "elementColumn": "orgunitgroupid",
+        "keyColumn": "mapviewid",
+        "kind": "list",
+        "table": "mapview_itemorgunitgroups"
       },
       "labelFontColor": {
         "column": "labelfontcolor",
@@ -3413,20 +5642,35 @@
         "kind": "many-to-one"
       },
       "organisationUnitGroupSetDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroupSetDimension",
+        "elementColumn": "orgunitgroupsetdimensionid",
+        "keyColumn": "mapviewid",
+        "kind": "list",
+        "table": "mapview_orgunitgroupsetdimensions"
       },
       "organisationUnitLevels": {
-        "kind": "list"
+        "keyColumn": "mapviewid",
+        "kind": "list",
+        "table": "mapview_orgunitlevels"
       },
       "organisationUnitSelectionMode": {
         "column": "organisationunitselectionmode",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "organisationUnits": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnit",
+        "elementColumn": "organisationunitid",
+        "keyColumn": "mapviewid",
+        "kind": "list",
+        "table": "mapview_organisationunits"
       },
       "persistedPeriods": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.period.Period",
+        "elementColumn": "periodid",
+        "keyColumn": "mapviewid",
+        "kind": "list",
+        "table": "mapview_periods"
       },
       "program": {
         "class": "org.hisp.dhis.program.Program",
@@ -3440,7 +5684,8 @@
       },
       "programStatus": {
         "column": "programstatus",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "radiusHigh": {
         "column": "radiushigh",
@@ -3458,7 +5703,8 @@
       "renderingStrategy": {
         "column": "renderingstrategy",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "startDate": {
         "column": "startdate",
@@ -3471,7 +5717,8 @@
       },
       "thematicMapType": {
         "column": "thematicmaptype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "trackedEntityType": {
         "class": "org.hisp.dhis.trackedentity.TrackedEntityType",
@@ -3490,7 +5737,8 @@
       },
       "userOrgUnitType": {
         "column": "userorgunittype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "userOrganisationUnit": {
         "column": "userorganisationunit",
@@ -3506,6 +5754,59 @@
       }
     },
     "table": "mapview"
+  },
+  "org.hisp.dhis.message.Message": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/message/Message.java",
+    "id": {
+      "column": "messageid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "attachments": {
+        "elementClass": "org.hisp.dhis.fileresource.FileResource",
+        "elementColumn": "fileresourceid",
+        "keyColumn": "messageid",
+        "kind": "set",
+        "table": "messageattachments"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "internal": {
+        "column": "internal",
+        "kind": "property"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "metaData": {
+        "column": "metadata",
+        "kind": "property"
+      },
+      "sender": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "userid",
+        "kind": "many-to-one"
+      },
+      "text": {
+        "column": "messagetext",
+        "kind": "property",
+        "type": "text"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "message"
   },
   "org.hisp.dhis.message.MessageConversation": {
     "file": "dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/message/hibernate/MessageConversation.hbm.xml",
@@ -3557,18 +5858,25 @@
       },
       "messageType": {
         "column": "messagetype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "messages": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.message.Message",
+        "elementColumn": "messageid",
+        "keyColumn": "messageconversationid",
+        "kind": "list",
+        "table": "messageconversation_messages"
       },
       "priority": {
         "column": "priority",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "status": {
         "column": "status",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "subject": {
         "column": "subject",
@@ -3580,7 +5888,11 @@
         "kind": "property"
       },
       "userMessages": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.message.UserMessage",
+        "elementColumn": "usermessageid",
+        "keyColumn": "messageconversationid",
+        "kind": "set",
+        "table": "messageconversation_usermessages"
       }
     },
     "table": "messageconversation"
@@ -3662,12 +5974,14 @@
       "status": {
         "column": "status",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "target": {
         "column": "target",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "targetId": {
         "column": "targetuid",
@@ -3676,7 +5990,8 @@
       "type": {
         "column": "type",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "uid": {
         "column": "uid",
@@ -3732,7 +6047,8 @@
       },
       "type": {
         "column": "versiontype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "uid": {
         "column": "uid",
@@ -3825,7 +6141,8 @@
       },
       "notificationTriggeredBy": {
         "column": "triggerby",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "retries": {
         "column": "retries",
@@ -3950,7 +6267,11 @@
         "kind": "many-to-one"
       },
       "members": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.option.Option",
+        "elementColumn": "optionid",
+        "keyColumn": "optiongroupid",
+        "kind": "set",
+        "table": "optiongroupmembers"
       },
       "name": {
         "column": "name",
@@ -4030,7 +6351,11 @@
         "kind": "many-to-one"
       },
       "members": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.option.OptionGroup",
+        "elementColumn": "optiongroupid",
+        "keyColumn": "optiongroupsetid",
+        "kind": "list",
+        "table": "optiongroupsetmembers"
       },
       "name": {
         "column": "name",
@@ -4060,6 +6385,89 @@
     },
     "table": "optiongroupset"
   },
+  "org.hisp.dhis.option.OptionSet": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/option/OptionSet.java",
+    "id": {
+      "column": "optionsetid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "attributeValues": {
+        "column": "attributevalues",
+        "kind": "property",
+        "type": "jsbAttributeValues"
+      },
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "createdBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "userid",
+        "kind": "many-to-one"
+      },
+      "description": {
+        "column": "description",
+        "kind": "property",
+        "type": "text"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "name": {
+        "column": "name",
+        "kind": "property",
+        "notNull": true
+      },
+      "options": {
+        "elementClass": "org.hisp.dhis.option.Option",
+        "keyColumn": "optionsetid",
+        "kind": "list"
+      },
+      "sharing": {
+        "column": "sharing",
+        "kind": "property",
+        "type": "jsbObjectSharing"
+      },
+      "translations": {
+        "column": "translations",
+        "embedded": true,
+        "kind": "property",
+        "type": "jblTranslations"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      },
+      "valueType": {
+        "column": "valuetype",
+        "kind": "property",
+        "notNull": true,
+        "type": "enum-string"
+      },
+      "version": {
+        "column": "version",
+        "kind": "property"
+      }
+    },
+    "table": "optionset"
+  },
   "org.hisp.dhis.organisationunit.OrganisationUnit": {
     "file": "dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/organisationunit/hibernate/OrganisationUnit.hbm.xml",
     "id": {
@@ -4078,9 +6486,17 @@
         "type": "jsbAttributeValues"
       },
       "categoryOptions": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.category.CategoryOption",
+        "elementColumn": "categoryoptionid",
+        "inverse": true,
+        "keyColumn": "organisationunitid",
+        "kind": "set",
+        "table": "categoryoption_organisationunits"
       },
       "children": {
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnit",
+        "inverse": true,
+        "keyColumn": "parentid",
         "kind": "set"
       },
       "closedDate": {
@@ -4113,7 +6529,12 @@
         "kind": "many-to-one"
       },
       "dataSets": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.dataset.DataSet",
+        "elementColumn": "datasetid",
+        "inverse": true,
+        "keyColumn": "sourceid",
+        "kind": "set",
+        "table": "datasetsource"
       },
       "description": {
         "column": "description",
@@ -4129,7 +6550,12 @@
         "kind": "property"
       },
       "groups": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroup",
+        "elementColumn": "orgunitgroupid",
+        "inverse": true,
+        "keyColumn": "organisationunitid",
+        "kind": "set",
+        "table": "orgunitgroupmembers"
       },
       "hierarchyLevel": {
         "column": "hierarchylevel",
@@ -4176,7 +6602,12 @@
         "kind": "property"
       },
       "programs": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.program.Program",
+        "elementColumn": "programid",
+        "inverse": true,
+        "keyColumn": "organisationunitid",
+        "kind": "set",
+        "table": "program_organisationunits"
       },
       "shortName": {
         "column": "shortname",
@@ -4198,7 +6629,12 @@
         "kind": "property"
       },
       "users": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.user.User",
+        "elementColumn": "userinfoid",
+        "inverse": true,
+        "keyColumn": "organisationunitid",
+        "kind": "set",
+        "table": "usermembership"
       }
     },
     "table": "organisationunit"
@@ -4245,7 +6681,12 @@
         "kind": "property"
       },
       "groupSets": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroupSet",
+        "elementColumn": "orgunitgroupsetid",
+        "inverse": true,
+        "keyColumn": "orgunitgroupid",
+        "kind": "set",
+        "table": "orgunitgroupsetmembers"
       },
       "lastUpdated": {
         "column": "lastupdated",
@@ -4259,7 +6700,11 @@
         "kind": "many-to-one"
       },
       "members": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnit",
+        "elementColumn": "organisationunitid",
+        "keyColumn": "orgunitgroupid",
+        "kind": "set",
+        "table": "orgunitgroupmembers"
       },
       "name": {
         "column": "name",
@@ -4357,7 +6802,11 @@
         "notNull": true
       },
       "organisationUnitGroups": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroup",
+        "elementColumn": "orgunitgroupid",
+        "keyColumn": "orgunitgroupsetid",
+        "kind": "set",
+        "table": "orgunitgroupsetmembers"
       },
       "sharing": {
         "column": "sharing",
@@ -4396,7 +6845,11 @@
         "kind": "many-to-one"
       },
       "items": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroup",
+        "elementColumn": "orgunitgroupid",
+        "keyColumn": "orgunitgroupsetdimensionid",
+        "kind": "list",
+        "table": "orgunitgroupsetdimension_items"
       }
     },
     "table": "orgunitgroupsetdimension"
@@ -4877,7 +7330,12 @@
         "kind": "many-to-one"
       },
       "groups": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.predictor.PredictorGroup",
+        "elementColumn": "predictorgroupid",
+        "inverse": true,
+        "keyColumn": "predictorid",
+        "kind": "set",
+        "table": "predictorgroupmembers"
       },
       "lastUpdated": {
         "column": "lastupdated",
@@ -4898,10 +7356,15 @@
       "organisationUnitDescendants": {
         "column": "organisationunitdescendants",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "organisationUnitLevels": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitLevel",
+        "elementColumn": "orgunitlevelid",
+        "keyColumn": "predictorid",
+        "kind": "set",
+        "table": "predictororgunitlevels"
       },
       "output": {
         "class": "org.hisp.dhis.dataelement.DataElement",
@@ -4992,7 +7455,11 @@
         "kind": "many-to-one"
       },
       "members": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.predictor.Predictor",
+        "elementColumn": "predictorid",
+        "keyColumn": "predictorgroupid",
+        "kind": "set",
+        "table": "predictorgroupmembers"
       },
       "name": {
         "column": "name",
@@ -5027,7 +7494,8 @@
     "properties": {
       "analyticsPeriodBoundaryType": {
         "column": "analyticsperiodboundarytype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "boundaryTarget": {
         "column": "boundarytarget",
@@ -5076,6 +7544,329 @@
     },
     "table": "periodboundary"
   },
+  "org.hisp.dhis.program.Program": {
+    "file": "dhis-api/src/main/java/org/hisp/dhis/program/Program.java",
+    "id": {
+      "column": "programid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "accessLevel": {
+        "column": "accesslevel",
+        "kind": "property",
+        "type": "enum-string"
+      },
+      "attributeValues": {
+        "column": "attributevalues",
+        "kind": "property",
+        "type": "jsbAttributeValues"
+      },
+      "categoryCombo": {
+        "class": "org.hisp.dhis.category.CategoryCombo",
+        "column": "categorycomboid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "categoryMappings": {
+        "column": "categorymappings",
+        "kind": "property",
+        "type": "jsbProgramCategoryMappings"
+      },
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "completeEventsExpiryDays": {
+        "column": "completeeventsexpirydays",
+        "kind": "property"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "createdBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "userid",
+        "kind": "many-to-one"
+      },
+      "dataEntryForm": {
+        "class": "org.hisp.dhis.dataentryform.DataEntryForm",
+        "column": "dataentryformid",
+        "kind": "many-to-one"
+      },
+      "description": {
+        "column": "description",
+        "kind": "property",
+        "type": "text"
+      },
+      "displayFrontPageList": {
+        "column": "displayfrontpagelist",
+        "kind": "property"
+      },
+      "displayIncidentDate": {
+        "column": "displayincidentdate",
+        "kind": "property"
+      },
+      "enableChangeLog": {
+        "column": "enablechangelog",
+        "kind": "property"
+      },
+      "enrollmentCategoryCombo": {
+        "class": "org.hisp.dhis.category.CategoryCombo",
+        "column": "enrollmentcategorycomboid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "enrollmentDateLabel": {
+        "column": "enrollmentdatelabel",
+        "kind": "property",
+        "type": "text"
+      },
+      "enrollmentLabel": {
+        "column": "enrollmentlabel",
+        "kind": "property",
+        "type": "text"
+      },
+      "enrollmentsLabel": {
+        "column": "enrollmentslabel",
+        "kind": "property",
+        "type": "text"
+      },
+      "eventLabel": {
+        "column": "eventlabel",
+        "kind": "property",
+        "type": "text"
+      },
+      "eventsLabel": {
+        "column": "eventslabel",
+        "kind": "property",
+        "type": "text"
+      },
+      "expiryDays": {
+        "column": "expirydays",
+        "kind": "property"
+      },
+      "expiryPeriodType": {
+        "class": "org.hisp.dhis.period.PeriodType",
+        "column": "expiryperiodtypeid",
+        "kind": "many-to-one"
+      },
+      "featureType": {
+        "column": "featuretype",
+        "kind": "property",
+        "type": "enum-string"
+      },
+      "followUpLabel": {
+        "column": "followuplabel",
+        "kind": "property",
+        "type": "text"
+      },
+      "formName": {
+        "column": "formname",
+        "kind": "property",
+        "type": "text"
+      },
+      "ignoreOverdueEvents": {
+        "column": "ignoreoverdueevents",
+        "kind": "property"
+      },
+      "incidentDateLabel": {
+        "column": "incidentdatelabel",
+        "kind": "property",
+        "type": "text"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "maxTeiCountToReturn": {
+        "column": "maxteicounttoreturn",
+        "kind": "property"
+      },
+      "minAttributesRequiredToSearch": {
+        "column": "minattributesrequiredtosearch",
+        "kind": "property"
+      },
+      "name": {
+        "column": "name",
+        "kind": "property",
+        "notNull": true
+      },
+      "noteLabel": {
+        "column": "notelabel",
+        "kind": "property",
+        "type": "text"
+      },
+      "notesLabel": {
+        "column": "noteslabel",
+        "kind": "property",
+        "type": "text"
+      },
+      "notificationTemplates": {
+        "elementClass": "org.hisp.dhis.program.notification.ProgramNotificationTemplate",
+        "keyColumn": "programid",
+        "kind": "set"
+      },
+      "onlyEnrollOnce": {
+        "column": "onlyenrollonce",
+        "kind": "property"
+      },
+      "openDaysAfterCoEndDate": {
+        "column": "opendaysaftercoenddate",
+        "kind": "property"
+      },
+      "orgUnitLabel": {
+        "column": "orgunitlabel",
+        "kind": "property",
+        "type": "text"
+      },
+      "organisationUnits": {
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnit",
+        "elementColumn": "organisationunitid",
+        "keyColumn": "programid",
+        "kind": "set",
+        "table": "program_organisationunits"
+      },
+      "programAttributes": {
+        "elementClass": "org.hisp.dhis.program.ProgramTrackedEntityAttribute",
+        "keyColumn": "programid",
+        "kind": "list"
+      },
+      "programIndicators": {
+        "elementClass": "org.hisp.dhis.program.ProgramIndicator",
+        "inverse": true,
+        "kind": "set",
+        "mappedBy": "program"
+      },
+      "programRuleVariables": {
+        "elementClass": "org.hisp.dhis.programrule.ProgramRuleVariable",
+        "inverse": true,
+        "kind": "set",
+        "mappedBy": "program"
+      },
+      "programSections": {
+        "elementClass": "org.hisp.dhis.program.ProgramSection",
+        "keyColumn": "programid",
+        "kind": "set"
+      },
+      "programStageLabel": {
+        "column": "programstagelabel",
+        "kind": "property",
+        "type": "text"
+      },
+      "programStages": {
+        "elementClass": "org.hisp.dhis.program.ProgramStage",
+        "keyColumn": "programid",
+        "kind": "set"
+      },
+      "programStagesLabel": {
+        "column": "programstageslabel",
+        "kind": "property",
+        "type": "text"
+      },
+      "programType": {
+        "column": "type",
+        "kind": "property",
+        "notNull": true,
+        "type": "enum-string"
+      },
+      "relatedProgram": {
+        "class": "org.hisp.dhis.program.Program",
+        "column": "relatedprogramid",
+        "kind": "many-to-one"
+      },
+      "relationshipLabel": {
+        "column": "relationshiplabel",
+        "kind": "property",
+        "type": "text"
+      },
+      "relationshipsLabel": {
+        "column": "relationshipslabel",
+        "kind": "property",
+        "type": "text"
+      },
+      "selectEnrollmentDatesInFuture": {
+        "column": "selectenrollmentdatesinfuture",
+        "kind": "property"
+      },
+      "selectIncidentDatesInFuture": {
+        "column": "selectincidentdatesinfuture",
+        "kind": "property"
+      },
+      "sharing": {
+        "column": "sharing",
+        "kind": "property",
+        "type": "jsbObjectSharing"
+      },
+      "shortName": {
+        "column": "shortname",
+        "kind": "property",
+        "notNull": true
+      },
+      "skipOffline": {
+        "column": "skipoffline",
+        "kind": "property",
+        "notNull": true
+      },
+      "style": {
+        "column": "style",
+        "kind": "property",
+        "type": "jbObjectStyle"
+      },
+      "trackedEntityAttributeLabel": {
+        "column": "trackedentityattributelabel",
+        "kind": "property",
+        "type": "text"
+      },
+      "trackedEntityAttributesLabel": {
+        "column": "trackedentityattributeslabel",
+        "kind": "property",
+        "type": "text"
+      },
+      "trackedEntityType": {
+        "class": "org.hisp.dhis.trackedentity.TrackedEntityType",
+        "column": "trackedentitytypeid",
+        "kind": "many-to-one"
+      },
+      "translations": {
+        "column": "translations",
+        "embedded": true,
+        "kind": "property",
+        "type": "jblTranslations"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      },
+      "useFirstStageDuringRegistration": {
+        "column": "usefirststageduringregistration",
+        "kind": "property"
+      },
+      "userRoles": {
+        "elementClass": "org.hisp.dhis.user.UserRole",
+        "elementColumn": "userroleid",
+        "keyColumn": "programid",
+        "kind": "set",
+        "table": "program_userroles"
+      },
+      "version": {
+        "column": "version",
+        "kind": "property"
+      }
+    },
+    "table": "program"
+  },
   "org.hisp.dhis.program.ProgramExpression": {
     "file": "dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/program/hibernate/ProgramExpression.hbm.xml",
     "id": {
@@ -5118,15 +7909,19 @@
       },
       "aggregationType": {
         "column": "aggregationtype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "analyticsPeriodBoundaries": {
+        "elementClass": "org.hisp.dhis.program.AnalyticsPeriodBoundary",
+        "keyColumn": "programindicatorid",
         "kind": "set"
       },
       "analyticsType": {
         "column": "analyticstype",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "attributeCombo": {
         "class": "org.hisp.dhis.category.CategoryCombo",
@@ -5194,7 +7989,12 @@
         "type": "text"
       },
       "groups": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.program.ProgramIndicatorGroup",
+        "elementColumn": "programindicatorgroupid",
+        "inverse": true,
+        "keyColumn": "programindicatorid",
+        "kind": "set",
+        "table": "programindicatorgroupmembers"
       },
       "lastUpdated": {
         "column": "lastupdated",
@@ -5208,7 +8008,11 @@
         "kind": "many-to-one"
       },
       "legendSets": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.legend.LegendSet",
+        "elementColumn": "legendsetid",
+        "keyColumn": "programindicatorid",
+        "kind": "list",
+        "table": "programindicatorlegendsets"
       },
       "name": {
         "column": "name",
@@ -5294,7 +8098,11 @@
         "kind": "many-to-one"
       },
       "members": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.program.ProgramIndicator",
+        "elementColumn": "programindicatorid",
+        "keyColumn": "programindicatorgroupid",
+        "kind": "set",
+        "table": "programindicatorgroupmembers"
       },
       "name": {
         "column": "name",
@@ -5384,7 +8192,11 @@
         "type": "jbObjectStyle"
       },
       "trackedEntityAttributes": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityAttribute",
+        "elementColumn": "trackedentityattributeid",
+        "keyColumn": "programsectionid",
+        "kind": "list",
+        "table": "programsection_attributes"
       },
       "translations": {
         "column": "translations",
@@ -5475,7 +8287,8 @@
       },
       "featureType": {
         "column": "featuretype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "formName": {
         "column": "formname",
@@ -5517,6 +8330,8 @@
         "kind": "many-to-one"
       },
       "notificationTemplates": {
+        "elementClass": "org.hisp.dhis.program.notification.ProgramNotificationTemplate",
+        "keyColumn": "programstageid",
         "kind": "set"
       },
       "openAfterEnrollment": {
@@ -5538,6 +8353,8 @@
         "kind": "many-to-one"
       },
       "programStageDataElements": {
+        "elementClass": "org.hisp.dhis.program.ProgramStageDataElement",
+        "keyColumn": "programstageid",
         "kind": "set"
       },
       "programStageLabel": {
@@ -5545,6 +8362,8 @@
         "kind": "property"
       },
       "programStageSections": {
+        "elementClass": "org.hisp.dhis.program.ProgramStageSection",
+        "keyColumn": "programstageid",
         "kind": "set"
       },
       "referral": {
@@ -5595,7 +8414,8 @@
       },
       "validationStrategy": {
         "column": "validationstrategy",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       }
     },
     "table": "programstage"
@@ -5706,7 +8526,11 @@
         "type": "timestamp"
       },
       "dataElements": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.dataelement.DataElement",
+        "elementColumn": "dataelementid",
+        "keyColumn": "programstagesectionid",
+        "kind": "list",
+        "table": "programstagesection_dataelements"
       },
       "description": {
         "column": "description",
@@ -5735,7 +8559,11 @@
         "notNull": true
       },
       "programIndicators": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.program.ProgramIndicator",
+        "elementColumn": "programindicatorid",
+        "keyColumn": "programstagesectionid",
+        "kind": "list",
+        "table": "programstagesection_programindicators"
       },
       "programStage": {
         "class": "org.hisp.dhis.program.ProgramStage",
@@ -5866,7 +8694,9 @@
         "type": "timestamp"
       },
       "deliveryChannels": {
-        "kind": "set"
+        "keyColumn": "programnotificationtemplatedeliverychannelid",
+        "kind": "set",
+        "table": "programnotificationtemplate_deliverychannel"
       },
       "lastUpdated": {
         "column": "lastupdated",
@@ -5892,11 +8722,13 @@
       },
       "notificationRecipient": {
         "column": "notificationrecipienttype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "notificationTrigger": {
         "column": "notificationtrigger",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "notifyParentOrganisationUnitOnly": {
         "column": "notifyparentorganisationunitonly",
@@ -6001,6 +8833,8 @@
         "notNull": true
       },
       "programRuleActions": {
+        "elementClass": "org.hisp.dhis.programrule.ProgramRuleAction",
+        "keyColumn": "programruleid",
         "kind": "set"
       },
       "programStage": {
@@ -6116,12 +8950,14 @@
       "programRuleActionEvaluationTime": {
         "column": "evaluationtime",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "programRuleActionType": {
         "column": "actiontype",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "programStage": {
         "class": "org.hisp.dhis.program.ProgramStage",
@@ -6204,7 +9040,8 @@
       "sourceType": {
         "column": "sourcetype",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "translations": {
         "column": "translations",
@@ -6223,7 +9060,8 @@
       "valueType": {
         "column": "valuetype",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       }
     },
     "table": "programrulevariable"
@@ -6398,7 +9236,8 @@
       },
       "relationshipEntity": {
         "column": "entity",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "trackedEntityType": {
         "class": "org.hisp.dhis.trackedentity.TrackedEntityType",
@@ -6518,7 +9357,8 @@
     "properties": {
       "cacheStrategy": {
         "column": "cachestrategy",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "code": {
         "column": "code",
@@ -6576,7 +9416,8 @@
       },
       "type": {
         "column": "type",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "uid": {
         "column": "uid",
@@ -6786,12 +9627,14 @@
       "jobStatus": {
         "column": "jobstatus",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "jobType": {
         "column": "jobtype",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "lastAlive": {
         "column": "lastalive",
@@ -6806,7 +9649,8 @@
       "lastExecutedStatus": {
         "column": "lastexecutedstatus",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "lastFinished": {
         "column": "lastfinished",
@@ -6840,7 +9684,8 @@
       "schedulingType": {
         "column": "schedulingtype",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "uid": {
         "column": "uid",
@@ -6908,7 +9753,8 @@
       "type": {
         "column": "type",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "uid": {
         "column": "uid",
@@ -7318,11 +10164,16 @@
         "type": "text"
       },
       "codes": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.sms.command.code.SMSCode",
+        "elementColumn": "codeid",
+        "keyColumn": "id",
+        "kind": "set",
+        "table": "smscommandcodes"
       },
       "completenessMethod": {
         "column": "completenessmethod",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "created": {
         "column": "created",
@@ -7366,7 +10217,8 @@
       },
       "parserType": {
         "column": "parsertype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "program": {
         "class": "org.hisp.dhis.program.Program",
@@ -7389,7 +10241,11 @@
         "type": "text"
       },
       "specialCharacters": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.sms.command.SMSSpecialCharacter",
+        "elementColumn": "specialcharacterid",
+        "keyColumn": "smscommandid",
+        "kind": "set",
+        "table": "smscommandspecialcharacters"
       },
       "successMessage": {
         "column": "successmessage",
@@ -7489,7 +10345,8 @@
       "encoding": {
         "column": "encoding",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-ordinal"
       },
       "gatewayId": {
         "column": "gatewayid",
@@ -7518,7 +10375,8 @@
       "status": {
         "column": "status",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-ordinal"
       },
       "statusMessage": {
         "column": "statusmessage",
@@ -7554,7 +10412,9 @@
         "kind": "property"
       },
       "recipients": {
-        "kind": "set"
+        "keyColumn": "outbound_sms_id",
+        "kind": "set",
+        "table": "outbound_sms_recipients"
       },
       "sender": {
         "column": "sender",
@@ -7563,7 +10423,8 @@
       "status": {
         "column": "status",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-ordinal"
       },
       "uid": {
         "column": "uid",
@@ -7589,7 +10450,8 @@
       "cacheStrategy": {
         "column": "cachestrategy",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "code": {
         "column": "code",
@@ -7641,7 +10503,8 @@
       "type": {
         "column": "type",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "uid": {
         "column": "uid",
@@ -7662,7 +10525,8 @@
       "aggregationType": {
         "column": "aggregationtype",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "attributeValues": {
         "column": "attributevalues",
@@ -7735,7 +10599,11 @@
         "kind": "many-to-one"
       },
       "legendSets": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.legend.LegendSet",
+        "elementColumn": "legendsetid",
+        "keyColumn": "trackedentityattributeid",
+        "kind": "list",
+        "table": "trackedentityattributelegendsets"
       },
       "minCharactersToSearch": {
         "column": "mincharacterstosearch",
@@ -7761,7 +10629,8 @@
       },
       "preferredSearchOperator": {
         "column": "preferredsearchoperator",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "sharing": {
         "column": "sharing",
@@ -7821,7 +10690,8 @@
       "valueType": {
         "column": "valuetype",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       }
     },
     "table": "trackedentityattribute"
@@ -7952,7 +10822,8 @@
       },
       "featureType": {
         "column": "featuretype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "formName": {
         "column": "formname",
@@ -7999,6 +10870,8 @@
         "type": "jbObjectStyle"
       },
       "trackedEntityTypeAttributes": {
+        "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityTypeAttribute",
+        "keyColumn": "trackedentitytypeid",
         "kind": "list"
       },
       "trackedEntityTypesLabel": {
@@ -8165,6 +11038,123 @@
     },
     "table": "trackedentityfilter"
   },
+  "org.hisp.dhis.tracker.acl.ProgramOwnershipHistory": {
+    "file": "dhis-tracker/src/main/java/org/hisp/dhis/tracker/acl/ProgramOwnershipHistory.java",
+    "id": {
+      "column": "programownershiphistoryid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "createdBy": {
+        "column": "createdby",
+        "kind": "property"
+      },
+      "endDate": {
+        "column": "enddate",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "organisationUnit": {
+        "class": "org.hisp.dhis.organisationunit.OrganisationUnit",
+        "column": "organisationunitid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "program": {
+        "class": "org.hisp.dhis.program.Program",
+        "column": "programid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "startDate": {
+        "column": "startdate",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "trackedEntity": {
+        "class": "org.hisp.dhis.tracker.model.TrackedEntity",
+        "column": "trackedentityid",
+        "kind": "many-to-one",
+        "notNull": true
+      }
+    },
+    "table": "programownershiphistory"
+  },
+  "org.hisp.dhis.tracker.acl.ProgramTempOwner": {
+    "file": "dhis-tracker/src/main/java/org/hisp/dhis/tracker/acl/ProgramTempOwner.java",
+    "id": {
+      "column": "programtempownerid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "program": {
+        "class": "org.hisp.dhis.program.Program",
+        "column": "programid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "reason": {
+        "column": "reason",
+        "kind": "property"
+      },
+      "trackedEntity": {
+        "class": "org.hisp.dhis.tracker.model.TrackedEntity",
+        "column": "trackedentityid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "user": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "userid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "validTill": {
+        "column": "validtill",
+        "kind": "property",
+        "type": "timestamp"
+      }
+    },
+    "table": "programtempowner"
+  },
+  "org.hisp.dhis.tracker.acl.ProgramTempOwnershipAudit": {
+    "file": "dhis-tracker/src/main/java/org/hisp/dhis/tracker/acl/ProgramTempOwnershipAudit.java",
+    "id": {
+      "column": "programtempownershipauditid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "accessedBy": {
+        "column": "accessedby",
+        "kind": "property"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "program": {
+        "class": "org.hisp.dhis.program.Program",
+        "column": "programid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "reason": {
+        "column": "reason",
+        "kind": "property"
+      },
+      "trackedEntity": {
+        "class": "org.hisp.dhis.tracker.model.TrackedEntity",
+        "column": "trackedentityid",
+        "kind": "many-to-one",
+        "notNull": true
+      }
+    },
+    "table": "programtempownershipaudit"
+  },
   "org.hisp.dhis.tracker.audit.TrackedEntityAudit": {
     "file": "dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/trackedentity/hibernate/TrackedEntityAudit.hbm.xml",
     "id": {
@@ -8180,7 +11170,8 @@
       "auditType": {
         "column": "audittype",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "comment": {
         "column": "comment",
@@ -8198,6 +11189,1016 @@
     },
     "table": "trackedentityaudit"
   },
+  "org.hisp.dhis.tracker.deduplication.PotentialDuplicate": {
+    "file": "dhis-tracker/src/main/java/org/hisp/dhis/tracker/deduplication/PotentialDuplicate.java",
+    "id": {
+      "column": "potentialduplicateid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "createdByUserName": {
+        "column": "createdbyusername",
+        "kind": "property",
+        "notNull": true
+      },
+      "duplicate": {
+        "column": "duplicate",
+        "kind": "property",
+        "notNull": true,
+        "type": "org.hisp.dhis.hibernate.UIDUserType"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedByUserName": {
+        "column": "lastupdatebyusername",
+        "kind": "property",
+        "notNull": true
+      },
+      "original": {
+        "column": "original",
+        "kind": "property",
+        "notNull": true,
+        "type": "org.hisp.dhis.hibernate.UIDUserType"
+      },
+      "status": {
+        "column": "status",
+        "kind": "property",
+        "type": "enum-string"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "potentialduplicate"
+  },
+  "org.hisp.dhis.tracker.export.singleevent.SingleEventChangeLog": {
+    "file": "dhis-tracker/src/main/java/org/hisp/dhis/tracker/export/singleevent/SingleEventChangeLog.java",
+    "id": {
+      "column": "eventchangelogid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "changeLogType": {
+        "column": "changelogtype",
+        "kind": "property",
+        "notNull": true,
+        "type": "enum-string"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true
+      },
+      "createdBy": {
+        "column": "createdby",
+        "kind": "property"
+      },
+      "currentValue": {
+        "column": "currentvalue",
+        "kind": "property"
+      },
+      "dataElement": {
+        "class": "org.hisp.dhis.dataelement.DataElement",
+        "column": "dataelementid",
+        "kind": "many-to-one"
+      },
+      "event": {
+        "class": "org.hisp.dhis.tracker.model.SingleEvent",
+        "column": "eventid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "eventField": {
+        "column": "eventfield",
+        "kind": "property"
+      },
+      "previousValue": {
+        "column": "previousvalue",
+        "kind": "property"
+      }
+    },
+    "table": "singleeventchangelog"
+  },
+  "org.hisp.dhis.tracker.export.trackedentity.TrackedEntityChangeLog": {
+    "file": "dhis-tracker/src/main/java/org/hisp/dhis/tracker/export/trackedentity/TrackedEntityChangeLog.java",
+    "id": {
+      "column": "trackedentitychangelogid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "changeLogType": {
+        "column": "changelogtype",
+        "kind": "property",
+        "notNull": true,
+        "type": "enum-string"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true
+      },
+      "createdByUsername": {
+        "column": "createdby",
+        "kind": "property",
+        "notNull": true
+      },
+      "currentValue": {
+        "column": "currentvalue",
+        "kind": "property"
+      },
+      "previousValue": {
+        "column": "previousvalue",
+        "kind": "property"
+      },
+      "trackedEntity": {
+        "class": "org.hisp.dhis.tracker.model.TrackedEntity",
+        "column": "trackedentityid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "trackedEntityAttribute": {
+        "class": "org.hisp.dhis.trackedentity.TrackedEntityAttribute",
+        "column": "trackedentityattributeid",
+        "kind": "many-to-one",
+        "notNull": true
+      }
+    },
+    "table": "trackedentitychangelog"
+  },
+  "org.hisp.dhis.tracker.export.trackerevent.TrackerEventChangeLog": {
+    "file": "dhis-tracker/src/main/java/org/hisp/dhis/tracker/export/trackerevent/TrackerEventChangeLog.java",
+    "id": {
+      "column": "eventchangelogid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "changeLogType": {
+        "column": "changelogtype",
+        "kind": "property",
+        "notNull": true,
+        "type": "enum-string"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true
+      },
+      "createdBy": {
+        "column": "createdby",
+        "kind": "property"
+      },
+      "currentValue": {
+        "column": "currentvalue",
+        "kind": "property"
+      },
+      "dataElement": {
+        "class": "org.hisp.dhis.dataelement.DataElement",
+        "column": "dataelementid",
+        "kind": "many-to-one"
+      },
+      "event": {
+        "class": "org.hisp.dhis.tracker.model.TrackerEvent",
+        "column": "eventid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "eventField": {
+        "column": "eventfield",
+        "kind": "property"
+      },
+      "previousValue": {
+        "column": "previousvalue",
+        "kind": "property"
+      }
+    },
+    "table": "trackereventchangelog"
+  },
+  "org.hisp.dhis.tracker.model.Enrollment": {
+    "file": "dhis-tracker/src/main/java/org/hisp/dhis/tracker/model/Enrollment.java",
+    "id": {
+      "column": "enrollmentid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "attributeOptionCombo": {
+        "class": "org.hisp.dhis.category.CategoryOptionCombo",
+        "column": "attributeoptioncomboid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "completedBy": {
+        "column": "completedby",
+        "kind": "property"
+      },
+      "completedDate": {
+        "column": "completeddate",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "createdAtClient": {
+        "column": "createdatclient",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "createdByUserInfo": {
+        "column": "createdbyuserinfo",
+        "kind": "property",
+        "type": "jbUserInfoSnapshot"
+      },
+      "deleted": {
+        "column": "deleted",
+        "kind": "property"
+      },
+      "enrollmentDate": {
+        "column": "enrollmentdate",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "events": {
+        "elementClass": "org.hisp.dhis.tracker.model.TrackerEvent",
+        "inverse": true,
+        "kind": "set",
+        "mappedBy": "enrollment"
+      },
+      "followup": {
+        "column": "followup",
+        "kind": "property"
+      },
+      "geometry": {
+        "column": "geometry",
+        "kind": "property",
+        "type": "geometry"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedAtClient": {
+        "column": "lastupdatedatclient",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "lastUpdatedByUserInfo": {
+        "column": "lastupdatedbyuserinfo",
+        "kind": "property",
+        "type": "jbUserInfoSnapshot"
+      },
+      "occurredDate": {
+        "column": "occurreddate",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "organisationUnit": {
+        "class": "org.hisp.dhis.organisationunit.OrganisationUnit",
+        "column": "organisationunitid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "program": {
+        "class": "org.hisp.dhis.program.Program",
+        "column": "programid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "relationshipItems": {
+        "elementClass": "org.hisp.dhis.tracker.model.RelationshipItem",
+        "inverse": true,
+        "kind": "set",
+        "mappedBy": "enrollment"
+      },
+      "status": {
+        "column": "status",
+        "kind": "property",
+        "type": "enum-string"
+      },
+      "trackedEntity": {
+        "class": "org.hisp.dhis.tracker.model.TrackedEntity",
+        "column": "trackedentityid",
+        "kind": "many-to-one"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "enrollment"
+  },
+  "org.hisp.dhis.tracker.model.Relationship": {
+    "file": "dhis-tracker/src/main/java/org/hisp/dhis/tracker/model/Relationship.java",
+    "id": {
+      "column": "relationshipid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "createdAtClient": {
+        "column": "createdatclient",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "deleted": {
+        "column": "deleted",
+        "kind": "property"
+      },
+      "from": {
+        "class": "org.hisp.dhis.tracker.model.RelationshipItem",
+        "column": "from_relationshipitemid",
+        "kind": "many-to-one"
+      },
+      "invertedKey": {
+        "column": "inverted_key",
+        "kind": "property",
+        "notNull": true
+      },
+      "key": {
+        "column": "key",
+        "kind": "property",
+        "notNull": true
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "relationshipType": {
+        "class": "org.hisp.dhis.relationship.RelationshipType",
+        "column": "relationshiptypeid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "style": {
+        "column": "style",
+        "kind": "property",
+        "type": "jbObjectStyle"
+      },
+      "to": {
+        "class": "org.hisp.dhis.tracker.model.RelationshipItem",
+        "column": "to_relationshipitemid",
+        "kind": "many-to-one"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "relationship"
+  },
+  "org.hisp.dhis.tracker.model.RelationshipItem": {
+    "file": "dhis-tracker/src/main/java/org/hisp/dhis/tracker/model/RelationshipItem.java",
+    "id": {
+      "column": "relationshipitemid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "enrollment": {
+        "class": "org.hisp.dhis.tracker.model.Enrollment",
+        "column": "enrollmentid",
+        "kind": "many-to-one"
+      },
+      "relationship": {
+        "class": "org.hisp.dhis.tracker.model.Relationship",
+        "column": "relationshipid",
+        "kind": "many-to-one"
+      },
+      "singleEvent": {
+        "class": "org.hisp.dhis.tracker.model.SingleEvent",
+        "column": "singleeventid",
+        "kind": "many-to-one"
+      },
+      "trackedEntity": {
+        "class": "org.hisp.dhis.tracker.model.TrackedEntity",
+        "column": "trackedentityid",
+        "kind": "many-to-one"
+      },
+      "trackerEvent": {
+        "class": "org.hisp.dhis.tracker.model.TrackerEvent",
+        "column": "trackereventid",
+        "kind": "many-to-one"
+      }
+    },
+    "table": "relationshipitem"
+  },
+  "org.hisp.dhis.tracker.model.SingleEvent": {
+    "file": "dhis-tracker/src/main/java/org/hisp/dhis/tracker/model/SingleEvent.java",
+    "id": {
+      "column": "eventid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "assignedUser": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "assigneduserid",
+        "kind": "many-to-one"
+      },
+      "attributeOptionCombo": {
+        "class": "org.hisp.dhis.category.CategoryOptionCombo",
+        "column": "attributeoptioncomboid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "completedBy": {
+        "column": "completedby",
+        "kind": "property"
+      },
+      "completedDate": {
+        "column": "completeddate",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "createdAtClient": {
+        "column": "createdatclient",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "createdByUserInfo": {
+        "column": "createdbyuserinfo",
+        "kind": "property",
+        "type": "jbUserInfoSnapshot"
+      },
+      "deleted": {
+        "column": "deleted",
+        "kind": "property"
+      },
+      "eventDataValues": {
+        "column": "eventdatavalues",
+        "kind": "property",
+        "type": "jsbEventDataValues"
+      },
+      "geometry": {
+        "column": "geometry",
+        "kind": "property",
+        "type": "geometry"
+      },
+      "lastSynchronized": {
+        "column": "lastsynchronized",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedAtClient": {
+        "column": "lastupdatedatclient",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "lastUpdatedByUserInfo": {
+        "column": "lastupdatedbyuserinfo",
+        "kind": "property",
+        "type": "jbUserInfoSnapshot"
+      },
+      "occurredDate": {
+        "column": "occurreddate",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "organisationUnit": {
+        "class": "org.hisp.dhis.organisationunit.OrganisationUnit",
+        "column": "organisationunitid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "programStage": {
+        "class": "org.hisp.dhis.program.ProgramStage",
+        "column": "programstageid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "relationshipItems": {
+        "elementClass": "org.hisp.dhis.tracker.model.RelationshipItem",
+        "inverse": true,
+        "kind": "set",
+        "mappedBy": "singleEvent"
+      },
+      "status": {
+        "column": "status",
+        "kind": "property",
+        "notNull": true,
+        "type": "enum-string"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "singleevent"
+  },
+  "org.hisp.dhis.tracker.model.TrackedEntity": {
+    "file": "dhis-tracker/src/main/java/org/hisp/dhis/tracker/model/TrackedEntity.java",
+    "id": {
+      "column": "trackedentityid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "createdAtClient": {
+        "column": "createdatclient",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "createdByUserInfo": {
+        "column": "createdbyuserinfo",
+        "kind": "property",
+        "type": "jbUserInfoSnapshot"
+      },
+      "deleted": {
+        "column": "deleted",
+        "kind": "property"
+      },
+      "enrollments": {
+        "elementClass": "org.hisp.dhis.tracker.model.Enrollment",
+        "inverse": true,
+        "kind": "set",
+        "mappedBy": "trackedEntity"
+      },
+      "geometry": {
+        "column": "geometry",
+        "kind": "property"
+      },
+      "inactive": {
+        "column": "inactive",
+        "kind": "property"
+      },
+      "lastSynchronized": {
+        "column": "lastsynchronized",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedAtClient": {
+        "column": "lastupdatedatclient",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "lastUpdatedByUserInfo": {
+        "column": "lastupdatedbyuserinfo",
+        "kind": "property",
+        "type": "jbUserInfoSnapshot"
+      },
+      "organisationUnit": {
+        "class": "org.hisp.dhis.organisationunit.OrganisationUnit",
+        "column": "organisationunitid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "potentialDuplicate": {
+        "column": "potentialduplicate",
+        "kind": "property"
+      },
+      "programOwners": {
+        "elementClass": "org.hisp.dhis.tracker.model.TrackedEntityProgramOwner",
+        "inverse": true,
+        "kind": "set",
+        "mappedBy": "trackedEntity"
+      },
+      "relationshipItems": {
+        "elementClass": "org.hisp.dhis.tracker.model.RelationshipItem",
+        "inverse": true,
+        "kind": "set",
+        "mappedBy": "trackedEntity"
+      },
+      "trackedEntityAttributeValues": {
+        "elementClass": "org.hisp.dhis.tracker.model.TrackedEntityAttributeValue",
+        "inverse": true,
+        "kind": "set",
+        "mappedBy": "trackedEntity"
+      },
+      "trackedEntityType": {
+        "class": "org.hisp.dhis.trackedentity.TrackedEntityType",
+        "column": "trackedentitytypeid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "trackedentity"
+  },
+  "org.hisp.dhis.tracker.model.TrackedEntityAttributeValue": {
+    "compositeId": true,
+    "file": "dhis-tracker/src/main/java/org/hisp/dhis/tracker/model/TrackedEntityAttributeValue.java",
+    "mapping": "jpa",
+    "properties": {
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "updatedBy": {
+        "column": "updatedby",
+        "kind": "property"
+      }
+    },
+    "table": "trackedentityattributevalue"
+  },
+  "org.hisp.dhis.tracker.model.TrackedEntityProgramOwner": {
+    "file": "dhis-tracker/src/main/java/org/hisp/dhis/tracker/model/TrackedEntityProgramOwner.java",
+    "id": {
+      "column": "trackedentityprogramownerid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "createdBy": {
+        "column": "createdby",
+        "kind": "property",
+        "notNull": true
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "organisationUnit": {
+        "class": "org.hisp.dhis.organisationunit.OrganisationUnit",
+        "column": "organisationunitid",
+        "kind": "many-to-one"
+      },
+      "program": {
+        "class": "org.hisp.dhis.program.Program",
+        "column": "programid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "trackedEntity": {
+        "class": "org.hisp.dhis.tracker.model.TrackedEntity",
+        "column": "trackedentityid",
+        "kind": "many-to-one"
+      }
+    },
+    "table": "trackedentityprogramowner"
+  },
+  "org.hisp.dhis.tracker.model.TrackerEvent": {
+    "file": "dhis-tracker/src/main/java/org/hisp/dhis/tracker/model/TrackerEvent.java",
+    "id": {
+      "column": "eventid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "assignedUser": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "assigneduserid",
+        "kind": "many-to-one"
+      },
+      "attributeOptionCombo": {
+        "class": "org.hisp.dhis.category.CategoryOptionCombo",
+        "column": "attributeoptioncomboid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "completedBy": {
+        "column": "completedby",
+        "kind": "property"
+      },
+      "completedDate": {
+        "column": "completeddate",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "createdAtClient": {
+        "column": "createdatclient",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "createdByUserInfo": {
+        "column": "createdbyuserinfo",
+        "kind": "property",
+        "type": "jbUserInfoSnapshot"
+      },
+      "deleted": {
+        "column": "deleted",
+        "kind": "property"
+      },
+      "enrollment": {
+        "class": "org.hisp.dhis.tracker.model.Enrollment",
+        "column": "enrollmentid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "eventDataValues": {
+        "column": "eventdatavalues",
+        "kind": "property",
+        "type": "jsbEventDataValues"
+      },
+      "geometry": {
+        "column": "geometry",
+        "kind": "property",
+        "type": "geometry"
+      },
+      "lastSynchronized": {
+        "column": "lastsynchronized",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedAtClient": {
+        "column": "lastupdatedatclient",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "lastUpdatedByUserInfo": {
+        "column": "lastupdatedbyuserinfo",
+        "kind": "property",
+        "type": "jbUserInfoSnapshot"
+      },
+      "occurredDate": {
+        "column": "occurreddate",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "organisationUnit": {
+        "class": "org.hisp.dhis.organisationunit.OrganisationUnit",
+        "column": "organisationunitid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "programStage": {
+        "class": "org.hisp.dhis.program.ProgramStage",
+        "column": "programstageid",
+        "kind": "many-to-one",
+        "notNull": true
+      },
+      "relationshipItems": {
+        "elementClass": "org.hisp.dhis.tracker.model.RelationshipItem",
+        "inverse": true,
+        "kind": "set",
+        "mappedBy": "trackerEvent"
+      },
+      "scheduledDate": {
+        "column": "scheduleddate",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "status": {
+        "column": "status",
+        "kind": "property",
+        "notNull": true,
+        "type": "enum-string"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "trackerevent"
+  },
+  "org.hisp.dhis.tracker.program.message.ProgramMessage": {
+    "file": "dhis-tracker/src/main/java/org/hisp/dhis/tracker/program/message/ProgramMessage.java",
+    "id": {
+      "column": "id",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "deliveryChannels": {
+        "elementColumn": "deliverychannel",
+        "keyColumn": "programmessagedeliverychannelsid",
+        "kind": "element-collection",
+        "table": "programmessage_deliverychannels"
+      },
+      "enrollment": {
+        "class": "org.hisp.dhis.tracker.model.Enrollment",
+        "column": "enrollmentid",
+        "kind": "many-to-one"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "messageStatus": {
+        "column": "messagestatus",
+        "kind": "property",
+        "type": "enum-string"
+      },
+      "notificationTemplate": {
+        "column": "notificationtemplate",
+        "kind": "property"
+      },
+      "processedDate": {
+        "column": "processeddate",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "recipients": {
+        "kind": "component"
+      },
+      "singleEvent": {
+        "class": "org.hisp.dhis.tracker.model.SingleEvent",
+        "column": "singleeventid",
+        "kind": "many-to-one"
+      },
+      "subject": {
+        "column": "subject",
+        "kind": "property"
+      },
+      "text": {
+        "column": "text",
+        "kind": "property",
+        "notNull": true
+      },
+      "trackerEvent": {
+        "class": "org.hisp.dhis.tracker.model.TrackerEvent",
+        "column": "trackereventid",
+        "kind": "many-to-one"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "programmessage"
+  },
+  "org.hisp.dhis.tracker.program.notification.ProgramNotificationInstance": {
+    "file": "dhis-tracker/src/main/java/org/hisp/dhis/tracker/program/notification/ProgramNotificationInstance.java",
+    "id": {
+      "column": "programnotificationinstanceid",
+      "name": "id"
+    },
+    "mapping": "jpa",
+    "properties": {
+      "code": {
+        "column": "code",
+        "kind": "property"
+      },
+      "created": {
+        "column": "created",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "enrollment": {
+        "class": "org.hisp.dhis.tracker.model.Enrollment",
+        "column": "enrollmentid",
+        "kind": "many-to-one"
+      },
+      "lastUpdated": {
+        "column": "lastupdated",
+        "kind": "property",
+        "notNull": true,
+        "type": "timestamp"
+      },
+      "lastUpdatedBy": {
+        "class": "org.hisp.dhis.user.User",
+        "column": "lastupdatedby",
+        "kind": "many-to-one"
+      },
+      "name": {
+        "column": "name",
+        "kind": "property",
+        "notNull": true
+      },
+      "programNotificationTemplateId": {
+        "column": "programnotificationtemplateid",
+        "kind": "property"
+      },
+      "programNotificationTemplateSnapshot": {
+        "column": "programnotificationtemplatesnapshot",
+        "kind": "property",
+        "type": "jbProgramNotificationTemplateSnapshot"
+      },
+      "scheduledAt": {
+        "column": "scheduledat",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "sentAt": {
+        "column": "sentat",
+        "kind": "property",
+        "type": "timestamp"
+      },
+      "singleEvent": {
+        "class": "org.hisp.dhis.tracker.model.SingleEvent",
+        "column": "singleeventid",
+        "kind": "many-to-one"
+      },
+      "trackerEvent": {
+        "class": "org.hisp.dhis.tracker.model.TrackerEvent",
+        "column": "trackereventid",
+        "kind": "many-to-one"
+      },
+      "uid": {
+        "column": "uid",
+        "kind": "property",
+        "notNull": true
+      }
+    },
+    "table": "programnotificationinstance"
+  },
   "org.hisp.dhis.user.User": {
     "file": "dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/user/hibernate/User.hbm.xml",
     "id": {
@@ -8212,7 +12213,9 @@
         "type": "timestamp"
       },
       "apps": {
-        "kind": "list"
+        "keyColumn": "userinfoid",
+        "kind": "list",
+        "table": "userapps"
       },
       "attributeValues": {
         "column": "attributevalues",
@@ -8230,14 +12233,22 @@
         "type": "date"
       },
       "catDimensionConstraints": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.category.Category",
+        "elementColumn": "dataelementcategoryid",
+        "keyColumn": "userid",
+        "kind": "set",
+        "table": "users_catdimensionconstraints"
       },
       "code": {
         "column": "code",
         "kind": "property"
       },
       "cogsDimensionConstraints": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.category.CategoryOptionGroupSet",
+        "elementColumn": "categoryoptiongroupsetid",
+        "keyColumn": "userid",
+        "kind": "set",
+        "table": "users_cogsdimensionconstraints"
       },
       "created": {
         "column": "created",
@@ -8255,7 +12266,11 @@
         "kind": "property"
       },
       "dataViewOrganisationUnits": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnit",
+        "elementColumn": "organisationunitid",
+        "keyColumn": "userinfoid",
+        "kind": "set",
+        "table": "userdatavieworgunits"
       },
       "disabled": {
         "column": "disabled",
@@ -8296,7 +12311,12 @@
         "kind": "property"
       },
       "groups": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.user.UserGroup",
+        "elementColumn": "usergroupid",
+        "inverse": true,
+        "keyColumn": "userid",
+        "kind": "set",
+        "table": "usergroupmembers"
       },
       "idToken": {
         "column": "idtoken",
@@ -8364,7 +12384,11 @@
         "type": "text"
       },
       "organisationUnits": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnit",
+        "elementColumn": "organisationunitid",
+        "keyColumn": "userinfoid",
+        "kind": "set",
+        "table": "usermembership"
       },
       "password": {
         "column": "password",
@@ -8379,7 +12403,9 @@
         "kind": "property"
       },
       "previousPasswords": {
-        "kind": "list"
+        "keyColumn": "userid",
+        "kind": "list",
+        "table": "previouspasswords"
       },
       "restoreExpiry": {
         "column": "restoreexpiry",
@@ -8409,7 +12435,11 @@
         "notNull": true
       },
       "teiSearchOrganisationUnits": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnit",
+        "elementColumn": "organisationunitid",
+        "keyColumn": "userinfoid",
+        "kind": "set",
+        "table": "userteisearchorgunits"
       },
       "telegram": {
         "column": "telegram",
@@ -8421,14 +12451,19 @@
       },
       "twoFactorType": {
         "column": "twofactortype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "uid": {
         "column": "uid",
         "kind": "property"
       },
       "userRoles": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.user.UserRole",
+        "elementColumn": "userroleid",
+        "keyColumn": "userid",
+        "kind": "set",
+        "table": "userrolemembers"
       },
       "username": {
         "column": "username",
@@ -8500,13 +12535,26 @@
         "kind": "many-to-one"
       },
       "managedByGroups": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.user.UserGroup",
+        "elementColumn": "managedbygroupid",
+        "inverse": true,
+        "keyColumn": "managedgroupid",
+        "kind": "set",
+        "table": "usergroupmanaged"
       },
       "managedGroups": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.user.UserGroup",
+        "elementColumn": "managedgroupid",
+        "keyColumn": "managedbygroupid",
+        "kind": "set",
+        "table": "usergroupmanaged"
       },
       "members": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.user.User",
+        "elementColumn": "userid",
+        "keyColumn": "usergroupid",
+        "kind": "set",
+        "table": "usergroupmembers"
       },
       "name": {
         "column": "name",
@@ -8545,7 +12593,9 @@
     "mapping": "class",
     "properties": {
       "authorities": {
-        "kind": "set"
+        "keyColumn": "userroleid",
+        "kind": "set",
+        "table": "userroleauthorities"
       },
       "code": {
         "column": "code",
@@ -8578,7 +12628,12 @@
         "kind": "many-to-one"
       },
       "members": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.user.User",
+        "elementColumn": "userid",
+        "inverse": true,
+        "keyColumn": "userroleid",
+        "kind": "set",
+        "table": "userrolemembers"
       },
       "name": {
         "column": "name",
@@ -8586,7 +12641,9 @@
         "notNull": true
       },
       "restrictions": {
-        "kind": "set"
+        "keyColumn": "userroleid",
+        "kind": "set",
+        "table": "userrolerestrictions"
       },
       "sharing": {
         "column": "sharing",
@@ -8754,11 +12811,17 @@
         "type": "text"
       },
       "groups": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.validation.ValidationRuleGroup",
+        "elementColumn": "validationgroupid",
+        "inverse": true,
+        "keyColumn": "validationruleid",
+        "kind": "set",
+        "table": "validationrulegroupmembers"
       },
       "importance": {
         "column": "importance",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "instruction": {
         "column": "instruction",
@@ -8787,7 +12850,12 @@
         "notNull": true
       },
       "notificationTemplates": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.validation.notification.ValidationNotificationTemplate",
+        "elementColumn": "validationnotificationtemplateid",
+        "inverse": true,
+        "keyColumn": "validationruleid",
+        "kind": "set",
+        "table": "validationnotificationtemplatevalidationrules"
       },
       "operator": {
         "column": "operator",
@@ -8796,7 +12864,9 @@
         "type": "org.hisp.dhis.expression.OperatorUserType"
       },
       "organisationUnitLevels": {
-        "kind": "set"
+        "keyColumn": "validationruleid",
+        "kind": "set",
+        "table": "validationruleorganisationunitlevels"
       },
       "periodType": {
         "class": "org.hisp.dhis.period.PeriodType",
@@ -8880,7 +12950,11 @@
         "kind": "many-to-one"
       },
       "members": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.validation.ValidationRule",
+        "elementColumn": "validationruleid",
+        "keyColumn": "validationgroupid",
+        "kind": "set",
+        "table": "validationrulegroupmembers"
       },
       "name": {
         "column": "name",
@@ -8949,11 +13023,15 @@
         "kind": "property"
       },
       "recipientUserGroups": {
+        "elementClass": "org.hisp.dhis.user.UserGroup",
+        "elementColumn": "usergroupid",
+        "keyColumn": "validationnotificationtemplateid",
         "kind": "set"
       },
       "sendStrategy": {
         "column": "sendstrategy",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "subjectTemplate": {
         "column": "subjecttemplate",
@@ -8970,7 +13048,11 @@
         "notNull": true
       },
       "validationRules": {
-        "kind": "set"
+        "elementClass": "org.hisp.dhis.validation.ValidationRule",
+        "elementColumn": "validationruleid",
+        "keyColumn": "validationnotificationtemplateid",
+        "kind": "set",
+        "table": "validationnotificationtemplatevalidationrules"
       }
     },
     "table": "validationnotificationtemplate"
@@ -9026,7 +13108,8 @@
     "properties": {
       "aggregationType": {
         "column": "aggregationtype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "attributeValues": {
         "column": "attributevalues",
@@ -9039,10 +13122,18 @@
         "type": "jbAxes"
       },
       "categoryDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.category.CategoryDimension",
+        "elementColumn": "categorydimensionid",
+        "keyColumn": "visualizationid",
+        "kind": "list",
+        "table": "visualization_categorydimensions"
       },
       "categoryOptionGroupSetDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.category.CategoryOptionGroupSetDimension",
+        "elementColumn": "categoryoptiongroupsetdimensionid",
+        "keyColumn": "visualizationid",
+        "kind": "list",
+        "table": "visualization_categoryoptiongroupsetdimensions"
       },
       "code": {
         "column": "code",
@@ -9061,7 +13152,9 @@
         "kind": "property"
       },
       "columnDimensions": {
-        "kind": "list"
+        "keyColumn": "visualizationid",
+        "kind": "list",
+        "table": "visualization_columns"
       },
       "completedOnly": {
         "column": "completedonly",
@@ -9083,10 +13176,18 @@
         "kind": "property"
       },
       "dataDimensionItems": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.common.DataDimensionItem",
+        "elementColumn": "datadimensionitemid",
+        "keyColumn": "visualizationid",
+        "kind": "list",
+        "table": "visualization_datadimensionitems"
       },
       "dataElementGroupSetDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.dataelement.DataElementGroupSetDimension",
+        "elementColumn": "dataelementgroupsetdimensionid",
+        "keyColumn": "visualizationid",
+        "kind": "list",
+        "table": "visualization_dataelementgroupsetdimensions"
       },
       "description": {
         "column": "description",
@@ -9095,11 +13196,13 @@
       },
       "digitGroupSeparator": {
         "column": "digitgroupseparator",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "displayDensity": {
         "column": "displaydensity",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "endDate": {
         "column": "enddate",
@@ -9111,7 +13214,9 @@
         "type": "jbSet"
       },
       "filterDimensions": {
-        "kind": "list"
+        "keyColumn": "visualizationid",
+        "kind": "list",
+        "table": "visualization_filters"
       },
       "fixColumnHeaders": {
         "column": "fixcolumnheaders",
@@ -9123,7 +13228,8 @@
       },
       "fontSize": {
         "column": "fontsize",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "fontStyle": {
         "column": "fontstyle",
@@ -9136,7 +13242,8 @@
       },
       "hideEmptyRowItems": {
         "column": "hideemptyrowitems",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "hideEmptyRows": {
         "column": "hideemptyrows",
@@ -9160,10 +13267,17 @@
         "type": "jbIcons"
       },
       "interpretations": {
+        "elementClass": "org.hisp.dhis.interpretation.Interpretation",
+        "inverse": true,
+        "keyColumn": "visualizationid",
         "kind": "set"
       },
       "itemOrganisationUnitGroups": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroup",
+        "elementColumn": "orgunitgroupid",
+        "keyColumn": "visualizationid",
+        "kind": "list",
+        "table": "visualization_itemorgunitgroups"
       },
       "lastUpdated": {
         "column": "lastupdated",
@@ -9194,19 +13308,34 @@
       },
       "numberType": {
         "column": "numbertype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "optionalAxes": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.visualization.Axis",
+        "elementColumn": "axisid",
+        "keyColumn": "visualizationid",
+        "kind": "list",
+        "table": "visualization_axis"
       },
       "organisationUnitGroupSetDimensions": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroupSetDimension",
+        "elementColumn": "orgunitgroupsetdimensionid",
+        "keyColumn": "visualizationid",
+        "kind": "list",
+        "table": "visualization_orgunitgroupsetdimensions"
       },
       "organisationUnitLevels": {
-        "kind": "list"
+        "keyColumn": "visualizationid",
+        "kind": "list",
+        "table": "visualization_orgunitlevels"
       },
       "organisationUnits": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnit",
+        "elementColumn": "organisationunitid",
+        "keyColumn": "visualizationid",
+        "kind": "list",
+        "table": "visualization_organisationunits"
       },
       "outlierAnalysis": {
         "column": "outlieranalysis",
@@ -9218,7 +13347,11 @@
         "kind": "property"
       },
       "persistedPeriods": {
-        "kind": "list"
+        "elementClass": "org.hisp.dhis.period.Period",
+        "elementColumn": "periodid",
+        "keyColumn": "visualizationid",
+        "kind": "list",
+        "table": "visualization_periods"
       },
       "rawPeriods": {
         "column": "relativeperiods",
@@ -9231,13 +13364,16 @@
       },
       "regressionType": {
         "column": "regressiontype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "reportingParams": {
         "kind": "component"
       },
       "rowDimensions": {
-        "kind": "list"
+        "keyColumn": "visualizationid",
+        "kind": "list",
+        "table": "visualization_rows"
       },
       "rowSubTotals": {
         "column": "rowsubtotals",
@@ -9316,7 +13452,8 @@
       "type": {
         "column": "type",
         "kind": "property",
-        "notNull": true
+        "notNull": true,
+        "type": "enum-string"
       },
       "uid": {
         "column": "uid",
@@ -9325,7 +13462,8 @@
       },
       "userOrgUnitType": {
         "column": "userorgunittype",
-        "kind": "property"
+        "kind": "property",
+        "type": "enum-string"
       },
       "userOrganisationUnit": {
         "column": "userorganisationunit",
@@ -9340,7 +13478,9 @@
         "kind": "property"
       },
       "yearlySeries": {
-        "kind": "list"
+        "keyColumn": "visualizationid",
+        "kind": "list",
+        "table": "visualization_yearlyseries"
       }
     },
     "table": "visualization"

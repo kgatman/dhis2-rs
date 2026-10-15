@@ -115,17 +115,188 @@ note = "SchemaController#getSchemaProperty"
 
 # ConstantController (AbstractFullReadOnlyController#getObjectList via the GistBridge, and
 # AbstractGistReadOnlyController#getObjectListGist), ADR 0008. diffcheck
-# corpus/phase2/constants.jsonl: 244/244 through rust routes. Shadow only for now: just superusers
-# are answered by Rust (the sharing filter needs the user's id and groups, which delegated auth
-# does not provide), and routing everyone to Rust would add the auth calls to the fallbacks.
+# corpus/phase2/constants.jsonl: 259/259 (superusers, a non-superuser with user and group
+# sharing). Non-superusers need the session's identity (ADR 0009): sessions the gateway did not
+# see created and token requests fall back to Java (G8).
 [[route]]
 methods = ["GET", "HEAD"]
 path = "/api/constants"
-backend = "shadow"
+backend = "rust"
 note = "ConstantController#getObjectList (Gist bridge)"
 
 [[route]]
 methods = ["GET", "HEAD"]
 path = "/api/constants/gist"
-backend = "shadow"
+backend = "rust"
 note = "ConstantController#getObjectListGist"
+
+# Same handlers for more metadata types (dhis_web metadata_controller::GIST_TYPES). diffcheck
+# corpus/phase2/gist-types.jsonl: 226/226 (superuser, non-superuser, locales, collections).
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/dataElements"
+backend = "rust"
+note = "DataElementController#getObjectList (Gist bridge)"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/dataElements/gist"
+backend = "rust"
+note = "DataElementController#getObjectListGist"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/dataElementGroups"
+backend = "rust"
+note = "DataElementGroupController#getObjectList (Gist bridge)"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/dataElementGroups/gist"
+backend = "rust"
+note = "DataElementGroupController#getObjectListGist"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/options"
+backend = "rust"
+note = "OptionController#getObjectList (Gist bridge)"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/options/gist"
+backend = "rust"
+note = "OptionController#getObjectListGist"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/optionSets"
+backend = "rust"
+note = "OptionSetController#getObjectList (Gist bridge)"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/optionSets/gist"
+backend = "rust"
+note = "OptionSetController#getObjectListGist"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/legendSets"
+backend = "rust"
+note = "LegendSetController#getObjectList (Gist bridge)"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/legendSets/gist"
+backend = "rust"
+note = "LegendSetController#getObjectListGist"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/categoryOptions"
+backend = "rust"
+note = "CategoryOptionController#getObjectList (Gist bridge)"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/categoryOptions/gist"
+backend = "rust"
+note = "CategoryOptionController#getObjectListGist"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/categories"
+backend = "rust"
+note = "CategoryController#getObjectList (Gist bridge)"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/categories/gist"
+backend = "rust"
+note = "CategoryController#getObjectListGist"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/categoryCombos"
+backend = "rust"
+note = "CategoryComboController#getObjectList (Gist bridge)"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/categoryCombos/gist"
+backend = "rust"
+note = "CategoryComboController#getObjectListGist"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/indicators"
+backend = "rust"
+note = "IndicatorController#getObjectList (Gist bridge)"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/indicators/gist"
+backend = "rust"
+note = "IndicatorController#getObjectListGist"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/indicatorTypes"
+backend = "rust"
+note = "IndicatorTypeController#getObjectList (Gist bridge)"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/indicatorTypes/gist"
+backend = "rust"
+note = "IndicatorTypeController#getObjectListGist"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/organisationUnits"
+backend = "rust"
+note = "OrganisationUnitController#getObjectList (Gist bridge)"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/organisationUnits/gist"
+backend = "rust"
+note = "OrganisationUnitController#getObjectListGist"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/organisationUnitGroups"
+backend = "rust"
+note = "OrganisationUnitGroupController#getObjectList (Gist bridge)"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/organisationUnitGroups/gist"
+backend = "rust"
+note = "OrganisationUnitGroupController#getObjectListGist"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/userGroups"
+backend = "rust"
+note = "UserGroupController#getObjectList (Gist bridge)"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/userGroups/gist"
+backend = "rust"
+note = "UserGroupController#getObjectListGist"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/userRoles"
+backend = "rust"
+note = "UserRoleController#getObjectList (Gist bridge)"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/userRoles/gist"
+backend = "rust"
+note = "UserRoleController#getObjectListGist"

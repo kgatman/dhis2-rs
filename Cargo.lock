@@ -462,6 +462,7 @@ name = "dhis-auth"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "base64 0.23.1",
  "bytes",
  "http",
  "http-body-util",
@@ -502,6 +503,7 @@ version = "0.1.0"
 dependencies = [
  "dhis-config",
  "dhis-core-model",
+ "dhis-schema",
  "regex",
  "sqlx",
  "tempfile",
@@ -812,6 +814,7 @@ dependencies = [
  "regex",
  "serde",
  "serde_json",
+ "sqlx",
  "thiserror",
  "tokio",
  "toml",

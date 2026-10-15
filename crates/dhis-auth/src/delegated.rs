@@ -10,6 +10,8 @@
 //!
 //! No caching: a cache would skip Java's per-request session side effects (new session per
 //! basic-auth request, session expiry refresh). Revisit with native auth (phase 7).
+//! (The session's user id and group ids are recorded per session, `crate::sessions`: Java fixes
+//! them at login, so the record is not a cache of anything that changes.)
 
 use bytes::Bytes;
 use http::{HeaderMap, HeaderValue, Method, Request, StatusCode, Uri, header};
@@ -18,6 +20,7 @@ use hyper_util::client::legacy::Client;
 use hyper_util::client::legacy::connect::HttpConnector;
 use hyper_util::rt::TokioExecutor;
 
+use crate::sessions::Identity;
 use crate::{CurrentUser, JsonMembers};
 
 /// What the authentication call asks Java for. Both are cheap `MeController` endpoints answered
@@ -234,12 +237,12 @@ impl JavaAuthenticator {
             Probe::Authorities | Probe::AuthoritiesAndSettings => {
                 serde_json::from_slice::<Vec<String>>(&body).map(|a| CurrentUser {
                     authorities: Some(a),
-                    settings: None,
+                    ..CurrentUser::default()
                 })
             }
             Probe::Settings => serde_json::from_slice::<JsonMembers>(&body).map(|s| CurrentUser {
-                authorities: None,
                 settings: Some(s),
+                ..CurrentUser::default()
             }),
         };
         let mut user = match user {
@@ -254,6 +257,25 @@ impl JavaAuthenticator {
             user.settings = self.fetch_settings(&headers).await;
         }
         AuthOutcome::Authenticated { user, set_cookies }
+    }
+
+    /// The user id and group ids of the session the headers name, read through `/api/me`
+    /// (from the database: call it only right after the session was authenticated, when it
+    /// equals the session's own snapshot, see `crate::sessions`).
+    pub async fn fetch_identity(&self, headers: &HeaderMap) -> Option<Identity> {
+        let me = self
+            .fetch_json("/api/me?fields=id,userGroups%5Bid%5D", headers)
+            .await?;
+        let uid = me.get("id")?.as_str()?.to_string();
+        let mut group_ids: Vec<String> = me
+            .get("userGroups")?
+            .as_array()?
+            .iter()
+            .map(|g| g.get("id").and_then(|i| i.as_str()).map(str::to_string))
+            .collect::<Option<_>>()?;
+        group_ids.sort();
+        group_ids.dedup();
+        Some(Identity { uid, group_ids })
     }
 
     async fn fetch_settings(&self, headers: &HeaderMap) -> Option<JsonMembers> {

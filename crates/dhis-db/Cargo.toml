@@ -13,6 +13,7 @@ workspace = true
 [dependencies]
 dhis-config.workspace = true
 dhis-core-model.workspace = true
+dhis-schema.workspace = true
 regex.workspace = true
 sqlx.workspace = true
 thiserror.workspace = true

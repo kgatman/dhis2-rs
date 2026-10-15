@@ -76,6 +76,12 @@ pub fn auth_probe(normalized_path: &str) -> dhis_auth::delegated::Probe {
     }
 }
 
+/// Whether handlers for this (normalised) path need the session's identity (user id and group
+/// ids, `CurrentUser::identity`) for sharing checks.
+pub fn needs_identity(normalized_path: &str) -> bool {
+    controller::metadata_controller::needs_settings(normalized_path)
+}
+
 /// Extracts the authenticated user; without one (the gateway did not authenticate), the request
 /// goes back to Java.
 pub struct Authenticated(pub CurrentUser);

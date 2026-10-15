@@ -138,7 +138,7 @@ fn main() -> Result<()> {
     outputs.push((
         args.repo_root
             .join("crates/dhis-schema/data/hibernate/hbm-entities.json"),
-        hibernate::extract(&dhis2)?,
+        hibernate::extract_with_jpa(&dhis2, &idx)?,
     ));
 
     let mut drift = Vec::new();

@@ -9,7 +9,7 @@
 //! 4. `Set-Cookie` headers Java emitted while authenticating are relayed on the Rust response.
 
 use std::collections::BTreeMap;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 use bytes::Bytes;
 use dhis_auth::delegated::{AuthOutcome, JavaAuthenticator};
@@ -18,6 +18,7 @@ use http::{HeaderMap, Method, Request, Response, Uri, Version, header};
 use tower::ServiceExt;
 use tracing::{debug, error, info};
 
+use crate::identity::IdentityTracker;
 use crate::routes;
 
 /// The parts of a request needed to run it again (on Rust, or on Java after a fallback).
@@ -62,14 +63,20 @@ pub enum RustOutcome {
 pub struct RustSide {
     router: axum::Router,
     auth: Option<JavaAuthenticator>,
+    identity: Option<Arc<IdentityTracker>>,
     fallbacks: Mutex<BTreeMap<&'static str, u64>>,
 }
 
 impl RustSide {
-    pub fn new(router: axum::Router, auth: Option<JavaAuthenticator>) -> Self {
+    pub fn new(
+        router: axum::Router,
+        auth: Option<JavaAuthenticator>,
+        identity: Option<Arc<IdentityTracker>>,
+    ) -> Self {
         Self {
             router,
             auth,
+            identity,
             fallbacks: Mutex::new(BTreeMap::new()),
         }
     }
@@ -85,6 +92,7 @@ impl RustSide {
     pub async fn run(&self, head: &RequestHead, body: Bytes) -> RustOutcome {
         let (normalized, extension) = routes::normalize(head.uri.path());
         let probe = dhis_web::auth_probe(&normalized);
+        let normalized_path = normalized.clone();
         let path_and_query = match head.uri.query() {
             Some(q) => format!("{normalized}?{q}"),
             None => normalized,
@@ -103,9 +111,14 @@ impl RustSide {
         if let Some(auth) = &self.auth {
             match auth.authenticate(&head.headers, probe).await {
                 AuthOutcome::Authenticated {
-                    user,
+                    mut user,
                     set_cookies: c,
                 } => {
+                    if let Some(tracker) = &self.identity
+                        && dhis_web::needs_identity(&normalized_path)
+                    {
+                        user.identity = tracker.resolve(&head.headers, &c).await;
+                    }
                     req.extensions_mut().insert(user);
                     set_cookies = c;
                 }

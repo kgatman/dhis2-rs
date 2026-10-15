@@ -36,39 +36,68 @@ struct Args {
     /// both must fit in Postgres max_connections).
     #[arg(long, env = "GATEWAY_DB_POOL_MAX", default_value_t = 10)]
     db_pool_max: u32,
+    /// Most Java sessions whose identity is kept for Rust's sharing checks (ADR 0009); the
+    /// least recently used are dropped beyond it (their requests then go to Java).
+    #[arg(long, env = "GATEWAY_SESSION_RECORDS_MAX", default_value_t = 100_000)]
+    session_records_max: usize,
 }
 
-/// The Rust router, or one that hands everything back to Java when dhis.conf is not available
-/// (e.g. a gateway deployed purely as a proxy).
-fn rust_router(args: &Args) -> axum::Router {
+/// The Rust side: dhis.conf and the database pool, when available (a gateway deployed purely as
+/// a proxy has neither).
+struct RustSetup {
+    router: axum::Router,
+    db: Option<sqlx::PgPool>,
+    session_timeout: std::time::Duration,
+}
+
+/// The Rust router, or one that hands everything back to Java when dhis.conf or the database is
+/// not available.
+fn rust_setup(args: &Args) -> RustSetup {
+    let unconfigured = |db| RustSetup {
+        router: axum::Router::new()
+            .fallback(|| async { dhis_web::http::fallback("rust side not configured") }),
+        db,
+        session_timeout: std::time::Duration::from_secs(3600),
+    };
     let opts = dhis_config::LoadOptions::from_process(args.dhis2_home.clone());
     let config = match dhis_config::DhisConfigurationProvider::load(&opts) {
         Ok(c) => c,
         Err(e) => {
             warn!("dhis.conf not loaded ({e}); every Rust route falls back to Java");
-            return axum::Router::new()
-                .fallback(|| async { dhis_web::http::fallback("rust side not configured") });
+            return unconfigured(None);
         }
     };
     let pool = match dhis_db::pool(&config, Some(args.db_pool_max)) {
         Ok(p) => p,
         Err(e) => {
             warn!("database pool not created ({e}); every Rust route falls back to Java");
-            return axum::Router::new()
-                .fallback(|| async { dhis_web::http::fallback("rust side not configured") });
+            return unconfigured(None);
         }
     };
+    // system.session.timeout (seconds): Java's idle timeout of sessions
+    let session_timeout = config
+        .get_int_property(dhis_config::ConfigurationKey::SYSTEM_SESSION_TIMEOUT)
+        .ok()
+        .filter(|s| *s > 0)
+        .map_or(std::time::Duration::from_secs(3600), |s| {
+            std::time::Duration::from_secs(s as u64)
+        });
     info!(home = ?config.home(), "Rust side configured");
     let java = Arc::new(dhis_auth::delegated::JavaAuthenticator::new(
         args.java_upstream.clone(),
     ));
-    dhis_web::router(Arc::new(dhis_web::AppState {
+    let router = dhis_web::router(Arc::new(dhis_web::AppState {
         config: Arc::new(config),
         cors_whitelist: dhis_web::CorsWhitelistSource::Db(pool.clone()),
-        db: Some(pool),
+        db: Some(pool.clone()),
         java: Some(java),
         system_info: Default::default(),
-    }))
+    }));
+    RustSetup {
+        router,
+        db: Some(pool),
+        session_timeout,
+    }
 }
 
 fn load_routes(path: Option<&PathBuf>) -> Result<RouteTable> {
@@ -92,6 +121,7 @@ async fn main() -> Result<()> {
     );
 
     let routes = load_routes(args.routes.as_ref())?;
+    let rust = rust_setup(&args);
     info!(rules = routes.rules().len(), "route table loaded");
     let gw = Arc::new(Gateway::new(
         Config {
@@ -106,9 +136,17 @@ async fn main() -> Result<()> {
                 ..ShadowConfig::default()
             },
             delegate_auth: true,
+            identity: Some(Arc::new(gateway::identity::IdentityTracker::new(
+                dhis_auth::sessions::SessionIdentities::new(
+                    args.session_records_max,
+                    rust.session_timeout,
+                ),
+                rust.db.clone(),
+                args.java_upstream.clone(),
+            ))),
         },
         routes,
-        rust_router(&args),
+        rust.router,
     ));
 
     #[cfg(unix)]

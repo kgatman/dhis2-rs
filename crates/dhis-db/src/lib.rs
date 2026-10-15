@@ -10,6 +10,7 @@
 pub mod database_info;
 pub mod jdbc;
 pub mod settings;
+pub mod users;
 
 use std::time::Duration;
 

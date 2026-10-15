@@ -37,13 +37,36 @@ pub struct RegisteredSchema {
     pub persisted: bool,
     #[serde(default)]
     pub metadata: bool,
+    #[serde(default)]
+    pub authorities: Vec<SchemaAuthority>,
     /// In captured (`HashMap`) order.
     pub properties: Vec<Property>,
     #[serde(skip)]
     by_key: HashMap<String, usize>,
 }
 
+/// `org.hisp.dhis.security.Authority` of a schema.
+#[derive(Debug, Clone, Deserialize)]
+pub struct SchemaAuthority {
+    #[serde(rename = "type")]
+    pub kind: String,
+    pub authorities: Vec<String>,
+}
+
 impl RegisteredSchema {
+    /// `Schema#getAuthorityByType(type)`: all authorities of that type, first occurrence first.
+    pub fn authorities_by_type(&self, kind: &str) -> Vec<&str> {
+        let mut out: Vec<&str> = Vec::new();
+        for a in self.authorities.iter().filter(|a| a.kind == kind) {
+            for x in &a.authorities {
+                if !out.contains(&x.as_str()) {
+                    out.push(x);
+                }
+            }
+        }
+        out
+    }
+
     /// `Schema#getProperty(name)`: properties are keyed by `Property#key()`.
     pub fn property(&self, key: &str) -> Option<&Property> {
         self.by_key.get(key).map(|&i| &self.properties[i])

@@ -96,6 +96,7 @@ async fn gateway(java: SocketAddr, routes: RouteTable, inject_xff: bool) -> Sock
             inject_forwarded_for: inject_xff,
             shadow: Default::default(),
             delegate_auth: false,
+            identity: None,
         },
         routes,
         rust,
