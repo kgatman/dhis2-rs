@@ -1,0 +1,20 @@
+[package]
+name = "dhis-db"
+description = "PostgreSQL access: connection pool from dhis.conf, later explicit SQL for the Hibernate mappings."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+dhis-config.workspace = true
+sqlx.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
