@@ -93,7 +93,31 @@ async fn main() -> Result<()> {
     info!(listen = %args.listen, java = %args.java_upstream, "gateway started");
     tokio::select! {
         r = gw.serve(listener) => r.context("accept loop failed")?,
-        _ = tokio::signal::ctrl_c() => info!("shutting down"),
+        _ = shutdown_signal() => info!("shutting down"),
     }
     Ok(())
+}
+
+/// Ctrl-C, or SIGTERM (what `docker stop` and Kubernetes send).
+async fn shutdown_signal() {
+    #[cfg(unix)]
+    {
+        let mut term =
+            match tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate()) {
+                Ok(s) => s,
+                Err(e) => {
+                    error!("cannot listen for SIGTERM: {e}");
+                    let _ = tokio::signal::ctrl_c().await;
+                    return;
+                }
+            };
+        tokio::select! {
+            _ = tokio::signal::ctrl_c() => {}
+            _ = term.recv() => {}
+        }
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = tokio::signal::ctrl_c().await;
+    }
 }
