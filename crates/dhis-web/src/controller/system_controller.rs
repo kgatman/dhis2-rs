@@ -5,6 +5,7 @@
 //! | `getUid` | `GET /api/system/{uid,id}` | ported |
 //! | `getUidCsv` | `GET /api/system/{uid,id}`, produces `application/csv` | ported |
 //! | `getUuid` | `GET /api/system/uuid`, produces JSON/XML | JSON ported, XML falls back |
+//! | `getSystemInfo` | `GET /api/system/info` | JSON ported ([`super::system_info`]); JSONP falls back |
 //!
 //! Behaviour measured against Java at the pinned ref (see tests).
 
@@ -18,6 +19,7 @@ use axum::routing::get;
 use http::{HeaderValue, header};
 use serde::Serialize;
 
+pub use super::system_info::SystemInfoCache;
 use crate::http::negotiation::{Representation, choose};
 use crate::http::{RequestContext, fallback};
 use crate::params::Params;
@@ -31,6 +33,7 @@ pub fn routes() -> Router<Arc<AppState>> {
         .route("/api/system/uid", get(get_uid))
         .route("/api/system/id", get(get_uid))
         .route("/api/system/uuid", get(get_uuid))
+        .route("/api/system/info", get(super::system_info::get_system_info))
 }
 
 /// `org.hisp.dhis.common.CodeList`.

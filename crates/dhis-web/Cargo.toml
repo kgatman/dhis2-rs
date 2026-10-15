@@ -16,6 +16,9 @@ bytes.workspace = true
 dhis-auth.workspace = true
 dhis-config.workspace = true
 dhis-core-model.workspace = true
+dhis-db.workspace = true
+dhis-query.workspace = true
+dhis-schema.workspace = true
 form_urlencoded.workspace = true
 http.workspace = true
 http-body-util.workspace = true
@@ -24,6 +27,7 @@ regex.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 sqlx.workspace = true
+tokio.workspace = true
 tracing.workspace = true
 
 [dev-dependencies]

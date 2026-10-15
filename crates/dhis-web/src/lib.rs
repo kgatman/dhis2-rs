@@ -26,6 +26,24 @@ pub use crate::http::security_headers::CorsWhitelistSource;
 pub struct AppState {
     pub config: Arc<DhisConfigurationProvider>,
     pub cors_whitelist: CorsWhitelistSource,
+    /// The shared database; handlers that need it fall back to Java when absent (tests).
+    pub db: Option<sqlx::PgPool>,
+    /// The Java server, for values mirrored from it during the transition (ADR 0005).
+    pub java: Option<Arc<dhis_auth::delegated::JavaAuthenticator>>,
+    pub system_info: controller::system_controller::SystemInfoCache,
+}
+
+impl AppState {
+    /// State without database or Java access (handlers needing them fall back).
+    pub fn minimal(config: Arc<DhisConfigurationProvider>) -> Self {
+        Self {
+            config,
+            cors_whitelist: CorsWhitelistSource::Static(vec![]),
+            db: None,
+            java: None,
+            system_info: Default::default(),
+        }
+    }
 }
 
 /// The router mounted by the gateway for routes whose backend is `rust` or `shadow`.

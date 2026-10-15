@@ -72,23 +72,25 @@ impl JavaAuthenticator {
         }
     }
 
-    pub async fn authenticate(&self, client_headers: &HeaderMap) -> AuthOutcome {
+    /// `GET path_and_query` on Java with the client's credentials, accepting JSON.
+    async fn get(
+        &self,
+        path_and_query: &str,
+        client_headers: &HeaderMap,
+    ) -> Result<http::Response<hyper::body::Incoming>, String> {
         let uri = format!(
-            "{}://{}/api/me?fields={ME_FIELDS}",
+            "{}://{}{path_and_query}",
             self.java.scheme_str().unwrap_or("http"),
             self.java
                 .authority()
                 .map(|a| a.as_str())
                 .unwrap_or_default()
         );
-        let mut req = match Request::builder()
+        let mut req = Request::builder()
             .method(Method::GET)
             .uri(uri)
             .body(Empty::<Bytes>::new())
-        {
-            Ok(r) => r,
-            Err(e) => return AuthOutcome::Unavailable(e.to_string()),
-        };
+            .map_err(|e| e.to_string())?;
         let headers = req.headers_mut();
         for (k, v) in client_headers {
             if !DROPPED.contains(&k.as_str()) {
@@ -96,10 +98,31 @@ impl JavaAuthenticator {
             }
         }
         headers.insert(header::ACCEPT, HeaderValue::from_static("application/json"));
+        self.client.request(req).await.map_err(|e| e.to_string())
+    }
 
-        let resp = match self.client.request(req).await {
+    /// Reads a JSON document from Java as the requesting user, to mirror values only Java knows
+    /// (e.g. its JVM details, see ADR 0005). `None` unless Java answers 200 with JSON.
+    pub async fn fetch_json(
+        &self,
+        path_and_query: &str,
+        client_headers: &HeaderMap,
+    ) -> Option<serde_json::Value> {
+        let resp = self.get(path_and_query, client_headers).await.ok()?;
+        if resp.status() != StatusCode::OK {
+            return None;
+        }
+        let body = resp.into_body().collect().await.ok()?.to_bytes();
+        serde_json::from_slice(&body).ok()
+    }
+
+    pub async fn authenticate(&self, client_headers: &HeaderMap) -> AuthOutcome {
+        let resp = match self
+            .get(&format!("/api/me?fields={ME_FIELDS}"), client_headers)
+            .await
+        {
             Ok(r) => r,
-            Err(e) => return AuthOutcome::Unavailable(e.to_string()),
+            Err(e) => return AuthOutcome::Unavailable(e),
         };
         let status = resp.status();
         let set_cookies: Vec<HeaderValue> = resp

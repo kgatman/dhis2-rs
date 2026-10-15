@@ -4,22 +4,46 @@ _Read this first at the start of every session; update it at the end._
 
 - **Last updated:** 2026-10-15 (session 1, continued)
 - **Java reference:** dhis2-core `2a7855b69e` (2.44-SNAPSHOT), pinned in `ci/dhis2-core.ref`
-- **Current phase:** 2 (read-only metadata). Slice 1 (`/api/system/{uid,id,uuid}`) is routed to
-  Rust.
+- **Current phase:** 2 (read-only metadata). Slice 1 (`/api/system/{uid,id,uuid}`) is `rust`;
+  slice 2 (`/api/system/info` + the `fields=` engine) is routed to Rust, `rust-shadow` until CI e2e
+  confirms.
 - **CI:** GitHub `kgatman/dhis2-rs`. `ci` and `e2e-through-gateway` were green at `70dc1df`.
 
 ## Ledger
 
 | Inventory | Total | `java` | `rust-shadow` | `rust` |
 |---|---:|---:|---:|---:|
-| Endpoint rows (method × path), `docs/inventory/endpoints.csv` | 3092 | 3087 | 5 | 0 |
-| — distinct handler methods | 770 | 770 | 0 | 0 |
+| Endpoint rows (method × path), `docs/inventory/endpoints.csv` | 3092 | 3086 | 1 | 5 |
+| — distinct handler methods | 770 | 766 | 1 | 3 |
 | — controllers | 195 | 195 | 0 | 0 |
 | Job types, `docs/inventory/jobs.csv` | 43 | 43 | 0 | 0 |
 | Config keys read by Rust, `docs/inventory/config-keys.csv` | 189 | — | — | 189 loadable |
 | Tables present after migrations, `docs/inventory/tables.csv` | 309 | — | — | 0 read/written |
 
 Regenerate the inventory with `tools/gen-inventory.sh`. CI fails if it is stale.
+
+## Phase 2, slice 2 (session 2): `fields=` engine and `/api/system/info`
+
+- `dhis-query`: `PropertyPath` + `fields=` parser (101 fixtures generated from Java's `Fields`),
+  and the field-filter engine (port of `FieldPathHelper#apply` + the Jackson property filter):
+  presets (`:all`, `:simple`, `:owner`, `:persisted`, `:identifiable`, `:nameable`), default
+  expansion of complex/reference properties, exclusions, maps always expanded, output in
+  serialisation order. Field transformers not ported yet (fall back).
+- `dhis-schema`: `Schema`/`Property` model; descriptors are generated from Java
+  (`tools/gen-dynamic-schemas.sh`; registered `/api/schemas` descriptors still to come).
+- `dhis-core-model`: system/user settings (`LazySettings` semantics; 157 + 7 definitions generated
+  by `tools/gen-settings.sh`), Java date formatting/time zone (`jiff`), Joda `getPrettyInterval`
+  (JDK fixtures), time-zone display names generated with the server image's Java 21
+  (`tools/gen-tz-names.sh`; they differ between JDK 17 and 27).
+- `dhis-db`: system settings and `DatabaseInfo` reads.
+- `/api/system/info`: native except the JVM/build snapshot, which is mirrored from Java
+  (ADR 0005, decided with the owner). diffcheck `corpus/phase2/system-info.jsonl` **48/48**
+  (superuser + non-superuser via `corpus/phase2/setup.sh`); full phase-2 corpus **132/132**;
+  shadow **43 match / 0 mismatch**. Fallbacks: transformers, JSONP/XML, non-PostgreSQL analytics.
+- diffcheck: `--host` so both servers see the same `Host` (`contextPath` depends on it).
+- Server time zone follows the JDK's lookup (`TZ`, `/etc/timezone`, `/etc/localtime`, else
+  **`GMT`**). Both container images have none of these, so Java reports `GMT` there (measured)
+  and Rust now does too; tzdb is bundled like the JVM's.
 
 ## Phase 2, slice 1 (session 2): `/api/system/{uid,id,uuid}`
 
@@ -36,8 +60,7 @@ Tracer bullet that built the shared Web API layer every later endpoint reuses:
 - Evidence: diffcheck `corpus/phase2/system-uid.jsonl` **84/84** against Java (67 answered by
   Rust); shadow **67 match / 0 mismatch**; raw request-target comparison (13 cases, 4 remaining
   gateway-level differences documented as G4/G6).
-- Ledger: 5 rows `rust-shadow`. They become `rust` once `e2e-through-gateway` is green with the
-  routes flipped (`config/routes.toml`). Note that e2e no longer calls these endpoints, so the
+- Ledger: 5 rows `rust` (`e2e-through-gateway` green at `4ba1e23` with the routes flipped). Note that e2e no longer calls these endpoints, so the
   evidence is diffcheck + shadow.
 - Local Java reference: `dev/java-local.sh start` (host JVM, PostGIS in Docker, :8081).
 
@@ -103,9 +126,19 @@ Tracer bullet that built the shared Web API layer every later endpoint reuses:
 6. **`dhis-test-e2e` upstream flakiness is unknown.** Run `e2e.yml` with `baseline: true` once to
    record which tests fail without the gateway.
 
-## Next three tasks (from session 2)
+## Next three tasks (end of session 2)
 
-1. **Confirm CI at `4ba1e23`**, then mark the 5 SystemController rows `rust`.
+1. **CI e2e with `/api/system/info` on Rust**, then mark `getSystemInfo` `rust`. (e2e calls
+   `/api/system/info` from `wait-for-it.sh` and several tests, so this one has real e2e traffic.)
+2. **`/api/me`** (MeController GET): user + settings + authorities through the same engine. Needs
+   user settings (definitions already generated), the registered `User` schema, and field
+   transformers (`rename`, `size`, `isEmpty`, `pluck`, `keyBy`).
+3. **Registered schemas** (`/api/schemas`, `dhis-schema`): generate descriptors for all ~150
+   metadata classes from Java (`/api/schemas?fields=:all` of the pinned build, or the jshell
+   route), then port `SchemaController`.
+
+## Earlier plan for slice 2 (done)
+
 2. **Field filtering (`fields=`) engine in `dhis-query`**, with `/api/system/info` as its first
    consumer (`SystemController#getSystemInfo`: `FieldFilterService` over `SystemInfo`, sensitive
    fields removed for non-superusers, `setNoStore`). Needs `SystemService#getSystemInfo` (system

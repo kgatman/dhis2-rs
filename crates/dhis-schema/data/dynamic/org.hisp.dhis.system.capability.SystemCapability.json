@@ -1,0 +1,17 @@
+{
+ "analyticsTotalCounts": {
+  "name": "analyticsTotalCounts",
+  "fieldName": "analyticsTotalCounts",
+  "klass": "java.lang.Boolean",
+  "propertyType": "BOOLEAN",
+  "itemPropertyType": "null",
+  "collection": false,
+  "simple": true,
+  "owner": false,
+  "persisted": false,
+  "embeddedObject": false,
+  "readable": true,
+  "writable": false,
+  "propertyTransformer": false
+ }
+}

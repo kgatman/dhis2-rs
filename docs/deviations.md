@@ -29,6 +29,16 @@ Entries marked **transition** go away at cutover (phase 9).
 - A `dhis-google-auth.json` without `client_id` makes Java fail at startup
   (`NullPointerException` from `Properties.put`). The Rust loader also fails.
 
+## Query DSL (`dhis-query`)
+
+| # | Java | Rust | Why |
+|---|---|---|---|
+| Q1 | A `fields=` parse error at a supplementary character (e.g. `𝔸`) prints the lone high surrogate (`charAt`) in the message | Prints U+FFFD | A Rust `String` cannot hold a lone surrogate. Position numbers are UTF-16 based, as in Java. |
+
+**Bugs kept on purpose:** `Fields.of("a::rename(x)::rename(y)")` yields no field at all, and an
+inherited rename plus one transform drops the transform (`a::rename(x)[b::size]` → `a.b` without
+`size`). See `crates/dhis-query/tests/fixtures/fields.tsv`.
+
 ## Database (`dhis-db`)
 
 | # | Java | Rust | Why |
@@ -49,6 +59,12 @@ Entries marked **transition** go away at cutover (phase 9).
 | G4 | A request target containing raw `"`, `<` or `>` gets Tomcat's HTML 400 | hyper rejects it before routing with an empty `400 Bad Request` (any route) | hyper's request parser; same status, no client sends these unencoded. Other invalid targets (raw non-ASCII, `^`, `` ` ``, `[` `]` in the path, ...) and undecodable query parameters (Java's 409) are sent to Java and match exactly (`gateway::tomcat`). |
 | G6 | A `#fragment` in the request target gets Tomcat's HTML 400 | `http::Uri` drops the fragment, so the request is served as if it had none (any route) | Clients never send fragments (RFC 9110 §4.2.4 forbids them in the request target). |
 | G5 | — | A basic-auth request answered by Rust after a `JavaFallback` leaves one extra (unused) Java session | Delegated authentication calls `/api/me` first (ADR 0004). The session expires normally. |
+
+## Mirrored from Java (transition)
+
+| # | Java | Rust | Why |
+|---|---|---|---|
+| M1 | `/api/system/info` JVM/build values (`version`, `revision`, `buildTime`, `systemId`, `jasperReportsVersion`, `java*`, `os*`, `memoryInfo`, `cpuCores`) computed at JVM start | Read once from Java's own `/api/system/info` and cached | No JVM in Rust; identical output while both run (ADR 0005). If Java restarts, Rust keeps the old snapshot until it restarts. Native values are due at cutover. |
 
 ## HTTP responses produced by Rust
 

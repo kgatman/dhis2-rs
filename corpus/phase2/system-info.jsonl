@@ -1,0 +1,50 @@
+# SystemController#getSystemInfo (phase 2 slice 2). Superuser (admin) cases.
+{"name": "info default", "method": "GET", "path": "/api/system/info", "tags": ["SystemController"]}
+{"name": "info accept json", "method": "GET", "path": "/api/system/info", "tags": ["SystemController"], "headers": {"Accept": "application/json"}}
+{"name": "info fields='*'", "method": "GET", "path": "/api/system/info?fields=%2A", "tags": ["SystemController"]}
+{"name": "info fields=':all'", "method": "GET", "path": "/api/system/info?fields=%3Aall", "tags": ["SystemController"]}
+{"name": "info fields='version'", "method": "GET", "path": "/api/system/info?fields=version", "tags": ["SystemController"]}
+{"name": "info fields='version,revision,buildTime'", "method": "GET", "path": "/api/system/info?fields=version%2Crevision%2CbuildTime", "tags": ["SystemController"]}
+{"name": "info fields='databaseInfo'", "method": "GET", "path": "/api/system/info?fields=databaseInfo", "tags": ["SystemController"]}
+{"name": "info fields='databaseInfo[name,url]'", "method": "GET", "path": "/api/system/info?fields=databaseInfo%5Bname%2Curl%5D", "tags": ["SystemController"]}
+{"name": "info fields='databaseInfo[*,!url]'", "method": "GET", "path": "/api/system/info?fields=databaseInfo%5B%2A%2C%21url%5D", "tags": ["SystemController"]}
+{"name": "info fields='*,!databaseInfo'", "method": "GET", "path": "/api/system/info?fields=%2A%2C%21databaseInfo", "tags": ["SystemController"]}
+{"name": "info fields='*,!lastAnalyticsTableSuccessByType'", "method": "GET", "path": "/api/system/info?fields=%2A%2C%21lastAnalyticsTableSuccessByType", "tags": ["SystemController"]}
+{"name": "info fields=':simple'", "method": "GET", "path": "/api/system/info?fields=%3Asimple", "tags": ["SystemController"]}
+{"name": "info fields=':owner'", "method": "GET", "path": "/api/system/info?fields=%3Aowner", "tags": ["SystemController"]}
+{"name": "info fields=':persisted'", "method": "GET", "path": "/api/system/info?fields=%3Apersisted", "tags": ["SystemController"]}
+{"name": "info fields=':identifiable'", "method": "GET", "path": "/api/system/info?fields=%3Aidentifiable", "tags": ["SystemController"]}
+{"name": "info fields=':nameable'", "method": "GET", "path": "/api/system/info?fields=%3Anameable", "tags": ["SystemController"]}
+{"name": "info fields='nonexistent'", "method": "GET", "path": "/api/system/info?fields=nonexistent", "tags": ["SystemController"]}
+{"name": "info fields='nonexistent,databaseInfo[nope]'", "method": "GET", "path": "/api/system/info?fields=nonexistent%2CdatabaseInfo%5Bnope%5D", "tags": ["SystemController"]}
+{"name": "info fields='lastAnalyticsTableSuccessByType'", "method": "GET", "path": "/api/system/info?fields=lastAnalyticsTableSuccessByType", "tags": ["SystemController"]}
+{"name": "info fields='capability'", "method": "GET", "path": "/api/system/info?fields=capability", "tags": ["SystemController"]}
+{"name": "info fields='capability[analyticsTotalCounts]'", "method": "GET", "path": "/api/system/info?fields=capability%5BanalyticsTotalCounts%5D", "tags": ["SystemController"]}
+{"name": "info fields='systemName,calendar,dateFormat,serverTimeZoneId,serverTimeZoneDisplayName,sessionTimeout'", "method": "GET", "path": "/api/system/info?fields=systemName%2Ccalendar%2CdateFormat%2CserverTimeZoneId%2CserverTimeZoneDisplayName%2CsessionTimeout", "tags": ["SystemController"]}
+{"name": "info fields='contextPath,userAgent'", "method": "GET", "path": "/api/system/info?fields=contextPath%2CuserAgent", "tags": ["SystemController"]}
+{"name": "info fields='javaVersion,osName,memoryInfo,cpuCores,jasperReportsVersion'", "method": "GET", "path": "/api/system/info?fields=javaVersion%2CosName%2CmemoryInfo%2CcpuCores%2CjasperReportsVersion", "tags": ["SystemController"]}
+{"name": "info fields='systemId,instanceBaseUrl,emailConfigured,redisEnabled,encryption,isMetadataVersionEnabled,lastMetadataVersionSyncAttempt'", "method": "GET", "path": "/api/system/info?fields=systemId%2CinstanceBaseUrl%2CemailConfigured%2CredisEnabled%2Cencryption%2CisMetadataVersionEnabled%2ClastMetadataVersionSyncAttempt", "tags": ["SystemController"]}
+{"name": "info fields='!version'", "method": "GET", "path": "/api/system/info?fields=%21version", "tags": ["SystemController"]}
+{"name": "info fields='!*'", "method": "GET", "path": "/api/system/info?fields=%21%2A", "tags": ["SystemController"]}
+{"name": "info fields='id,name'", "method": "GET", "path": "/api/system/info?fields=id%2Cname", "tags": ["SystemController"]}
+{"name": "info fields='version[x]'", "method": "GET", "path": "/api/system/info?fields=version%5Bx%5D", "tags": ["SystemController"]}
+{"name": "info fields='  version , revision  '", "method": "GET", "path": "/api/system/info?fields=%20%20version%20%2C%20revision%20%20", "tags": ["SystemController"]}
+{"name": "info fields=''", "method": "GET", "path": "/api/system/info?fields=", "tags": ["SystemController"]}
+{"name": "info fields bad/transform 'a$'", "method": "GET", "path": "/api/system/info?fields=a%24", "tags": ["SystemController", "negative"]}
+{"name": "info fields bad/transform 'version::rename(v)'", "method": "GET", "path": "/api/system/info?fields=version%3A%3Arename(v)", "tags": ["SystemController", "negative"]}
+{"name": "info fields bad/transform 'databaseInfo[name~size]'", "method": "GET", "path": "/api/system/info?fields=databaseInfo%5Bname%7Esize%5D", "tags": ["SystemController", "negative"]}
+{"name": "info fields bad/transform '[x]'", "method": "GET", "path": "/api/system/info?fields=%5Bx%5D", "tags": ["SystemController", "negative"]}
+{"name": "info fields bad/transform 'version,'", "method": "GET", "path": "/api/system/info?fields=version,", "tags": ["SystemController", "negative"]}
+{"name": "info .json", "method": "GET", "path": "/api/system/info.json?fields=version", "tags": ["SystemController"]}
+{"name": "info versioned", "method": "GET", "path": "/api/40/system/info?fields=version,systemName", "tags": ["SystemController"]}
+{"name": "info xml", "method": "GET", "path": "/api/system/info", "tags": ["SystemController", "negative"], "headers": {"Accept": "application/xml"}}
+{"name": "info jsonp", "method": "GET", "path": "/api/system/info", "tags": ["SystemController", "negative"], "headers": {"Accept": "application/javascript"}}
+{"name": "info forwarded", "method": "GET", "path": "/api/system/info?fields=contextPath", "tags": ["SystemController"], "headers": {"X-Forwarded-Proto": "https", "X-Forwarded-Host": "play.dhis2.org", "X-Forwarded-Port": "443"}}
+{"name": "info no credentials", "method": "GET", "path": "/api/system/info", "tags": ["SystemController", "negative"], "headers": {"Authorization": ""}}
+{"name": "info head", "method": "HEAD", "path": "/api/system/info?fields=version", "tags": ["SystemController"]}
+# Non-superuser cases (user from corpus/phase2/setup.sh).
+{"name": "non-super default", "path": "/api/system/info", "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}, "tags": ["SystemController", "non-super"]}
+{"name": "non-super all", "path": "/api/system/info?fields=%2A", "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}, "tags": ["SystemController", "non-super"]}
+{"name": "non-super databaseInfo", "path": "/api/system/info?fields=databaseInfo", "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}, "tags": ["SystemController", "non-super"]}
+{"name": "non-super sensitive explicit", "path": "/api/system/info?fields=javaVersion%2CosName%2CmemoryInfo%2CcpuCores%2CexternalDirectory%2CredisEnabled%2Cencryption%2Cversion%2CbuildTime%2CsystemId", "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}, "tags": ["SystemController", "non-super"]}
+{"name": "non-super :simple", "path": "/api/system/info?fields=%3Asimple", "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}, "tags": ["SystemController", "non-super"]}

@@ -140,6 +140,12 @@ fn decode(nm: &[u16]) -> Result<i32, NumberFormatException> {
     }
 }
 
+/// `Integer.valueOf(String)` (radix 10, no trimming).
+pub fn integer_value_of(s: &str) -> Result<i32, NumberFormatException> {
+    let units: Vec<u16> = s.encode_utf16().collect();
+    parse_int(&units, 10)
+}
+
 /// Binds an `Integer` request parameter like Spring MVC. `Ok(None)` means "no value"
 /// (the parameter's `defaultValue` applies).
 pub fn spring_integer(text: &str) -> Result<Option<i32>, NumberFormatException> {

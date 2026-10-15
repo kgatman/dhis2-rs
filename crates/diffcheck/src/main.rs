@@ -29,6 +29,9 @@ struct Args {
     user: String,
     #[arg(long, env = "DIFFCHECK_PASSWORD", default_value = "district")]
     password: String,
+    /// Host header for every request, so both servers see the same Host (e.g. localhost:8081).
+    #[arg(long)]
+    host: Option<String>,
     /// Per-request timeout in seconds.
     #[arg(long, default_value_t = 120)]
     timeout: u64,
@@ -43,8 +46,12 @@ async fn main() -> Result<ExitCode> {
     };
     let timeout = Duration::from_secs(args.timeout);
     let auth = Some((args.user.as_str(), args.password.as_str()));
-    let java = Target::new(args.java.clone(), auth, timeout)?;
-    let rust = Target::new(args.rust.clone(), auth, timeout)?;
+    let mut java = Target::new(args.java.clone(), auth, timeout)?;
+    let mut rust = Target::new(args.rust.clone(), auth, timeout)?;
+    if let Some(h) = &args.host {
+        java.host = Some(h.parse()?);
+        rust.host = Some(h.parse()?);
+    }
 
     let mut cases = Vec::new();
     for p in &args.corpus {

@@ -7,8 +7,8 @@ use axum::body::Body;
 use dhis_auth::CurrentUser;
 use dhis_config::DhisConfigurationProvider;
 use dhis_config::location::LocationManager;
+use dhis_web::AppState;
 use dhis_web::http::{JavaFallback, RequestContext};
-use dhis_web::{AppState, CorsWhitelistSource};
 use http::{Method, Request, Response, StatusCode};
 use http_body_util::BodyExt;
 use tower::ServiceExt;
@@ -21,10 +21,7 @@ fn app() -> axum::Router {
         &HashMap::new(),
     )
     .unwrap();
-    dhis_web::router(Arc::new(AppState {
-        config: Arc::new(config),
-        cors_whitelist: CorsWhitelistSource::Static(vec![]),
-    }))
+    dhis_web::router(Arc::new(AppState::minimal(Arc::new(config))))
 }
 
 fn admin() -> CurrentUser {

@@ -39,6 +39,8 @@ pub struct Target {
     client: Client<HttpConnector, Full<Bytes>>,
     auth: Option<HeaderValue>,
     timeout: Duration,
+    /// Sent as `Host` on every request (so both servers see the same request).
+    pub host: Option<HeaderValue>,
 }
 
 impl Target {
@@ -54,6 +56,7 @@ impl Target {
             client: Client::builder(TokioExecutor::new()).build(HttpConnector::new()),
             auth,
             timeout,
+            host: None,
         })
     }
 
@@ -68,6 +71,11 @@ impl Target {
         for (k, v) in &case.headers {
             has_auth |= k.eq_ignore_ascii_case("authorization");
             req = req.header(k, v);
+        }
+        if let Some(h) = &self.host
+            && !case.headers.keys().any(|k| k.eq_ignore_ascii_case("host"))
+        {
+            req = req.header(http::header::HOST, h.clone());
         }
         if !has_auth && let Some(a) = &self.auth {
             req = req.header(http::header::AUTHORIZATION, a.clone());

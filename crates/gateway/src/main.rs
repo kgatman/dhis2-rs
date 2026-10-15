@@ -59,9 +59,15 @@ fn rust_router(args: &Args) -> axum::Router {
         }
     };
     info!(home = ?config.home(), "Rust side configured");
+    let java = Arc::new(dhis_auth::delegated::JavaAuthenticator::new(
+        args.java_upstream.clone(),
+    ));
     dhis_web::router(Arc::new(dhis_web::AppState {
         config: Arc::new(config),
-        cors_whitelist: dhis_web::CorsWhitelistSource::Db(pool),
+        cors_whitelist: dhis_web::CorsWhitelistSource::Db(pool.clone()),
+        db: Some(pool),
+        java: Some(java),
+        system_info: Default::default(),
     }))
 }
 

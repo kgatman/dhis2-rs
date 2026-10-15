@@ -7,7 +7,9 @@
 //! Note: during the strangler phase Rust and Java share one database, so the two pools together
 //! must fit in Postgres' `max_connections`. [`PoolSettings::max_size_override`] exists for that.
 
+pub mod database_info;
 pub mod jdbc;
+pub mod settings;
 
 use std::time::Duration;
 

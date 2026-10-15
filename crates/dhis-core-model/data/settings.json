@@ -1,0 +1,1192 @@
+{
+  "keyByProperty" : {
+    "acceptanceRequiredForApproval" : "keyAcceptanceRequiredForApproval",
+    "accountExpiresInDays" : "accountExpiresInDays",
+    "accountExpiryAlert" : "accountExpiryAlert",
+    "accountRecoveryEnabled" : "keyAccountRecovery",
+    "allowObjectAssignment" : "keyAllowObjectAssignment",
+    "analysisDigitGroupSeparator" : "keyAnalysisDigitGroupSeparator",
+    "analysisDisplayProperty" : "keyAnalysisDisplayProperty",
+    "analysisRelativePeriod" : "keyAnalysisRelativePeriod",
+    "analyticsCacheProgressiveTtlFactor" : "keyAnalyticsCacheProgressiveTtlFactor",
+    "analyticsCacheTtlMode" : "keyAnalyticsCacheTtlMode",
+    "analyticsDownloadCombinationLimit" : "keyAnalyticsDownloadCombinationLimit",
+    "analyticsFinancialYearStart" : "analyticsFinancialYearStart",
+    "analyticsMaxLimit" : "keyAnalyticsMaxLimit",
+    "analyticsPeriodYearsOffset" : "keyAnalyticsPeriodYearsOffset",
+    "analyticsWeeklyStart" : "analyticsWeeklyStart",
+    "applicationFooter" : "keyApplicationFooter",
+    "applicationIntro" : "keyApplicationIntro",
+    "applicationNotification" : "keyApplicationNotification",
+    "applicationRightFooter" : "keyApplicationRightFooter",
+    "applicationTitle" : "applicationTitle",
+    "autoVerifyInvitedUserEmail" : "autoVerifyInvitedUserEmail",
+    "azureMapsApiKey" : "keyAzureMapsApiKey",
+    "bingMapsApiKey" : "keyBingMapsApiKey",
+    "cacheStrategy" : "keyCacheStrategy",
+    "cacheability" : "keyCacheability",
+    "calendar" : "keyCalendar",
+    "canGrantOwnUserRoles" : "keyCanGrantOwnUserAuthorityGroups",
+    "countPassiveDashboardViewsInUsageAnalytics" : "keyCountPassiveDashboardViewsInUsageAnalytics",
+    "credentialsExpires" : "credentialsExpires",
+    "credentialsExpiresReminderInDays" : "credentialsExpiresReminderInDays",
+    "credentialsExpiryAlert" : "credentialsExpiryAlert",
+    "currentDomainType" : "keyCurrentDomainType",
+    "customColor" : "keyCustomColor",
+    "customColorMobile" : "keyCustomColorMobile",
+    "customCss" : "keyCustomCss",
+    "customJs" : "keyCustomJs",
+    "customLoginPageLogo" : "keyCustomLoginPageLogo",
+    "customTopMenuLogo" : "keyCustomTopMenuLogo",
+    "customTranslationsEnabled" : "keyCustomTranslationsEnabled",
+    "dashboardContextMenuItemOpenInRelevantApp" : "keyDashboardContextMenuItemOpenInRelevantApp",
+    "dashboardContextMenuItemShowInterpretationsAndDetails" : "keyDashboardContextMenuItemShowInterpretationsAndDetails",
+    "dashboardContextMenuItemSwitchViewType" : "keyDashboardContextMenuItemSwitchViewType",
+    "dashboardContextMenuItemViewFullscreen" : "keyDashboardContextMenuItemViewFullscreen",
+    "dataEntryAutoGroup" : "dataEntryAutoGroup",
+    "dataImportRequireAttributeOptionCombo" : "keyDataImportRequireAttributeOptionCombo",
+    "dataImportStrictAttributeOptionCombos" : "keyDataImportStrictAttributeOptionCombos",
+    "dataImportStrictOrganisationUnits" : "keyDataImportStrictOrganisationUnits",
+    "dataImportStrictPeriods" : "keyDataImportStrictPeriods",
+    "dataQualityMaxLimit" : "keyDataQualityMaxLimit",
+    "databaseServerCpus" : "keyDatabaseServerCpus",
+    "dateFormat" : "keyDateFormat",
+    "dbLocale" : "keyDbLocale",
+    "defaultBaseMap" : "keyDefaultBaseMap",
+    "deviceEnrollmentAllowedUserGroups" : "deviceEnrollmentAllowedUserGroups",
+    "deviceEnrollmentIATTtlSeconds" : "deviceEnrollmentIATTtlSeconds",
+    "deviceEnrollmentRedirectAllowlist" : "deviceEnrollmentRedirectAllowlist",
+    "emailHostName" : "keyEmailHostName",
+    "emailPassword" : "keyEmailPassword",
+    "emailPort" : "keyEmailPort",
+    "emailSender" : "keyEmailSender",
+    "emailTls" : "keyEmailTls",
+    "emailUsername" : "keyEmailUsername",
+    "embeddedDashboardsEnabled" : "keyEmbeddedDashboardsEnabled",
+    "enforceVerifiedEmail" : "enforceVerifiedEmail",
+    "factorOfDeviation" : "factorDeviation",
+    "fileResourceRetentionStrategy" : "keyFileResourceRetentionStrategy",
+    "flag" : "keyFlag",
+    "flagImage" : "keyFlagImage",
+    "gatherAnalyticalObjectStatisticsInDashboardViews" : "keyGatherAnalyticalObjectStatisticsInDashboardViews",
+    "globalShellAppName" : "globalShellAppName",
+    "globalShellEnabled" : "globalShellEnabled",
+    "googleAnalyticsUA" : "googleAnalyticsUA",
+    "googleMapsApiKey" : "keyGoogleMapsApiKey",
+    "helpPageLink" : "helpPageLink",
+    "hideBiMonthlyPeriods" : "keyHideBiMonthlyPeriods",
+    "hideBiWeeklyPeriods" : "keyHideBiWeeklyPeriods",
+    "hideDailyPeriods" : "keyHideDailyPeriods",
+    "hideMonthlyPeriods" : "keyHideMonthlyPeriods",
+    "hideWeeklyPeriods" : "keyHideWeeklyPeriods",
+    "htmlPushAnalyticsUrl" : "keyHtmlPushAnalyticsUrl",
+    "ignoreAnalyticsApprovalYearThreshold" : "keyIgnoreAnalyticsApprovalYearThreshold",
+    "includeZeroValuesInAnalytics" : "keyIncludeZeroValuesInAnalytics",
+    "jobsCleanupAfterMinutes" : "jobsCleanupAfterMinutes",
+    "jobsLogDebugBelowSeconds" : "jobsLogDebugBelowSeconds",
+    "jobsMaxCronDelayHours" : "jobsMaxCronDelayHours",
+    "jobsRescheduleAfterMinutes" : "jobsRescheduleAfterMinutes",
+    "jobsRescheduleAnalyticsAfterMinutes" : "jobsRescheduleAnalyticsAfterMinutes",
+    "lastCompleteDataSetRegistrationSyncSuccess" : "keyLastCompleteDataSetRegistrationSyncSuccess",
+    "lastMetaDataSyncSuccess" : "keyLastMetaDataSyncSuccess",
+    "lastMonitoringRun" : "keyLastMonitoringRun",
+    "lastSuccessfulAnalyticsTablesRuntime" : "keyLastSuccessfulAnalyticsTablesRuntime",
+    "lastSuccessfulAnalyticsTablesUpdate" : "keyLastSuccessfulAnalyticsTablesUpdate",
+    "lastSuccessfulAnalyticsTablesUpdateCompleteness" : "keyLastSuccessfulAnalyticsTablesUpdateCompleteness",
+    "lastSuccessfulAnalyticsTablesUpdateDataValue" : "keyLastSuccessfulAnalyticsTablesUpdateDataValue",
+    "lastSuccessfulAnalyticsTablesUpdateEvent" : "keyLastSuccessfulAnalyticsTablesUpdateEvent",
+    "lastSuccessfulAnalyticsTablesUpdateTrackedEntityInstanceEvents" : "keyLastSuccessfulAnalyticsTablesUpdateTrackedEntityInstanceEvents",
+    "lastSuccessfulDataStatistics" : "lastSuccessfulDataStatistics",
+    "lastSuccessfulDataSynch" : "keyLastSuccessfulDataSynch",
+    "lastSuccessfulEventsDataSynch" : "keyLastSuccessfulEventsDataSynch",
+    "lastSuccessfulLatestAnalyticsPartitionRuntime" : "keyLastSuccessfulLatestAnalyticsPartitionRuntime",
+    "lastSuccessfulLatestAnalyticsPartitionUpdate" : "keyLastSuccessfulLatestAnalyticsPartitionUpdate",
+    "lastSuccessfulLatestAnalyticsPartitionUpdateCompleteness" : "keyLastSuccessfulLatestAnalyticsPartitionUpdateCompleteness",
+    "lastSuccessfulLatestAnalyticsPartitionUpdateDataValue" : "keyLastSuccessfulLatestAnalyticsPartitionUpdateDataValue",
+    "lastSuccessfulLatestAnalyticsPartitionUpdateEvent" : "keyLastSuccessfulLatestAnalyticsPartitionUpdateEvent",
+    "lastSuccessfulLatestAnalyticsPartitionUpdateTrackedEntityInstanceEvents" : "keyLastSuccessfulLatestAnalyticsPartitionUpdateTrackedEntityInstanceEvents",
+    "lastSuccessfulMonitoring" : "keyLastSuccessfulMonitoring",
+    "lastSuccessfulResourceTablesUpdate" : "keyLastSuccessfulResourceTablesUpdate",
+    "lastSuccessfulScheduledDataSetNotifications" : "keyLastSuccessfulScheduledDataSetNotifications",
+    "lastSuccessfulScheduledProgramNotifications" : "keyLastSuccessfulScheduledProgramNotifications",
+    "lastSuccessfulSystemMonitoringPush" : "keyLastSuccessfulSystemMonitoringPush",
+    "lockMultipleFailedLogins" : "keyLockMultipleFailedLogins",
+    "loginPageLayout" : "loginPageLayout",
+    "loginPageTemplate" : "loginPageTemplate",
+    "loginPopup" : "loginPopup",
+    "maxPasswordLength" : "maxPasswordLength",
+    "metaDataRepoUrl" : "keyMetaDataRepoUrl",
+    "metadataFailedVersion" : "keyMetadataFailedVersion",
+    "metadataLastFailedTime" : "keyMetadataLastFailedTime",
+    "minPasswordLength" : "minPasswordLength",
+    "nextAnalyticsTableUpdate" : "keyNextAnalyticsTableUpdate",
+    "notifierCleanAfterIdleTime" : "notifierCleanAfterIdleTime",
+    "notifierGistOverview" : "notifierGistOverview",
+    "notifierLogLevel" : "notifierLogLevel",
+    "notifierMaxAgeDays" : "notifierMaxAgeDays",
+    "notifierMaxJobsPerType" : "notifierMaxJobsPerType",
+    "notifierMaxMessagesPerJob" : "notifierMaxMessagesPerJob",
+    "orgUnitCentroidsInEventsAnalytics" : "orgUnitCentroidsInEventsAnalytics",
+    "parallelJobsInAnalyticsTableExport" : "keyParallelJobsInAnalyticsTableExport",
+    "phoneNumberAreaCode" : "phoneNumberAreaCode",
+    "recaptchaSecret" : "recaptchaSecret",
+    "recaptchaSite" : "recaptchaSite",
+    "remoteInstancePassword" : "keyRemoteInstancePassword",
+    "remoteInstanceUrl" : "keyRemoteInstanceUrl",
+    "remoteInstanceUsername" : "keyRemoteInstanceUsername",
+    "remoteMetadataVersion" : "keyRemoteMetadataVersion",
+    "requireAddToView" : "keyRequireAddToView",
+    "respectMetaDataStartEndDatesInAnalyticsTableExport" : "keyRespectMetaDataStartEndDatesInAnalyticsTableExport",
+    "ruleEngineAssignOverwrite" : "ruleEngineAssignOverwrite",
+    "selfRegistrationNoRecaptcha" : "keySelfRegistrationNoRecaptcha",
+    "skipDataTypeValidationInAnalyticsTableExport" : "keySkipDataTypeValidationInAnalyticsTableExport",
+    "smsMaxLength" : "keySmsMaxLength",
+    "sqlViewMaxLimit" : "keySqlViewMaxLimit",
+    "startModule" : "startModule",
+    "startModuleEnableLightweight" : "startModuleEnableLightweight",
+    "stopMetadataSync" : "keyStopMetadataSync",
+    "syncDelayBetweenRemoteServerAvailabilityCheckAttempts" : "syncDelayBetweenRemoteServerAvailabilityCheckAttempts",
+    "syncMaxAttempts" : "syncMaxAttempts",
+    "syncMaxRemoteServerAvailabilityCheckAttempts" : "syncMaxRemoteServerAvailabilityCheckAttempts",
+    "syncSkipSyncForDataChangedBefore" : "syncSkipSyncForDataChangedBefore",
+    "systemMetadataVersion" : "keySystemMetadataVersion",
+    "systemNotificationsEmail" : "keySystemNotificationsEmail",
+    "trackedEntityMaxLimit" : "KeyTrackedEntityMaxLimit",
+    "trackerDashboardLayout" : "keyTrackerDashboardLayout",
+    "uiLocale" : "keyUiLocale",
+    "useCustomLogoBanner" : "keyUseCustomLogoBanner",
+    "useCustomLogoFront" : "keyUseCustomLogoFront",
+    "userAnalysisDisplayProperty" : "keyAnalysisDisplayProperty",
+    "userDbLocale" : "keyDbLocale",
+    "userMessageEmailNotification" : "keyMessageEmailNotification",
+    "userMessageSmsNotification" : "keyMessageSmsNotification",
+    "userStyle" : "keyStyle",
+    "userTrackerDashboardLayout" : "keyTrackerDashboardLayout",
+    "userUiLocale" : "keyUiLocale",
+    "versionEnabled" : "keyVersionEnabled"
+  },
+  "system" : {
+    "KeyTrackedEntityMaxLimit" : {
+      "type" : "Integer",
+      "default" : 50000,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "accountExpiresInDays" : {
+      "type" : "Integer",
+      "default" : 7,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "accountExpiryAlert" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "analyticsFinancialYearStart" : {
+      "type" : "Enum",
+      "default" : "FINANCIAL_YEAR_OCTOBER",
+      "enumClass" : "org.hisp.dhis.analytics.AnalyticsFinancialYearStartKey",
+      "enumValues" : [ "FINANCIAL_YEAR_FEBRUARY", "FINANCIAL_YEAR_APRIL", "FINANCIAL_YEAR_JULY", "FINANCIAL_YEAR_AUGUST", "FINANCIAL_YEAR_SEPTEMBER", "FINANCIAL_YEAR_OCTOBER" ],
+      "enumToString" : [ "FINANCIAL_YEAR_FEBRUARY", "FINANCIAL_YEAR_APRIL", "FINANCIAL_YEAR_JULY", "FINANCIAL_YEAR_AUGUST", "FINANCIAL_YEAR_SEPTEMBER", "FINANCIAL_YEAR_OCTOBER" ],
+      "confidential" : false,
+      "translatable" : false
+    },
+    "analyticsWeeklyStart" : {
+      "type" : "Enum",
+      "default" : "WEEKLY",
+      "enumClass" : "org.hisp.dhis.analytics.AnalyticsWeeklyStartKey",
+      "enumValues" : [ "WEEKLY", "WEEKLY_WEDNESDAY", "WEEKLY_THURSDAY", "WEEKLY_FRIDAY", "WEEKLY_SATURDAY", "WEEKLY_SUNDAY" ],
+      "enumToString" : [ "WEEKLY", "WEEKLY_WEDNESDAY", "WEEKLY_THURSDAY", "WEEKLY_FRIDAY", "WEEKLY_SATURDAY", "WEEKLY_SUNDAY" ],
+      "confidential" : false,
+      "translatable" : false
+    },
+    "applicationTitle" : {
+      "type" : "String",
+      "default" : "DHIS 2",
+      "confidential" : false,
+      "translatable" : true
+    },
+    "autoVerifyInvitedUserEmail" : {
+      "type" : "Boolean",
+      "default" : true,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "credentialsExpires" : {
+      "type" : "Integer",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "credentialsExpiresReminderInDays" : {
+      "type" : "Integer",
+      "default" : 28,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "credentialsExpiryAlert" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "dataEntryAutoGroup" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "deviceEnrollmentAllowedUserGroups" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "deviceEnrollmentIATTtlSeconds" : {
+      "type" : "Integer",
+      "default" : 60,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "deviceEnrollmentRedirectAllowlist" : {
+      "type" : "String",
+      "default" : "dhis2oauth://oauth",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "enforceVerifiedEmail" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "factorDeviation" : {
+      "type" : "Double",
+      "default" : 2.0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "globalShellAppName" : {
+      "type" : "String",
+      "default" : "global-shell",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "globalShellEnabled" : {
+      "type" : "Boolean",
+      "default" : true,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "googleAnalyticsUA" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "helpPageLink" : {
+      "type" : "String",
+      "default" : "https://dhis2.github.io/dhis2-docs/master/en/user/html/dhis2_user_manual_en.html",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "jobsCleanupAfterMinutes" : {
+      "type" : "Integer",
+      "default" : 1440,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "jobsLogDebugBelowSeconds" : {
+      "type" : "Integer",
+      "default" : 180,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "jobsMaxCronDelayHours" : {
+      "type" : "Integer",
+      "default" : 4,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "jobsRescheduleAfterMinutes" : {
+      "type" : "Integer",
+      "default" : 10,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "jobsRescheduleAnalyticsAfterMinutes" : {
+      "type" : "Integer",
+      "default" : 240,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyAcceptanceRequiredForApproval" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyAccountRecovery" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyAllowObjectAssignment" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyAnalysisDigitGroupSeparator" : {
+      "type" : "Enum",
+      "default" : "SPACE",
+      "enumClass" : "org.hisp.dhis.common.DigitGroupSeparator",
+      "enumValues" : [ "COMMA", "SPACE", "NONE" ],
+      "enumToString" : [ "COMMA", "SPACE", "NONE" ],
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyAnalysisDisplayProperty" : {
+      "type" : "Enum",
+      "default" : "NAME",
+      "enumClass" : "org.hisp.dhis.common.DisplayProperty",
+      "enumValues" : [ "NAME", "SHORTNAME" ],
+      "enumToString" : [ "name", "shortName" ],
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyAnalysisRelativePeriod" : {
+      "type" : "Enum",
+      "default" : "LAST_12_MONTHS",
+      "enumClass" : "org.hisp.dhis.period.RelativePeriodEnum",
+      "enumValues" : [ "TODAY", "YESTERDAY", "LAST_3_DAYS", "LAST_7_DAYS", "LAST_14_DAYS", "LAST_30_DAYS", "LAST_60_DAYS", "LAST_90_DAYS", "LAST_180_DAYS", "THIS_MONTH", "LAST_MONTH", "THIS_BIMONTH", "LAST_BIMONTH", "THIS_QUARTER", "LAST_QUARTER", "THIS_SIX_MONTH", "LAST_SIX_MONTH", "WEEKS_THIS_YEAR", "MONTHS_THIS_YEAR", "BIMONTHS_THIS_YEAR", "QUARTERS_THIS_YEAR", "THIS_YEAR", "MONTHS_LAST_YEAR", "QUARTERS_LAST_YEAR", "LAST_YEAR", "LAST_5_YEARS", "LAST_10_YEARS", "LAST_12_MONTHS", "LAST_6_MONTHS", "LAST_3_MONTHS", "LAST_6_BIMONTHS", "LAST_4_QUARTERS", "LAST_2_SIXMONTHS", "THIS_FINANCIAL_YEAR", "LAST_FINANCIAL_YEAR", "LAST_5_FINANCIAL_YEARS", "LAST_10_FINANCIAL_YEARS", "THIS_WEEK", "LAST_WEEK", "THIS_BIWEEK", "LAST_BIWEEK", "LAST_4_WEEKS", "LAST_4_BIWEEKS", "LAST_12_WEEKS", "LAST_52_WEEKS" ],
+      "enumToString" : [ "TODAY", "YESTERDAY", "LAST_3_DAYS", "LAST_7_DAYS", "LAST_14_DAYS", "LAST_30_DAYS", "LAST_60_DAYS", "LAST_90_DAYS", "LAST_180_DAYS", "THIS_MONTH", "LAST_MONTH", "THIS_BIMONTH", "LAST_BIMONTH", "THIS_QUARTER", "LAST_QUARTER", "THIS_SIX_MONTH", "LAST_SIX_MONTH", "WEEKS_THIS_YEAR", "MONTHS_THIS_YEAR", "BIMONTHS_THIS_YEAR", "QUARTERS_THIS_YEAR", "THIS_YEAR", "MONTHS_LAST_YEAR", "QUARTERS_LAST_YEAR", "LAST_YEAR", "LAST_5_YEARS", "LAST_10_YEARS", "LAST_12_MONTHS", "LAST_6_MONTHS", "LAST_3_MONTHS", "LAST_6_BIMONTHS", "LAST_4_QUARTERS", "LAST_2_SIXMONTHS", "THIS_FINANCIAL_YEAR", "LAST_FINANCIAL_YEAR", "LAST_5_FINANCIAL_YEARS", "LAST_10_FINANCIAL_YEARS", "THIS_WEEK", "LAST_WEEK", "THIS_BIWEEK", "LAST_BIWEEK", "LAST_4_WEEKS", "LAST_4_BIWEEKS", "LAST_12_WEEKS", "LAST_52_WEEKS" ],
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyAnalyticsCacheProgressiveTtlFactor" : {
+      "type" : "Integer",
+      "default" : 160,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyAnalyticsCacheTtlMode" : {
+      "type" : "Enum",
+      "default" : "FIXED",
+      "enumClass" : "org.hisp.dhis.analytics.AnalyticsCacheTtlMode",
+      "enumValues" : [ "FIXED", "PROGRESSIVE" ],
+      "enumToString" : [ "FIXED", "PROGRESSIVE" ],
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyAnalyticsDownloadCombinationLimit" : {
+      "type" : "Integer",
+      "default" : 20000,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyAnalyticsMaxLimit" : {
+      "type" : "Integer",
+      "default" : 100000,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyAnalyticsPeriodYearsOffset" : {
+      "type" : "Integer",
+      "default" : -1,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyApplicationFooter" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : true
+    },
+    "keyApplicationIntro" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : true
+    },
+    "keyApplicationNotification" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : true
+    },
+    "keyApplicationRightFooter" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : true
+    },
+    "keyAzureMapsApiKey" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyBingMapsApiKey" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyCacheStrategy" : {
+      "type" : "Enum",
+      "default" : "CACHE_1_MINUTE",
+      "enumClass" : "org.hisp.dhis.common.cache.CacheStrategy",
+      "enumValues" : [ "NO_CACHE", "CACHE_1_MINUTE", "CACHE_5_MINUTES", "CACHE_10_MINUTES", "CACHE_15_MINUTES", "CACHE_30_MINUTES", "CACHE_1_HOUR", "CACHE_6AM_TOMORROW", "CACHE_TWO_WEEKS", "RESPECT_SYSTEM_SETTING" ],
+      "enumToString" : [ "NO_CACHE", "CACHE_1_MINUTE", "CACHE_5_MINUTES", "CACHE_10_MINUTES", "CACHE_15_MINUTES", "CACHE_30_MINUTES", "CACHE_1_HOUR", "CACHE_6AM_TOMORROW", "CACHE_TWO_WEEKS", "RESPECT_SYSTEM_SETTING" ],
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyCacheability" : {
+      "type" : "Enum",
+      "default" : "PUBLIC",
+      "enumClass" : "org.hisp.dhis.common.cache.Cacheability",
+      "enumValues" : [ "PUBLIC", "PRIVATE" ],
+      "enumToString" : [ "PUBLIC", "PRIVATE" ],
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyCalendar" : {
+      "type" : "String",
+      "default" : "iso8601",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyCanGrantOwnUserAuthorityGroups" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyCountPassiveDashboardViewsInUsageAnalytics" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyCurrentDomainType" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyCustomColor" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyCustomColorMobile" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyCustomCss" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyCustomJs" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyCustomLoginPageLogo" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyCustomTopMenuLogo" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyCustomTranslationsEnabled" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyDashboardContextMenuItemOpenInRelevantApp" : {
+      "type" : "Boolean",
+      "default" : true,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyDashboardContextMenuItemShowInterpretationsAndDetails" : {
+      "type" : "Boolean",
+      "default" : true,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyDashboardContextMenuItemSwitchViewType" : {
+      "type" : "Boolean",
+      "default" : true,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyDashboardContextMenuItemViewFullscreen" : {
+      "type" : "Boolean",
+      "default" : true,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyDataImportRequireAttributeOptionCombo" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyDataImportStrictAttributeOptionCombos" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyDataImportStrictOrganisationUnits" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyDataImportStrictPeriods" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyDataQualityMaxLimit" : {
+      "type" : "Integer",
+      "default" : 500,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyDatabaseServerCpus" : {
+      "type" : "Integer",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyDateFormat" : {
+      "type" : "String",
+      "default" : "yyyy-MM-dd",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyDbLocale" : {
+      "type" : "Locale",
+      "default" : "en",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyDefaultBaseMap" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyEmailHostName" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyEmailPassword" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : true,
+      "translatable" : false
+    },
+    "keyEmailPort" : {
+      "type" : "Integer",
+      "default" : 587,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyEmailSender" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyEmailTls" : {
+      "type" : "Boolean",
+      "default" : true,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyEmailUsername" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyEmbeddedDashboardsEnabled" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyFileResourceRetentionStrategy" : {
+      "type" : "Enum",
+      "default" : "NONE",
+      "enumClass" : "org.hisp.dhis.fileresource.FileResourceRetentionStrategy",
+      "enumValues" : [ "NONE", "THREE_MONTHS", "ONE_YEAR", "FOREVER" ],
+      "enumToString" : [ "NONE", "THREE_MONTHS", "ONE_YEAR", "FOREVER" ],
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyFlag" : {
+      "type" : "String",
+      "default" : "dhis2",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyFlagImage" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyGatherAnalyticalObjectStatisticsInDashboardViews" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyGoogleMapsApiKey" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyHideBiMonthlyPeriods" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyHideBiWeeklyPeriods" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyHideDailyPeriods" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyHideMonthlyPeriods" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyHideWeeklyPeriods" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyHtmlPushAnalyticsUrl" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyIgnoreAnalyticsApprovalYearThreshold" : {
+      "type" : "Integer",
+      "default" : -1,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyIncludeZeroValuesInAnalytics" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLastCompleteDataSetRegistrationSyncSuccess" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLastMetaDataSyncSuccess" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLastMonitoringRun" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLastSuccessfulAnalyticsTablesRuntime" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLastSuccessfulAnalyticsTablesUpdate" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLastSuccessfulAnalyticsTablesUpdateCompleteness" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLastSuccessfulAnalyticsTablesUpdateDataValue" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLastSuccessfulAnalyticsTablesUpdateEvent" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLastSuccessfulAnalyticsTablesUpdateTrackedEntityInstanceEvents" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLastSuccessfulDataSynch" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLastSuccessfulEventsDataSynch" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLastSuccessfulLatestAnalyticsPartitionRuntime" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLastSuccessfulLatestAnalyticsPartitionUpdate" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLastSuccessfulLatestAnalyticsPartitionUpdateCompleteness" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLastSuccessfulLatestAnalyticsPartitionUpdateDataValue" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLastSuccessfulLatestAnalyticsPartitionUpdateEvent" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLastSuccessfulLatestAnalyticsPartitionUpdateTrackedEntityInstanceEvents" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLastSuccessfulMonitoring" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLastSuccessfulResourceTablesUpdate" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLastSuccessfulScheduledDataSetNotifications" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLastSuccessfulScheduledProgramNotifications" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLastSuccessfulSystemMonitoringPush" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyLockMultipleFailedLogins" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyMetaDataRepoUrl" : {
+      "type" : "String",
+      "default" : "https://raw.githubusercontent.com/dhis2/dhis2-metadata-repo/master/repo/221/index.json",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyMetadataFailedVersion" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyMetadataLastFailedTime" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyNextAnalyticsTableUpdate" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyParallelJobsInAnalyticsTableExport" : {
+      "type" : "Integer",
+      "default" : -1,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyRemoteInstancePassword" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : true,
+      "translatable" : false
+    },
+    "keyRemoteInstanceUrl" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyRemoteInstanceUsername" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyRemoteMetadataVersion" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyRequireAddToView" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyRespectMetaDataStartEndDatesInAnalyticsTableExport" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keySelfRegistrationNoRecaptcha" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keySkipDataTypeValidationInAnalyticsTableExport" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keySmsMaxLength" : {
+      "type" : "Integer",
+      "default" : 1071,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keySqlViewMaxLimit" : {
+      "type" : "Integer",
+      "default" : -1,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyStopMetadataSync" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keySystemMetadataVersion" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keySystemNotificationsEmail" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyTrackerDashboardLayout" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyUiLocale" : {
+      "type" : "Locale",
+      "default" : "en",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyUseCustomLogoBanner" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyUseCustomLogoFront" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyVersionEnabled" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "lastSuccessfulDataStatistics" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "loginPageLayout" : {
+      "type" : "Enum",
+      "default" : "DEFAULT",
+      "enumClass" : "org.hisp.dhis.security.LoginPageLayout",
+      "enumValues" : [ "DEFAULT", "SIDEBAR", "CUSTOM" ],
+      "enumToString" : [ "DEFAULT", "SIDEBAR", "CUSTOM" ],
+      "confidential" : false,
+      "translatable" : false
+    },
+    "loginPageTemplate" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "loginPopup" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : true
+    },
+    "maxPasswordLength" : {
+      "type" : "Integer",
+      "default" : 72,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "minPasswordLength" : {
+      "type" : "Integer",
+      "default" : 8,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "notifierCleanAfterIdleTime" : {
+      "type" : "Integer",
+      "default" : 600000,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "notifierGistOverview" : {
+      "type" : "Boolean",
+      "default" : true,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "notifierLogLevel" : {
+      "type" : "Enum",
+      "default" : "DEBUG",
+      "enumClass" : "org.hisp.dhis.system.notification.NotificationLevel",
+      "enumValues" : [ "OFF", "DEBUG", "LOOP", "INFO", "WARN", "ERROR" ],
+      "enumToString" : [ "OFF", "DEBUG", "LOOP", "INFO", "WARN", "ERROR" ],
+      "confidential" : false,
+      "translatable" : false
+    },
+    "notifierMaxAgeDays" : {
+      "type" : "Integer",
+      "default" : 7,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "notifierMaxJobsPerType" : {
+      "type" : "Integer",
+      "default" : 500,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "notifierMaxMessagesPerJob" : {
+      "type" : "Integer",
+      "default" : 500,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "orgUnitCentroidsInEventsAnalytics" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "phoneNumberAreaCode" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "recaptchaSecret" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : true,
+      "translatable" : false
+    },
+    "recaptchaSite" : {
+      "type" : "String",
+      "default" : "6LcVwT0UAAAAAAkO_EGPiYOiymIszZUeHfqWIYX5",
+      "confidential" : true,
+      "translatable" : false
+    },
+    "ruleEngineAssignOverwrite" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "startModule" : {
+      "type" : "String",
+      "default" : "dhis-web-dashboard",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "startModuleEnableLightweight" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "syncDelayBetweenRemoteServerAvailabilityCheckAttempts" : {
+      "type" : "Integer",
+      "default" : 500,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "syncMaxAttempts" : {
+      "type" : "Integer",
+      "default" : 3,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "syncMaxRemoteServerAvailabilityCheckAttempts" : {
+      "type" : "Integer",
+      "default" : 3,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "syncSkipSyncForDataChangedBefore" : {
+      "type" : "Date",
+      "default" : 0,
+      "confidential" : false,
+      "translatable" : false
+    }
+  },
+  "user" : {
+    "keyAnalysisDisplayProperty" : {
+      "type" : "Enum",
+      "default" : "NAME",
+      "enumClass" : "org.hisp.dhis.common.DisplayProperty",
+      "enumValues" : [ "NAME", "SHORTNAME" ],
+      "enumToString" : [ "name", "shortName" ],
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyDbLocale" : {
+      "type" : "Locale",
+      "default" : "en",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyMessageEmailNotification" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyMessageSmsNotification" : {
+      "type" : "Boolean",
+      "default" : false,
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyStyle" : {
+      "type" : "String",
+      "default" : "light_blue/light_blue.css",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyTrackerDashboardLayout" : {
+      "type" : "String",
+      "default" : "",
+      "confidential" : false,
+      "translatable" : false
+    },
+    "keyUiLocale" : {
+      "type" : "Locale",
+      "default" : "en",
+      "confidential" : false,
+      "translatable" : false
+    }
+  }
+}

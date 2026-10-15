@@ -22,3 +22,23 @@ regex = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
 with = "<uuid>"
 paths = ["/api/system/uuid"]
 reason = "Random v4 UUIDs differ per call; count and format must still match."
+
+[[ignore_key]]
+key = "serverDate"
+paths = ["/api/system/info", "/api/40/system/info"]
+reason = "new Date() at request time; the Java and Rust requests run at different instants."
+
+[[ignore_key]]
+key = "time"
+paths = ["/api/system/info", "/api/40/system/info"]
+reason = "databaseInfo.time is the DB's now() at request time; differs between the two requests."
+
+[[ignore_key]]
+key = "intervalSinceLastAnalyticsTableSuccess"
+paths = ["/api/system/info", "/api/40/system/info"]
+reason = "Derived from the request time (seconds resolution); can tick between the two requests."
+
+[[ignore_key]]
+key = "intervalSinceLastAnalyticsTablePartitionSuccess"
+paths = ["/api/system/info", "/api/40/system/info"]
+reason = "Derived from the request time (seconds resolution); can tick between the two requests."

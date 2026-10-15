@@ -38,3 +38,13 @@ methods = ["GET", "HEAD"]
 path = "/api/system/uuid"
 backend = "rust"
 note = "SystemController#getUuid (JSON; XML falls back)"
+
+# SystemController#getSystemInfo. diffcheck corpus/phase2/system-info.jsonl: 48/48 (superuser and
+# non-superuser, fields=/presets/exclusions/errors); shadow: 43 matched, 0 mismatched. JVM/build
+# values are mirrored from Java (ADR 0005). Field transformers, JSONP/XML and non-PostgreSQL
+# analytics fall back to Java.
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/system/info"
+backend = "rust"
+note = "SystemController#getSystemInfo"
