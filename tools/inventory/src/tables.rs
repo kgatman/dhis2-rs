@@ -62,8 +62,11 @@ pub fn extract(dhis2: &Path, idx: &JavaIndex) -> Result<Vec<Vec<String>>> {
         };
         rows.push(vec![
             name.clone(),
-            f.map(|f| f.present.to_string())
-                .unwrap_or_else(|| "unknown".into()),
+            f.map(|f| match (f.present, f.conditional) {
+                (true, true) => "conditional".to_string(),
+                (p, _) => p.to_string(),
+            })
+            .unwrap_or_else(|| "unknown".into()),
             f.and_then(|f| f.created.clone()).unwrap_or_default(),
             f.and_then(|f| f.dropped.clone()).unwrap_or_default(),
             h.map(|h| h.kinds.iter().copied().collect::<Vec<_>>().join("+"))
@@ -555,6 +558,8 @@ fn jpa_tables(idx: &JavaIndex, root: &Path) -> BTreeMap<String, TableInfo> {
 #[derive(Debug, Default, Clone)]
 struct FlywayState {
     present: bool,
+    /// Created inside a `DO $$ ... $$` block, i.e. only when some data condition holds.
+    conditional: bool,
     created: Option<String>,
     dropped: Option<String>,
 }
@@ -600,6 +605,8 @@ fn flyway_tables(dhis2: &Path) -> Result<BTreeMap<String, FlywayState>> {
     let mut state: BTreeMap<String, FlywayState> = BTreeMap::new();
     let mut apply = |label: &str, sql: &str| {
         let sql = line_comment.replace_all(sql, "");
+        let blocks = dollar_quoted_ranges(&sql);
+        let in_block = |pos: usize| blocks.iter().any(|(a, b)| *a <= pos && pos < *b);
         // Collect (position, action) so statements apply in file order.
         let mut actions: Vec<(usize, u8, String, String)> = Vec::new();
         for c in create.captures_iter(&sql) {
@@ -629,12 +636,13 @@ fn flyway_tables(dhis2: &Path) -> Result<BTreeMap<String, FlywayState>> {
             ));
         }
         actions.sort();
-        for (_, kind, a, b) in actions {
+        for (pos, kind, a, b) in actions {
             match kind {
                 0 => {
                     let s = state.entry(a).or_default();
                     if !s.present {
                         s.present = true;
+                        s.conditional = in_block(pos);
                         s.created = Some(label.to_string());
                         s.dropped = None;
                     }
@@ -670,5 +678,39 @@ fn flyway_tables(dhis2: &Path) -> Result<BTreeMap<String, FlywayState>> {
         let src = std::fs::read_to_string(path)?;
         apply(name, &src);
     }
+    // Present in every migrated database but not created by migration SQL.
+    for (table, origin) in [
+        ("flyway_schema_history", "Flyway itself"),
+        ("spatial_ref_sys", "PostGIS extension"),
+    ] {
+        state.insert(
+            table.into(),
+            FlywayState {
+                present: true,
+                conditional: false,
+                created: Some(origin.into()),
+                dropped: None,
+            },
+        );
+    }
     Ok(state)
+}
+
+/// Byte ranges of dollar-quoted bodies (`$$ ... $$`, `$tag$ ... $tag$`).
+fn dollar_quoted_ranges(sql: &str) -> Vec<(usize, usize)> {
+    let tag = Regex::new(r"\$([A-Za-z_][A-Za-z0-9_]*)?\$").expect("valid regex");
+    let mut out = Vec::new();
+    let mut pos = 0;
+    while let Some(open) = tag.find_at(sql, pos) {
+        let t = open.as_str();
+        match sql[open.end()..].find(t) {
+            Some(rel) => {
+                let close = open.end() + rel;
+                out.push((open.end(), close));
+                pos = close + t.len();
+            }
+            None => break,
+        }
+    }
+    out
 }

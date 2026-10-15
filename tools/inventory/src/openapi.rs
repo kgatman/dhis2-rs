@@ -87,14 +87,25 @@ pub fn cross_check_tables(list: &Path, csv: &Path) -> Result<()> {
         .collect();
     let mut rdr = csv::Reader::from_path(csv)?;
     let mut present = BTreeSet::new();
+    let mut conditional = BTreeSet::new();
     for r in rdr.records() {
         let r = r?;
-        if &r[1] == "true" {
-            present.insert(r[0].to_string());
+        match &r[1] {
+            "true" => {
+                present.insert(r[0].to_string());
+            }
+            "conditional" => {
+                conditional.insert(r[0].to_string());
+            }
+            _ => {}
         }
     }
     let only_csv: Vec<_> = present.difference(&live).collect();
-    let only_db: Vec<_> = live.difference(&present).collect();
+    // Conditionally created tables may or may not exist, depending on the data migrated.
+    let only_db: Vec<_> = live
+        .difference(&present)
+        .filter(|t| !conditional.contains(*t))
+        .collect();
     println!(
         "tables.csv present: {} | database: {} | common: {}",
         present.len(),

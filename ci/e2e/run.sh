@@ -13,6 +13,7 @@
 #   SELENIUM_IMAGE       e.g. seleniarm/standalone-chromium on Apple Silicon.
 #   DHIS2_E2E_TEST_ARGS  extra Maven args, e.g. "-Dtest=MeActionsTest".
 #   KEEP_STACK=1         leave containers running afterwards.
+#   E2E_LOW_MEMORY=1     cap JVM heaps (ci/e2e/docker-compose.lowmem.yml) for ~8 GB Docker VMs.
 set -euo pipefail
 
 repo=$(cd "$(dirname "$0")/../.." && pwd)
@@ -37,6 +38,9 @@ fi
 compose=(docker compose --project-directory "$e2e"
   -f "$e2e/docker-compose.yml" -f "$e2e/docker-compose.e2e.yml"
   -f "$repo/ci/e2e/docker-compose.gateway.yml")
+if [[ -n "${E2E_LOW_MEMORY:-}" ]]; then
+  compose+=(-f "$repo/ci/e2e/docker-compose.lowmem.yml")
+fi
 
 logs="$repo/target/e2e"
 mkdir -p "$logs"

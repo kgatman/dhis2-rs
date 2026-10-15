@@ -1,0 +1,14 @@
+# LOCAL USE ONLY: caps JVM heaps so the e2e stack fits a Docker VM with ~8 GB of memory
+# (upstream runs it on 16 GB CI runners). Memory settings only, no behavioural change.
+# Enabled by `E2E_LOW_MEMORY=1 ci/e2e/run.sh`; never used in CI.
+services:
+  web:
+    environment:
+      # Upstream's debugger agent, plus heap caps.
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8081 -Xmx2g -XX:MaxMetaspaceSize=512m -XX:ReservedCodeCacheSize=128m"
+  test:
+    environment:
+      # Applies to Maven and the surefire fork.
+      JAVA_TOOL_OPTIONS: "-Xmx768m -XX:MaxMetaspaceSize=256m"
+  selenium:
+    mem_limit: 1500m

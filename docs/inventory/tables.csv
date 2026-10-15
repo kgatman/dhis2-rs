@@ -216,11 +216,12 @@ externalmaplayeruseraccesses,false,base_schema,V2_36_20__Drop_legacy_sharing_tab
 externalmaplayerusergroupaccesses,false,base_schema,V2_36_20__Drop_legacy_sharing_tables,,,,
 externalnotificationlogentry,true,base_schema,,hbm,org.hisp.dhis.notification.logging.ExternalNotificationLogEntry,dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/notification/hibernate/ExternalNotificationLogEntry.hbm.xml,allowmultiple;created;externalnotificationlogentryid;key;lastsentat;lastupdated;retries;templateuid;triggerby;uid
 fileresource,true,base_schema,,hbm,org.hisp.dhis.fileresource.FileResource,dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/fileresource/hibernate/FileResource.hbm.xml,code;contentlength;contentmd5;contenttype;created;domain;fileresourceid;fileresourceowner;hasmultiplestoragefiles;isassigned;lastupdated;lastupdatedby;name;storagekey;uid;userid
+flyway_schema_history,true,Flyway itself,,,,,
 i18nlocale,true,base_schema,,hbm,org.hisp.dhis.i18n.locale.I18nLocale,dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/i18n/locale/hibernate/I18nLocale.hbm.xml,code;created;i18nlocaleid;lastupdated;lastupdatedby;locale;name;uid
 icon,true,V2_41_2__Create_table_icon,,,,,
 incomingsms,true,base_schema,,hbm,org.hisp.dhis.sms.incoming.IncomingSms,dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/sms/hibernate/IncomingSms.hbm.xml,encoding;gatewayid;id;originator;parsed;receiveddate;sentdate;status;statusmessage;text;uid;userid
-inconsistentevent,true,V2_43_21__split_event_table,,,,,
-inconsistentnote,true,V2_44_26__replace_note_link_tables_with_foreign_keys,,,,,
+inconsistentevent,conditional,V2_43_21__split_event_table,,,,,
+inconsistentnote,conditional,V2_44_26__replace_note_link_tables_with_foreign_keys,,,,,
 indicator,true,base_schema,,hbm,org.hisp.dhis.indicator.Indicator,dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/indicator/hibernate/Indicator.hbm.xml,aggregateexportattributeoptioncombo;aggregateexportcategoryoptioncombo;annualized;attributevalues;code;created;decimals;denominator;denominatordescription;description;formname;indicatorid;indicatortypeid;lastupdated;lastupdatedby;name;numerator;numeratordescription;sharing;shortname;style;translations;uid;url;userid
 indicatorattributevalues,false,base_schema,V2_38_8__Remove_legacy_attributevalues_tables,,,,
 indicatorgroup,true,base_schema,,jpa,org.hisp.dhis.indicator.IndicatorGroup,dhis-api/src/main/java/org/hisp/dhis/indicator/IndicatorGroup.java,attributevalues;code;created;description;indicatorgroupid;lastupdated;lastupdatedby;name;sharing;translations;uid;userid
@@ -460,6 +461,7 @@ smscommandcodes,true,base_schema,,hbm,,dhis-services/dhis-service-core/src/main/
 smscommands,true,base_schema,,hbm,org.hisp.dhis.sms.command.SMSCommand,dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/sms/hibernate/SMSCommand.hbm.xml,codeseparator;completenessmethod;created;currentperiodusedforreporting;datasetid;defaultmessage;lastupdated;morethanoneorgunitmessage;name;nousermessage;parsertype;programid;programstageid;receivedmessage;separatorkey;smscommandid;successmessage;uid;usergroupid;wrongformatmessage
 smscommandspecialcharacters,true,base_schema,,hbm,,dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/sms/hibernate/SMSCommand.hbm.xml,smscommandid;specialcharacterid
 smsspecialcharacter,true,base_schema,,hbm,org.hisp.dhis.sms.command.SMSSpecialCharacter,dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/sms/hibernate/SMSSpecialCharacter.hbm.xml,name;specialcharacterid;value
+spatial_ref_sys,true,PostGIS extension,,,,,
 sqlview,true,base_schema,,hbm,org.hisp.dhis.sqlview.SqlView,dhis-services/dhis-service-core/src/main/resources/org/hisp/dhis/sqlview/hibernate/SqlView.hbm.xml,attributevalues;cachestrategy;code;created;description;lastupdated;lastupdatedby;name;sharing;sqlquery;sqlviewid;type;uid;userid
 sqlviewattributevalues,false,base_schema,V2_38_8__Remove_legacy_attributevalues_tables,,,,
 sqlviewuseraccesses,false,base_schema,V2_36_20__Drop_legacy_sharing_tables,,,,
