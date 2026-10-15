@@ -33,6 +33,7 @@ pub const COLUMNS: &[&str] = &[
     "bound_params",
     "authorities",
     "deprecated",
+    "openapi",
 ];
 
 #[derive(Debug, Clone)]
@@ -54,6 +55,10 @@ pub struct Endpoint {
     pub bound_params: String,
     pub authorities: String,
     pub deprecated: bool,
+    /// `ignored` (`@OpenApi.Ignore` on the controller or handler) or `filtered`
+    /// (`@OpenApi.Filter` on the handler): routed by Spring but absent from, or only partly in,
+    /// `/api/openapi.json`.
+    pub openapi: String,
 }
 
 impl Endpoint {
@@ -92,6 +97,7 @@ impl Endpoint {
             self.bound_params.clone(),
             self.authorities.clone(),
             self.deprecated.to_string(),
+            self.openapi.clone(),
         ]
     }
 
@@ -225,17 +231,23 @@ pub fn extract(idx: &JavaIndex, java_root: &Path) -> Report {
             .flat_map(|h| authority_annotations(&ev, &h.annotations, h))
             .collect();
         let type_deprecated = t.annotations.iter().any(|a| a.name == "Deprecated");
+        let type_openapi_ignored = t.annotations.iter().any(|a| a.name == "Ignore");
 
         // Methods: most specific mapping wins per (name, arity).
+        // Overrides are detected by (name, arity) against *more specific* types only; overloads
+        // within one class are all kept.
         let mut seen: HashSet<(String, usize)> = HashSet::new();
         for owner in &hierarchy {
+            let mut declared_here: Vec<(String, usize)> = Vec::new();
             for m in &owner.methods {
                 let Some((ann, fixed_method)) = mapping_of(&m.annotations) else {
                     continue;
                 };
-                if !seen.insert((m.name.clone(), m.params.len())) {
+                let sig = (m.name.clone(), m.params.len());
+                if seen.contains(&sig) {
                     continue;
                 }
+                declared_here.push(sig);
                 let method_paths = paths_of(&ev, ann, owner, &mut warnings);
                 let http_methods: Vec<String> = match fixed_method {
                     Some(fm) => vec![fm.to_string()],
@@ -274,6 +286,14 @@ pub fn extract(idx: &JavaIndex, java_root: &Path) -> Report {
                 auth.extend(authority_annotations(&ev, &m.annotations, owner));
                 let deprecated =
                     type_deprecated || m.annotations.iter().any(|a| a.name == "Deprecated");
+                let openapi =
+                    if type_openapi_ignored || m.annotations.iter().any(|a| a.name == "Ignore") {
+                        "ignored"
+                    } else if m.annotations.iter().any(|a| a.name == "Filter") {
+                        "filtered"
+                    } else {
+                        ""
+                    };
                 let source = format!(
                     "{}:{}",
                     owner
@@ -308,10 +328,12 @@ pub fn extract(idx: &JavaIndex, java_root: &Path) -> Report {
                             bound_params: args.bound.join(";"),
                             authorities: auth.join(" & "),
                             deprecated,
+                            openapi: openapi.to_string(),
                         });
                     }
                 }
             }
+            seen.extend(declared_here);
         }
     }
 

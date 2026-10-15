@@ -29,14 +29,39 @@ pub fn anonymise(path: &str) -> String {
     out
 }
 
-fn from_csv(path: &Path) -> Result<BTreeSet<String>> {
+/// DHIS2's OpenAPI generator disambiguates overloads with `#handlerName` and writes collection
+/// roots with a trailing slash (`/api/users/`); Spring matches both spellings the same.
+fn openapi_path(p: &str) -> String {
+    trim_slash(p.split('#').next().unwrap_or(p))
+}
+
+fn trim_slash(p: &str) -> String {
+    match p.strip_suffix('/') {
+        Some(s) if !s.is_empty() => s.to_string(),
+        _ => p.to_string(),
+    }
+}
+
+/// Returns (all rows, rows hidden from OpenAPI by `@OpenApi.Ignore` / `@OpenApi.Filter`).
+fn from_csv(path: &Path) -> Result<(BTreeSet<String>, BTreeSet<String>)> {
     let mut rdr = csv::Reader::from_path(path).with_context(|| path.display().to_string())?;
-    let mut out = BTreeSet::new();
+    let headers = rdr.headers()?.clone();
+    let col = |n: &str| headers.iter().position(|h| h == n);
+    let (m, p, o) = (
+        col("http_method").context("http_method column")?,
+        col("path").context("path column")?,
+        col("openapi"),
+    );
+    let (mut all, mut hidden) = (BTreeSet::new(), BTreeSet::new());
     for r in rdr.records() {
         let r = r?;
-        out.insert(format!("{} {}", &r[1], anonymise(&r[2])));
+        let key = format!("{} {}", &r[m], trim_slash(&anonymise(&r[p])));
+        if o.and_then(|i| r.get(i)).is_some_and(|v| !v.is_empty()) {
+            hidden.insert(key.clone());
+        }
+        all.insert(key);
     }
-    Ok(out)
+    Ok((all, hidden))
 }
 
 fn from_openapi(path: &Path) -> Result<BTreeSet<String>> {
@@ -49,7 +74,11 @@ fn from_openapi(path: &Path) -> Result<BTreeSet<String>> {
     for (p, ops) in paths {
         for m in ["get", "post", "put", "delete", "patch", "head", "options"] {
             if ops.get(m).is_some() {
-                out.insert(format!("{} {}", m.to_uppercase(), anonymise(p)));
+                out.insert(format!(
+                    "{} {}",
+                    m.to_uppercase(),
+                    anonymise(&openapi_path(p))
+                ));
             }
         }
     }
@@ -57,9 +86,13 @@ fn from_openapi(path: &Path) -> Result<BTreeSet<String>> {
 }
 
 pub fn cross_check(spec: &Path, csv: &Path) -> Result<()> {
-    let ours = from_csv(csv)?;
+    let (ours, hidden) = from_csv(csv)?;
     let theirs = from_openapi(spec)?;
-    let only_csv: Vec<_> = ours.difference(&theirs).collect();
+    // Hidden from the docs on purpose, still routed by Spring.
+    let only_csv: Vec<_> = ours
+        .difference(&theirs)
+        .filter(|e| !hidden.contains(*e))
+        .collect();
     let only_api: Vec<_> = theirs.difference(&ours).collect();
     println!(
         "endpoints.csv: {} | openapi: {} | common: {}",
