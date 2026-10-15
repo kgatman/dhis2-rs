@@ -16,6 +16,7 @@ mod endpoints;
 mod eval;
 mod java;
 mod jobs;
+mod openapi;
 mod tables;
 
 use std::collections::BTreeMap;
@@ -36,10 +37,28 @@ struct Args {
     /// Do not write; exit non-zero if any output would change.
     #[arg(long)]
     check: bool,
+    /// Instead of generating, compare endpoints.csv with a live Java instance's
+    /// `/api/openapi.json` (saved to a file) and report method+path pairs found on one side only.
+    #[arg(long)]
+    openapi: Option<PathBuf>,
+    /// Instead of generating, compare tables.csv with the table names of a Java-migrated
+    /// database (one per line, e.g. `psql -At -c "select table_name from
+    /// information_schema.tables where table_schema='public' and table_type='BASE TABLE'"`).
+    #[arg(long)]
+    db_tables: Option<PathBuf>,
 }
 
 fn main() -> Result<()> {
     let args = Args::parse();
+    if let Some(list) = &args.db_tables {
+        return openapi::cross_check_tables(
+            list,
+            &args.repo_root.join("docs/inventory/tables.csv"),
+        );
+    }
+    if let Some(spec) = &args.openapi {
+        return openapi::cross_check(spec, &args.repo_root.join("docs/inventory/endpoints.csv"));
+    }
     let dhis2 = args.java_root.join("dhis-2");
     if !dhis2.is_dir() {
         bail!("{} is not a dhis2-core checkout", args.java_root.display());

@@ -16,6 +16,7 @@ clap.workspace = true
 csv.workspace = true
 quick-xml.workspace = true
 regex.workspace = true
+serde_json.workspace = true
 tree-sitter.workspace = true
 tree-sitter-java.workspace = true
 walkdir.workspace = true
