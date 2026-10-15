@@ -126,6 +126,7 @@ impl Gateway {
 
     async fn to_java(&self, req: Request<Incoming>, peer: SocketAddr) -> Response<Body> {
         let (mut parts, body) = req.into_parts();
+        let client_version = parts.version;
 
         let path_and_query = parts
             .uri
@@ -172,6 +173,8 @@ impl Gateway {
             Ok(resp) => {
                 let (mut parts, body) = resp.into_parts();
                 strip_hop_by_hop(&mut parts.headers);
+                // Answer in the client's protocol version, not the upstream's.
+                parts.version = client_version;
                 Response::from_parts(parts, body.map_err(Into::into).boxed_unsync())
             }
             Err(e) => {

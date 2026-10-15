@@ -269,3 +269,11 @@ async fn rust_routes_bypass_java() {
     assert!(resp.ends_with("java"), "{resp}");
     assert_eq!(java.requests.lock().unwrap().len(), 1);
 }
+
+#[tokio::test]
+async fn response_uses_client_http_version() {
+    let java = upstream("HTTP/1.0 200 OK\r\nContent-Length: 2\r\n\r\nok").await;
+    let gw = gateway(java.addr, RouteTable::all_java(), true).await;
+    let resp = raw_request(gw, "GET / HTTP/1.1\r\nHost: h\r\n\r\n").await;
+    assert!(resp.starts_with("HTTP/1.1 200"), "{resp:?}");
+}
