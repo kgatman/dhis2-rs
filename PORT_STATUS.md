@@ -4,13 +4,15 @@ _Read this first at the start of every session; update it at the end._
 
 - **Last updated:** 2026-10-15 (session 1, continued)
 - **Java reference:** dhis2-core `2a7855b69e` (2.44-SNAPSHOT), pinned in `ci/dhis2-core.ref`
-- **Current phase:** 1 (Foundations), done except CI on a remote. Next: phase 2.
+- **Current phase:** 2 (read-only metadata). Slice 1 (`/api/system/{uid,id,uuid}`) is routed to
+  Rust.
+- **CI:** GitHub `kgatman/dhis2-rs`. `ci` and `e2e-through-gateway` were green at `70dc1df`.
 
 ## Ledger
 
 | Inventory | Total | `java` | `rust-shadow` | `rust` |
 |---|---:|---:|---:|---:|
-| Endpoint rows (method × path), `docs/inventory/endpoints.csv` | 3092 | 3092 | 0 | 0 |
+| Endpoint rows (method × path), `docs/inventory/endpoints.csv` | 3092 | 3087 | 5 | 0 |
 | — distinct handler methods | 770 | 770 | 0 | 0 |
 | — controllers | 195 | 195 | 0 | 0 |
 | Job types, `docs/inventory/jobs.csv` | 43 | 43 | 0 | 0 |
@@ -18,6 +20,26 @@ _Read this first at the start of every session; update it at the end._
 | Tables present after migrations, `docs/inventory/tables.csv` | 309 | — | — | 0 read/written |
 
 Regenerate the inventory with `tools/gen-inventory.sh`. CI fails if it is stale.
+
+## Phase 2, slice 1 (session 2): `/api/system/{uid,id,uuid}`
+
+Tracer bullet that built the shared Web API layer every later endpoint reuses:
+
+- `dhis-auth`: `CurrentUser`; authentication **delegated to Java** (`/api/me`), relaying Java's
+  `Set-Cookie`s (Java creates a session per basic-auth request and refreshes `SESSION_EXPIRE`).
+- `dhis-web`: Spring `Integer` binding (whitespace stripping, hex, Unicode digits; JDK messages,
+  fixtures generated with jshell), `WebMessage`, security headers (`CspFilter` incl. the CORS
+  whitelist in Java `HashSet` order), shallow ETag filter, conservative content negotiation.
+- Gateway Rust pipeline: Java path normalisation, delegated auth, `JavaFallback` replay with
+  counters (ADR 0004), Tomcat request-target and parameter-decoding checks (send Java-rejected
+  requests to Java), empty reason phrase like Tomcat.
+- Evidence: diffcheck `corpus/phase2/system-uid.jsonl` **84/84** against Java (67 answered by
+  Rust); shadow **67 match / 0 mismatch**; raw request-target comparison (13 cases, 4 remaining
+  gateway-level differences documented as G4/G6).
+- Ledger: 5 rows `rust-shadow`. They become `rust` once `e2e-through-gateway` is green with the
+  routes flipped (`config/routes.toml`). Note that e2e no longer calls these endpoints, so the
+  evidence is diffcheck + shadow.
+- Local Java reference: `dev/java-local.sh start` (host JVM, PostGIS in Docker, :8081).
 
 ## Done in session 1
 
@@ -81,7 +103,18 @@ Regenerate the inventory with `tools/gen-inventory.sh`. CI fails if it is stale.
 6. **`dhis-test-e2e` upstream flakiness is unknown.** Run `e2e.yml` with `baseline: true` once to
    record which tests fail without the gateway.
 
-## Next three tasks
+## Next three tasks (from session 2)
+
+1. **Confirm CI at `4ba1e23`**, then mark the 5 SystemController rows `rust`.
+2. **Field filtering (`fields=`) engine in `dhis-query`**, with `/api/system/info` as its first
+   consumer (`SystemController#getSystemInfo`: `FieldFilterService` over `SystemInfo`, sensitive
+   fields removed for non-superusers, `setNoStore`). Needs `SystemService#getSystemInfo` (system
+   settings, DB info, build info) and the `fields` grammar (`*`, `:all`, `:owner`, `[...]`,
+   `!exclusions`, transformers). Port `FieldFilterParser` tests from Java first.
+3. **`/api/me`** (MeController GET, e2e uses it on almost every test) on top of the same engine,
+   then `/api/schemas`.
+
+## Previous next-tasks (session 1, superseded)
 
 1. **Push to a remote** so `ci.yml`/`e2e.yml` run on every change. They have only been exercised
    locally so far (same commands).
