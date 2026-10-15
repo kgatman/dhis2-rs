@@ -1,0 +1,16 @@
+# Phase 2 seed corpus. Sources: dhis-test-web-api SchemaControllerTest, plus edge cases
+# (extensions, versioned paths, trailing slash, negatives). Read-only requests only.
+{"name": "schema list names", "method": "GET", "path": "/api/schemas?fields=name,klass", "tags": ["SchemaController"], "headers": {"Accept": "application/json"}}
+{"name": "schema list full", "method": "GET", "path": "/api/schemas", "tags": ["SchemaController"], "headers": {"Accept": "application/json"}}
+{"name": "schema list xml", "method": "GET", "path": "/api/schemas.xml?fields=name", "tags": ["SchemaController"]}
+{"name": "schema list versioned", "method": "GET", "path": "/api/41/schemas?fields=name", "tags": ["SchemaController"], "headers": {"Accept": "application/json"}}
+{"name": "schema attribute", "method": "GET", "path": "/api/schemas/attribute", "tags": ["SchemaController"], "headers": {"Accept": "application/json"}}
+{"name": "schema dataElement", "method": "GET", "path": "/api/schemas/dataElement", "tags": ["SchemaController"], "headers": {"Accept": "application/json"}}
+{"name": "schema dataElement json ext", "method": "GET", "path": "/api/schemas/dataElement.json", "tags": ["SchemaController"]}
+{"name": "schema orgUnit fields", "method": "GET", "path": "/api/schemas/organisationUnit?fields=name,klass,properties", "tags": ["SchemaController"], "headers": {"Accept": "application/json"}}
+{"name": "schema user", "method": "GET", "path": "/api/schemas/user", "tags": ["SchemaController"], "headers": {"Accept": "application/json"}}
+{"name": "schema property", "method": "GET", "path": "/api/schemas/dataElement/name", "tags": ["SchemaController"], "headers": {"Accept": "application/json"}}
+{"name": "schema trailing slash", "method": "GET", "path": "/api/schemas/dataElement/", "tags": ["SchemaController"], "headers": {"Accept": "application/json"}}
+{"name": "schema unknown type", "method": "GET", "path": "/api/schemas/xyz", "tags": ["SchemaController", "negative"], "headers": {"Accept": "application/json"}}
+{"name": "schema unknown property", "method": "GET", "path": "/api/schemas/dataElement/nope", "tags": ["SchemaController", "negative"], "headers": {"Accept": "application/json"}}
+{"name": "schema bad credentials", "method": "GET", "path": "/api/schemas", "tags": ["SchemaController", "negative"], "headers": {"Accept": "application/json", "Authorization": "Basic YWRtaW46d3Jvbmc="}}

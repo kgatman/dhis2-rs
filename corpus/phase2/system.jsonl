@@ -1,0 +1,11 @@
+# Phase 2 seed corpus. Sources: dhis-test-web-api SystemControllerTest, plus edge cases
+# (extensions, versioned paths, trailing slash, negatives). Read-only requests only.
+{"name": "system info", "method": "GET", "path": "/api/system/info", "tags": ["SystemController"], "headers": {"Accept": "application/json"}}
+{"name": "system info xml", "method": "GET", "path": "/api/system/info.xml", "tags": ["SystemController"]}
+{"name": "system info versioned", "method": "GET", "path": "/api/40/system/info", "tags": ["SystemController"], "headers": {"Accept": "application/json"}}
+{"name": "system flags", "method": "GET", "path": "/api/system/flags", "tags": ["SystemController"], "headers": {"Accept": "application/json"}}
+{"name": "system ping", "method": "GET", "path": "/api/system/ping", "tags": ["SystemController"]}
+{"name": "system uid", "method": "GET", "path": "/api/system/id?limit=3", "tags": ["SystemController"], "headers": {"Accept": "application/json"}}
+{"name": "system tasks", "method": "GET", "path": "/api/system/tasks", "tags": ["SystemController"], "headers": {"Accept": "application/json"}}
+{"name": "system task summaries", "method": "GET", "path": "/api/system/taskSummaries/META_DATA_SYNC", "tags": ["SystemController"], "headers": {"Accept": "application/json"}}
+{"name": "system info bad credentials", "method": "GET", "path": "/api/system/info", "tags": ["SystemController", "negative"], "headers": {"Accept": "application/json", "Authorization": "Basic YWRtaW46d3Jvbmc="}}

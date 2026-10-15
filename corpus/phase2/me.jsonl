@@ -1,0 +1,19 @@
+# Phase 2 seed corpus. Sources: dhis-test-web-api MeControllerTest, plus edge cases
+# (extensions, versioned paths, trailing slash, negatives). Read-only requests only.
+{"name": "me", "method": "GET", "path": "/api/me", "tags": ["MeController"], "headers": {"Accept": "application/json"}}
+{"name": "me fields id", "method": "GET", "path": "/api/me?fields=id", "tags": ["MeController"], "headers": {"Accept": "application/json"}}
+{"name": "me fields authorities", "method": "GET", "path": "/api/me?fields=authorities", "tags": ["MeController"], "headers": {"Accept": "application/json"}}
+{"name": "me settings subset", "method": "GET", "path": "/api/me?fields=name,settings[keyCustomColorMobile]", "tags": ["MeController"], "headers": {"Accept": "application/json"}}
+{"name": "me xml", "method": "GET", "path": "/api/me.xml", "tags": ["MeController"]}
+{"name": "me authorities", "method": "GET", "path": "/api/me/authorities", "tags": ["MeController"], "headers": {"Accept": "application/json"}}
+{"name": "me authority ALL", "method": "GET", "path": "/api/me/authorities/ALL", "tags": ["MeController"], "headers": {"Accept": "application/json"}}
+{"name": "me authority missing", "method": "GET", "path": "/api/me/authorities/missing", "tags": ["MeController"], "headers": {"Accept": "application/json"}}
+{"name": "me authorization unknown", "method": "GET", "path": "/api/me/authorization/F_DOES_NOT_EXIST", "tags": ["MeController"], "headers": {"Accept": "application/json"}}
+{"name": "me dashboard", "method": "GET", "path": "/api/me/dashboard", "tags": ["MeController"], "headers": {"Accept": "application/json"}}
+{"name": "me approval levels", "method": "GET", "path": "/api/me/dataApprovalLevels", "tags": ["MeController"], "headers": {"Accept": "application/json"}}
+{"name": "me approval workflows", "method": "GET", "path": "/api/me/dataApprovalWorkflows", "tags": ["MeController"], "headers": {"Accept": "application/json"}}
+{"name": "me settings", "method": "GET", "path": "/api/me/settings", "tags": ["MeController"], "headers": {"Accept": "application/json"}}
+{"name": "me settings keys", "method": "GET", "path": "/api/me/settings?key=keyCustomColorMobile&key=keyAnalysisDisplayProperty", "tags": ["MeController"], "headers": {"Accept": "application/json"}}
+{"name": "me settings one", "method": "GET", "path": "/api/me/settings/keyUiLocale", "tags": ["MeController"], "headers": {"Accept": "application/json"}}
+{"name": "me no credentials", "method": "GET", "path": "/api/me", "tags": ["MeController", "negative"], "headers": {"Accept": "application/json", "Authorization": ""}}
+{"name": "me bad credentials", "method": "GET", "path": "/api/me", "tags": ["MeController", "negative"], "headers": {"Accept": "application/json", "Authorization": "Basic YWRtaW46d3Jvbmc="}}
