@@ -82,44 +82,6 @@ const CALENDARS: &[&str] = &[
     "thai",
 ];
 
-/// `HttpServletRequestPaths#getContextPath` behind no servlet context path (DHIS2's default).
-fn context_path(headers: &HeaderMap) -> String {
-    let get = |n: &str| headers.get(n).and_then(|v| v.to_str().ok());
-    let mut out = String::new();
-    match get("x-forwarded-proto") {
-        Some(p) if p.eq_ignore_ascii_case("http") || p.eq_ignore_ascii_case("https") => {
-            out.push_str(p)
-        }
-        // Tomcat's own connector scheme; TLS terminates before Java/the gateway.
-        _ => out.push_str("http"),
-    }
-    out.push_str("://");
-    let host_header = get("host").unwrap_or("");
-    // Tomcat: server name/port from the Host header (IPv6 literals keep their brackets).
-    let (server_name, server_port) = match host_header.rsplit_once(':') {
-        Some((h, p)) if !h.ends_with(']') || host_header.starts_with('[') => match p.parse() {
-            Ok(port) => (h.to_string(), port),
-            Err(_) => (host_header.to_string(), 80),
-        },
-        _ => (host_header.to_string(), 80),
-    };
-    match get("x-forwarded-host").filter(|h| !h.trim().is_empty()) {
-        Some(h) => {
-            let host = h.split(',').next().unwrap_or("").trim();
-            out.push_str(host.split(':').next().unwrap_or(host));
-        }
-        None => out.push_str(&server_name),
-    }
-    let port = get("x-forwarded-port")
-        .and_then(|p| dhis_core_model::java::number::integer_value_of(p).ok())
-        .unwrap_or(server_port);
-    if port != 80 && port != 443 {
-        out.push(':');
-        out.push_str(&port.to_string());
-    }
-    out
-}
-
 fn s(v: impl Into<String>) -> Node {
     Node::Scalar(Value::String(v.into()))
 }
@@ -337,7 +299,10 @@ fn build(
     let cfg = |k: K| config.get_property(k).map(s);
 
     let mut p = Props(Vec::new());
-    p.put("contextPath", Some(s(context_path(headers))));
+    p.put(
+        "contextPath",
+        Some(s(crate::http::paths::context_path(headers))),
+    );
     p.put(
         "userAgent",
         headers
@@ -515,45 +480,5 @@ fn build(
     Node::Bean {
         klass: SYSTEM_INFO,
         props: p.0,
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::context_path;
-    use http::HeaderMap;
-
-    fn h(pairs: &[(&str, &str)]) -> HeaderMap {
-        let mut m = HeaderMap::new();
-        for (k, v) in pairs {
-            m.insert(
-                http::header::HeaderName::from_bytes(k.as_bytes()).unwrap(),
-                v.parse().unwrap(),
-            );
-        }
-        m
-    }
-
-    #[test]
-    fn context_path_like_java() {
-        assert_eq!(
-            context_path(&h(&[("host", "localhost:8081")])),
-            "http://localhost:8081"
-        );
-        assert_eq!(context_path(&h(&[("host", "web")])), "http://web");
-        assert_eq!(context_path(&h(&[("host", "web:80")])), "http://web");
-        assert_eq!(
-            context_path(&h(&[
-                ("host", "web:8080"),
-                ("x-forwarded-proto", "https"),
-                ("x-forwarded-host", "play.dhis2.org:9999, x"),
-                ("x-forwarded-port", "443"),
-            ])),
-            "https://play.dhis2.org"
-        );
-        assert_eq!(
-            context_path(&h(&[("host", "web:8080"), ("x-forwarded-proto", "ftp")])),
-            "http://web:8080"
-        );
     }
 }

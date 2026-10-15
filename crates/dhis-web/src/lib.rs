@@ -51,6 +51,7 @@ pub fn router(state: Arc<AppState>) -> Router {
     Router::new()
         .merge(controller::system_controller::routes())
         .merge(controller::me_controller::routes())
+        .merge(controller::schema_controller::routes())
         .layer(axum::middleware::from_fn(crate::http::rfd::layer))
         .layer(axum::middleware::from_fn(crate::http::etag::layer))
         .layer(axum::middleware::from_fn_with_state(

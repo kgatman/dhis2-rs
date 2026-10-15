@@ -546,6 +546,7 @@ version = "0.1.0"
 dependencies = [
  "dhis-core-model",
  "dhis-schema",
+ "serde",
  "serde_json",
  "thiserror",
 ]

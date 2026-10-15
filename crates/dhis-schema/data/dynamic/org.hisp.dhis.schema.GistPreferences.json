@@ -1,0 +1,47 @@
+{
+ "included": {
+  "name": "included",
+  "fieldName": "included",
+  "klass": "org.hisp.dhis.schema.annotation.Gist$Include",
+  "propertyType": "CONSTANT",
+  "itemPropertyType": "null",
+  "collection": false,
+  "simple": true,
+  "owner": false,
+  "persisted": false,
+  "embeddedObject": false,
+  "readable": true,
+  "writable": false,
+  "propertyTransformer": false
+ },
+ "order": {
+  "name": "order",
+  "fieldName": "order",
+  "klass": "java.lang.Integer",
+  "propertyType": "INTEGER",
+  "itemPropertyType": "null",
+  "collection": false,
+  "simple": true,
+  "owner": false,
+  "persisted": false,
+  "embeddedObject": false,
+  "readable": true,
+  "writable": false,
+  "propertyTransformer": false
+ },
+ "transformation": {
+  "name": "transformation",
+  "fieldName": "transformation",
+  "klass": "org.hisp.dhis.schema.annotation.Gist$Transform",
+  "propertyType": "CONSTANT",
+  "itemPropertyType": "null",
+  "collection": false,
+  "simple": true,
+  "owner": false,
+  "persisted": false,
+  "embeddedObject": false,
+  "readable": true,
+  "writable": false,
+  "propertyTransformer": false
+ }
+}

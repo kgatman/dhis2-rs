@@ -19,7 +19,15 @@
 //! with = "<uid>"
 //! paths = ["/api/system/uid", "/api/system/id"]
 //! reason = "Freshly generated UIDs are random; the count and shape are what must match."
+//!
+//! [[unordered]]
+//! key = "references"
+//! paths = ["/api/schemas"]
+//! reason = "A HashSet of Class: Java's own order changes on every restart."
 //! ```
+//!
+//! `unordered` sorts every array found under that key (after `ignore_key`), so the arrays are
+//! compared as multisets.
 //!
 //! `replace` rules run on the canonical text form (after JSON normalisation), so they apply to
 //! JSON, CSV and XML alike.
@@ -38,11 +46,26 @@ use crate::corpus::Case;
 
 /// Whether a rule's `paths` entry covers the case path: the same path, or that path followed by
 /// a sub-path, query, extension or path parameter (`/api/me` covers `/api/me?fields=id` and
-/// `/api/me/settings`, not `/api/metadata`).
+/// `/api/me/settings`, not `/api/metadata`). As in Java (`ApiVersionFilter`), an API version
+/// 28..44 in the case path is ignored, so `/api/schemas` also covers `/api/41/schemas`.
 fn path_matches(case_path: &str, rule_path: &str) -> bool {
-    case_path
+    let versionless = strip_api_version(case_path);
+    versionless
         .strip_prefix(rule_path)
         .is_some_and(|rest| rest.is_empty() || rest.starts_with(['/', '?', '.', ';']))
+}
+
+fn strip_api_version(path: &str) -> String {
+    if let Some(rest) = path.strip_prefix("/api/")
+        && rest.len() > 2
+        && rest.as_bytes()[2] == b'/'
+        && rest[..2]
+            .parse::<u32>()
+            .is_ok_and(|v| (28..=44).contains(&v))
+    {
+        return format!("/api/{}", &rest[3..]);
+    }
+    path.to_string()
 }
 
 const DEFAULT_HEADERS: &[&str] = &["content-type", "content-disposition", "location"];
@@ -54,6 +77,8 @@ pub struct Rules {
     compare_headers: Option<Vec<String>>,
     #[serde(default)]
     ignore_key: Vec<IgnoreKey>,
+    #[serde(default)]
+    unordered: Vec<IgnoreKey>,
     #[serde(default)]
     replace: Vec<Replace>,
 }
@@ -95,6 +120,15 @@ impl Rules {
                 bail!(
                     "replace[{i}] ({}): every rule needs a real `reason`",
                     r.regex
+                );
+            }
+        }
+        for (i, r) in rules.unordered.iter().enumerate() {
+            if r.reason.trim().len() < 10 {
+                bail!(
+                    "unordered[{i}] ({:?}): every rule needs a real `reason` explaining why the \
+                     order is irrelevant",
+                    r.key
                 );
             }
         }
@@ -148,10 +182,41 @@ impl Rules {
                 .map(|r| r.key.as_str())
                 .collect();
             strip_keys(&mut v, &keys);
+            let unordered: Vec<&str> = self
+                .unordered
+                .iter()
+                .filter(|r| {
+                    r.paths.is_empty() || r.paths.iter().any(|p| path_matches(&case.path, p))
+                })
+                .map(|r| r.key.as_str())
+                .collect();
+            sort_arrays(&mut v, &unordered);
             // serde_json's default Map is a BTreeMap, so this prints keys sorted.
             return serde_json::to_string_pretty(&v).unwrap_or_default();
         }
         String::from_utf8_lossy(body).into_owned()
+    }
+}
+
+/// Sorts (by canonical text) every array that is the value of one of `keys`, innermost first.
+fn sort_arrays(v: &mut Value, keys: &[&str]) {
+    match v {
+        Value::Object(map) => {
+            for (k, child) in map.iter_mut() {
+                sort_arrays(child, keys);
+                if keys.contains(&k.as_str())
+                    && let Value::Array(items) = child
+                {
+                    items.sort_by_cached_key(|i| serde_json::to_string(i).unwrap_or_default());
+                }
+            }
+        }
+        Value::Array(items) => {
+            for child in items {
+                sort_arrays(child, keys);
+            }
+        }
+        _ => {}
     }
 }
 
@@ -234,12 +299,30 @@ mod tests {
     }
 
     #[test]
+    fn unordered_arrays_compare_as_multisets() {
+        let r = Rules::parse(
+            "[[unordered]]\nkey = \"refs\"\npaths = [\"/api/schemas\"]\n\
+             reason = \"set order changes per JVM start\"",
+        )
+        .unwrap();
+        let c = case("/api/schemas/x");
+        let a = r.normalize_body(&c, &json_headers(), br#"{"refs":["b","a"],"o":[2,1]}"#);
+        let b = r.normalize_body(&c, &json_headers(), br#"{"refs":["a","b"],"o":[2,1]}"#);
+        let d = r.normalize_body(&c, &json_headers(), br#"{"refs":["a","b"],"o":[1,2]}"#);
+        assert_eq!(a, b);
+        assert_ne!(a, d);
+        assert!(Rules::parse("[[unordered]]\nkey = \"x\"\nreason = \"\"").is_err());
+    }
+
+    #[test]
     fn paths_match_whole_segments() {
         assert!(path_matches("/api/me", "/api/me"));
         assert!(path_matches("/api/me?fields=id", "/api/me"));
         assert!(path_matches("/api/me/settings", "/api/me"));
         assert!(path_matches("/api/me.json", "/api/me"));
         assert!(!path_matches("/api/metadata", "/api/me"));
+        assert!(path_matches("/api/41/schemas?fields=name", "/api/schemas"));
+        assert!(!path_matches("/api/45/schemas", "/api/schemas"));
     }
 
     #[test]

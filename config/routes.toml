@@ -89,3 +89,26 @@ methods = ["GET", "HEAD"]
 path = "/api/me/settings/{key}"
 backend = "rust"
 note = "MeController#getSetting"
+
+# SchemaController#getSchemas/getSchema/getSchemaProperty. Registered schemas captured from the
+# pinned build (ADR 0007). diffcheck corpus/phase2/schemas.jsonl: 333/333 against a Java restarted
+# after the capture (schema/references/properties order compared as sets, rules.toml); shadow:
+# 1216 matched, 0 mismatched. The three move together: Java keeps the last generated links in
+# shared objects and getSchemaProperty shows them. XML, field transformers fall back.
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/schemas"
+backend = "rust"
+note = "SchemaController#getSchemas"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/schemas/{type}"
+backend = "rust"
+note = "SchemaController#getSchema"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/schemas/{type}/{property}"
+backend = "rust"
+note = "SchemaController#getSchemaProperty"

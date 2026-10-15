@@ -20,7 +20,7 @@ pub enum Status {
 #[serde(rename_all = "camelCase")]
 pub struct WebMessage {
     /// Spring's `HttpStatus#getReasonPhrase()`, e.g. `"Bad Request"`.
-    pub http_status: String,
+    pub http_status: &'static str,
     pub http_status_code: u16,
     pub status: Status,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -30,7 +30,10 @@ pub struct WebMessage {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dev_message: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub response: Option<serde_json::Value>,
+    pub response: Option<Box<serde_json::Value>>,
+    /// Not in `@JsonPropertyOrder`, so Jackson writes it after the listed properties.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error_code: Option<&'static str>,
 }
 
 /// Spring's `HttpStatus` reason phrases (they differ from IANA/hyper in a few places).
@@ -56,13 +59,22 @@ pub fn spring_reason_phrase(status: StatusCode) -> &'static str {
 impl WebMessage {
     pub fn error(status: StatusCode, message: impl Into<String>) -> Self {
         Self {
-            http_status: spring_reason_phrase(status).to_string(),
+            http_status: spring_reason_phrase(status),
             http_status_code: status.as_u16(),
             status: Status::Error,
             code: None,
             message: Some(message.into()),
             dev_message: None,
             response: None,
+            error_code: None,
+        }
+    }
+
+    /// `CrudControllerAdvice#notFoundException` for `new NotFoundException(message)` (E1005).
+    pub fn not_found(message: impl Into<String>) -> Self {
+        Self {
+            error_code: Some("E1005"),
+            ..Self::error(StatusCode::NOT_FOUND, message)
         }
     }
 

@@ -25,25 +25,43 @@ reason = "Random v4 UUIDs differ per call; count and format must still match."
 
 [[ignore_key]]
 key = "serverDate"
-paths = ["/api/system/info", "/api/40/system/info"]
+paths = ["/api/system/info"]
 reason = "new Date() at request time; the Java and Rust requests run at different instants."
 
 [[ignore_key]]
 key = "time"
-paths = ["/api/system/info", "/api/40/system/info"]
+paths = ["/api/system/info"]
 reason = "databaseInfo.time is the DB's now() at request time; differs between the two requests."
 
 [[ignore_key]]
 key = "intervalSinceLastAnalyticsTableSuccess"
-paths = ["/api/system/info", "/api/40/system/info"]
+paths = ["/api/system/info"]
 reason = "Derived from the request time (seconds resolution); can tick between the two requests."
 
 [[ignore_key]]
 key = "intervalSinceLastAnalyticsTablePartitionSuccess"
-paths = ["/api/system/info", "/api/40/system/info"]
+paths = ["/api/system/info"]
 reason = "Derived from the request time (seconds resolution); can tick between the two requests."
 
 [[ignore_key]]
 key = "lastUpdated"
 paths = ["/api/me"]
 reason = "Java stamps the user's lastUpdated on every basic-auth login (measured: consecutive basic-auth requests differ, requests on one session do not), so the Java and gateway requests see different values."
+
+# Registered schemas (ADR 0007): Java reorders these on every JVM start (measured across a
+# restart: same content, different order), so no client can depend on the order. Rust serves the
+# order of the captured run.
+[[unordered]]
+key = "schemas"
+paths = ["/api/schemas"]
+reason = "getSortedSchemas sorts by `order` only; ties keep ConcurrentHashMap<Class> order (identity hashes), different on each JVM start."
+
+[[unordered]]
+key = "references"
+paths = ["/api/schemas"]
+reason = "Schema#getReferences is a HashSet<Class> (identity hashes): its order changes on each JVM start."
+
+[[unordered]]
+key = "properties"
+paths = ["/api/schemas"]
+reason = "Schema#getProperties lists a HashMap whose same-bucket entries follow reflection order, which changes between JVM starts."

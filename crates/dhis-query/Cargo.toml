@@ -14,4 +14,5 @@ workspace = true
 thiserror.workspace = true
 dhis-core-model.workspace = true
 dhis-schema.workspace = true
+serde.workspace = true
 serde_json.workspace = true

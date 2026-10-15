@@ -1,0 +1,47 @@
+{
+ "__schema__": {
+  "name": "authority",
+  "propertyType": "null",
+  "itemPropertyType": "null",
+  "collection": false,
+  "simple": false,
+  "owner": false,
+  "persisted": false,
+  "embeddedObject": false,
+  "readable": false,
+  "writable": false,
+  "propertyTransformer": false
+ },
+ "authorities": {
+  "name": "authority",
+  "fieldName": "authorities",
+  "collectionName": "authorities",
+  "klass": "java.util.List",
+  "itemKlass": "java.lang.String",
+  "propertyType": "COLLECTION",
+  "itemPropertyType": "TEXT",
+  "collection": true,
+  "simple": true,
+  "owner": false,
+  "persisted": false,
+  "embeddedObject": false,
+  "readable": true,
+  "writable": true,
+  "propertyTransformer": false
+ },
+ "type": {
+  "name": "type",
+  "fieldName": "type",
+  "klass": "org.hisp.dhis.security.AuthorityType",
+  "propertyType": "CONSTANT",
+  "itemPropertyType": "null",
+  "collection": false,
+  "simple": true,
+  "owner": false,
+  "persisted": false,
+  "embeddedObject": false,
+  "readable": true,
+  "writable": true,
+  "propertyTransformer": false
+ }
+}

@@ -14,3 +14,324 @@
 {"name": "schema unknown type", "method": "GET", "path": "/api/schemas/xyz", "tags": ["SchemaController", "negative"], "headers": {"Accept": "application/json"}}
 {"name": "schema unknown property", "method": "GET", "path": "/api/schemas/dataElement/nope", "tags": ["SchemaController", "negative"], "headers": {"Accept": "application/json"}}
 {"name": "schema bad credentials", "method": "GET", "path": "/api/schemas", "tags": ["SchemaController", "negative"], "headers": {"Accept": "application/json", "Authorization": "Basic YWRtaW46d3Jvbmc="}}
+# SchemaController#getSchemas/getSchema (phase 2 slice 4): fields=, links, versions, negatives.
+{"name": "schema userRole", "method": "GET", "path": "/api/schemas/userRole", "tags": ["SchemaController", "all-types"]}
+{"name": "schema attribute", "method": "GET", "path": "/api/schemas/attribute", "tags": ["SchemaController", "all-types"]}
+{"name": "schema user", "method": "GET", "path": "/api/schemas/user", "tags": ["SchemaController", "all-types"]}
+{"name": "schema userGroup", "method": "GET", "path": "/api/schemas/userGroup", "tags": ["SchemaController", "all-types"]}
+{"name": "schema expressionDimensionItem", "method": "GET", "path": "/api/schemas/expressionDimensionItem", "tags": ["SchemaController", "all-types"]}
+{"name": "schema expression", "method": "GET", "path": "/api/schemas/expression", "tags": ["SchemaController", "all-types"]}
+{"name": "schema sqlView", "method": "GET", "path": "/api/schemas/sqlView", "tags": ["SchemaController", "all-types"]}
+{"name": "schema constant", "method": "GET", "path": "/api/schemas/constant", "tags": ["SchemaController", "all-types"]}
+{"name": "schema jobConfiguration", "method": "GET", "path": "/api/schemas/jobConfiguration", "tags": ["SchemaController", "all-types"]}
+{"name": "schema option", "method": "GET", "path": "/api/schemas/option", "tags": ["SchemaController", "all-types"]}
+{"name": "schema optionSet", "method": "GET", "path": "/api/schemas/optionSet", "tags": ["SchemaController", "all-types"]}
+{"name": "schema optionGroupSet", "method": "GET", "path": "/api/schemas/optionGroupSet", "tags": ["SchemaController", "all-types"]}
+{"name": "schema optionGroup", "method": "GET", "path": "/api/schemas/optionGroup", "tags": ["SchemaController", "all-types"]}
+{"name": "schema legendSet", "method": "GET", "path": "/api/schemas/legendSet", "tags": ["SchemaController", "all-types"]}
+{"name": "schema organisationUnit", "method": "GET", "path": "/api/schemas/organisationUnit", "tags": ["SchemaController", "all-types"]}
+{"name": "schema organisationUnitLevel", "method": "GET", "path": "/api/schemas/organisationUnitLevel", "tags": ["SchemaController", "all-types"]}
+{"name": "schema organisationUnitGroup", "method": "GET", "path": "/api/schemas/organisationUnitGroup", "tags": ["SchemaController", "all-types"]}
+{"name": "schema organisationUnitGroupSet", "method": "GET", "path": "/api/schemas/organisationUnitGroupSet", "tags": ["SchemaController", "all-types"]}
+{"name": "schema categoryOption", "method": "GET", "path": "/api/schemas/categoryOption", "tags": ["SchemaController", "all-types"]}
+{"name": "schema categoryOptionGroup", "method": "GET", "path": "/api/schemas/categoryOptionGroup", "tags": ["SchemaController", "all-types"]}
+{"name": "schema categoryOptionGroupSet", "method": "GET", "path": "/api/schemas/categoryOptionGroupSet", "tags": ["SchemaController", "all-types"]}
+{"name": "schema category", "method": "GET", "path": "/api/schemas/category", "tags": ["SchemaController", "all-types"]}
+{"name": "schema categoryCombo", "method": "GET", "path": "/api/schemas/categoryCombo", "tags": ["SchemaController", "all-types"]}
+{"name": "schema categoryOptionCombo", "method": "GET", "path": "/api/schemas/categoryOptionCombo", "tags": ["SchemaController", "all-types"]}
+{"name": "schema dataElement", "method": "GET", "path": "/api/schemas/dataElement", "tags": ["SchemaController", "all-types"]}
+{"name": "schema route", "method": "GET", "path": "/api/schemas/route", "tags": ["SchemaController", "all-types"]}
+{"name": "schema dataElementGroup", "method": "GET", "path": "/api/schemas/dataElementGroup", "tags": ["SchemaController", "all-types"]}
+{"name": "schema dataElementGroupSet", "method": "GET", "path": "/api/schemas/dataElementGroupSet", "tags": ["SchemaController", "all-types"]}
+{"name": "schema indicatorType", "method": "GET", "path": "/api/schemas/indicatorType", "tags": ["SchemaController", "all-types"]}
+{"name": "schema analyticsTableHook", "method": "GET", "path": "/api/schemas/analyticsTableHook", "tags": ["SchemaController", "all-types"]}
+{"name": "schema indicator", "method": "GET", "path": "/api/schemas/indicator", "tags": ["SchemaController", "all-types"]}
+{"name": "schema indicatorGroup", "method": "GET", "path": "/api/schemas/indicatorGroup", "tags": ["SchemaController", "all-types"]}
+{"name": "schema indicatorGroupSet", "method": "GET", "path": "/api/schemas/indicatorGroupSet", "tags": ["SchemaController", "all-types"]}
+{"name": "schema dataEntryForm", "method": "GET", "path": "/api/schemas/dataEntryForm", "tags": ["SchemaController", "all-types"]}
+{"name": "schema dataSet", "method": "GET", "path": "/api/schemas/dataSet", "tags": ["SchemaController", "all-types"]}
+{"name": "schema dataSetNotificationTemplate", "method": "GET", "path": "/api/schemas/dataSetNotificationTemplate", "tags": ["SchemaController", "all-types"]}
+{"name": "schema section", "method": "GET", "path": "/api/schemas/section", "tags": ["SchemaController", "all-types"]}
+{"name": "schema dataApprovalLevel", "method": "GET", "path": "/api/schemas/dataApprovalLevel", "tags": ["SchemaController", "all-types"]}
+{"name": "schema dataApprovalWorkflow", "method": "GET", "path": "/api/schemas/dataApprovalWorkflow", "tags": ["SchemaController", "all-types"]}
+{"name": "schema validationRule", "method": "GET", "path": "/api/schemas/validationRule", "tags": ["SchemaController", "all-types"]}
+{"name": "schema validationRuleGroup", "method": "GET", "path": "/api/schemas/validationRuleGroup", "tags": ["SchemaController", "all-types"]}
+{"name": "schema validationNotificationTemplate", "method": "GET", "path": "/api/schemas/validationNotificationTemplate", "tags": ["SchemaController", "all-types"]}
+{"name": "schema trackedEntityAttribute", "method": "GET", "path": "/api/schemas/trackedEntityAttribute", "tags": ["SchemaController", "all-types"]}
+{"name": "schema trackedEntityType", "method": "GET", "path": "/api/schemas/trackedEntityType", "tags": ["SchemaController", "all-types"]}
+{"name": "schema trackedEntityTypeAttribute", "method": "GET", "path": "/api/schemas/trackedEntityTypeAttribute", "tags": ["SchemaController", "all-types"]}
+{"name": "schema programNotificationTemplate", "method": "GET", "path": "/api/schemas/programNotificationTemplate", "tags": ["SchemaController", "all-types"]}
+{"name": "schema programStageSection", "method": "GET", "path": "/api/schemas/programStageSection", "tags": ["SchemaController", "all-types"]}
+{"name": "schema programStage", "method": "GET", "path": "/api/schemas/programStage", "tags": ["SchemaController", "all-types"]}
+{"name": "schema smsCommand", "method": "GET", "path": "/api/schemas/smsCommand", "tags": ["SchemaController", "all-types"]}
+{"name": "schema program", "method": "GET", "path": "/api/schemas/program", "tags": ["SchemaController", "all-types"]}
+{"name": "schema eventChart", "method": "GET", "path": "/api/schemas/eventChart", "tags": ["SchemaController", "all-types"]}
+{"name": "schema programSection", "method": "GET", "path": "/api/schemas/programSection", "tags": ["SchemaController", "all-types"]}
+{"name": "schema programIndicator", "method": "GET", "path": "/api/schemas/programIndicator", "tags": ["SchemaController", "all-types"]}
+{"name": "schema programRuleVariable", "method": "GET", "path": "/api/schemas/programRuleVariable", "tags": ["SchemaController", "all-types"]}
+{"name": "schema relationshipType", "method": "GET", "path": "/api/schemas/relationshipType", "tags": ["SchemaController", "all-types"]}
+{"name": "schema programIndicatorGroup", "method": "GET", "path": "/api/schemas/programIndicatorGroup", "tags": ["SchemaController", "all-types"]}
+{"name": "schema programRuleAction", "method": "GET", "path": "/api/schemas/programRuleAction", "tags": ["SchemaController", "all-types"]}
+{"name": "schema programRule", "method": "GET", "path": "/api/schemas/programRule", "tags": ["SchemaController", "all-types"]}
+{"name": "schema eventReport", "method": "GET", "path": "/api/schemas/eventReport", "tags": ["SchemaController", "all-types"]}
+{"name": "schema eventHook", "method": "GET", "path": "/api/schemas/eventHook", "tags": ["SchemaController", "all-types"]}
+{"name": "schema aggregateDataExchange", "method": "GET", "path": "/api/schemas/aggregateDataExchange", "tags": ["SchemaController", "all-types"]}
+{"name": "schema mapView", "method": "GET", "path": "/api/schemas/mapView", "tags": ["SchemaController", "all-types"]}
+{"name": "schema externalMapLayer", "method": "GET", "path": "/api/schemas/externalMapLayer", "tags": ["SchemaController", "all-types"]}
+{"name": "schema eventVisualization", "method": "GET", "path": "/api/schemas/eventVisualization", "tags": ["SchemaController", "all-types"]}
+{"name": "schema validationResult", "method": "GET", "path": "/api/schemas/validationResult", "tags": ["SchemaController", "all-types"]}
+{"name": "schema document", "method": "GET", "path": "/api/schemas/document", "tags": ["SchemaController", "all-types"]}
+{"name": "schema visualization", "method": "GET", "path": "/api/schemas/visualization", "tags": ["SchemaController", "all-types"]}
+{"name": "schema report", "method": "GET", "path": "/api/schemas/report", "tags": ["SchemaController", "all-types"]}
+{"name": "schema map", "method": "GET", "path": "/api/schemas/map", "tags": ["SchemaController", "all-types"]}
+{"name": "schema predictor", "method": "GET", "path": "/api/schemas/predictor", "tags": ["SchemaController", "all-types"]}
+{"name": "schema predictorGroup", "method": "GET", "path": "/api/schemas/predictorGroup", "tags": ["SchemaController", "all-types"]}
+{"name": "schema dashboardItem", "method": "GET", "path": "/api/schemas/dashboardItem", "tags": ["SchemaController", "all-types"]}
+{"name": "schema dashboard", "method": "GET", "path": "/api/schemas/dashboard", "tags": ["SchemaController", "all-types"]}
+{"name": "schema dataStore", "method": "GET", "path": "/api/schemas/dataStore", "tags": ["SchemaController", "all-types"]}
+{"name": "schema dataElementOperand", "method": "GET", "path": "/api/schemas/dataElementOperand", "tags": ["SchemaController", "all-types"]}
+{"name": "schema programStageWorkingList", "method": "GET", "path": "/api/schemas/programStageWorkingList", "tags": ["SchemaController", "all-types"]}
+{"name": "schema dataElementGroupSetDimension", "method": "GET", "path": "/api/schemas/dataElementGroupSetDimension", "tags": ["SchemaController", "all-types"]}
+{"name": "schema messageConversation", "method": "GET", "path": "/api/schemas/messageConversation", "tags": ["SchemaController", "all-types"]}
+{"name": "schema reportingRate", "method": "GET", "path": "/api/schemas/reportingRate", "tags": ["SchemaController", "all-types"]}
+{"name": "schema apiToken", "method": "GET", "path": "/api/schemas/apiToken", "tags": ["SchemaController", "all-types"]}
+{"name": "schema fileResource", "method": "GET", "path": "/api/schemas/fileResource", "tags": ["SchemaController", "all-types"]}
+{"name": "schema trackedEntityInstanceFilter", "method": "GET", "path": "/api/schemas/trackedEntityInstanceFilter", "tags": ["SchemaController", "all-types"]}
+{"name": "schema programDataElement", "method": "GET", "path": "/api/schemas/programDataElement", "tags": ["SchemaController", "all-types"]}
+{"name": "schema oAuth2AuthorizationConsent", "method": "GET", "path": "/api/schemas/oAuth2AuthorizationConsent", "tags": ["SchemaController", "all-types"]}
+{"name": "schema oAuth2Authorization", "method": "GET", "path": "/api/schemas/oAuth2Authorization", "tags": ["SchemaController", "all-types"]}
+{"name": "schema eventFilter", "method": "GET", "path": "/api/schemas/eventFilter", "tags": ["SchemaController", "all-types"]}
+{"name": "schema analyticsPeriodBoundary", "method": "GET", "path": "/api/schemas/analyticsPeriodBoundary", "tags": ["SchemaController", "all-types"]}
+{"name": "schema icon", "method": "GET", "path": "/api/schemas/icon", "tags": ["SchemaController", "all-types"]}
+{"name": "schema itemConfig", "method": "GET", "path": "/api/schemas/itemConfig", "tags": ["SchemaController", "all-types"]}
+{"name": "schema organisationUnitGroupSetDimension", "method": "GET", "path": "/api/schemas/organisationUnitGroupSetDimension", "tags": ["SchemaController", "all-types"]}
+{"name": "schema objectStyle", "method": "GET", "path": "/api/schemas/objectStyle", "tags": ["SchemaController", "all-types"]}
+{"name": "schema eventRepetition", "method": "GET", "path": "/api/schemas/eventRepetition", "tags": ["SchemaController", "all-types"]}
+{"name": "schema userAccess", "method": "GET", "path": "/api/schemas/userAccess", "tags": ["SchemaController", "all-types"]}
+{"name": "schema categoryOptionGroupSetDimension", "method": "GET", "path": "/api/schemas/categoryOptionGroupSetDimension", "tags": ["SchemaController", "all-types"]}
+{"name": "schema dataElementDimension", "method": "GET", "path": "/api/schemas/dataElementDimension", "tags": ["SchemaController", "all-types"]}
+{"name": "schema categoryDimension", "method": "GET", "path": "/api/schemas/categoryDimension", "tags": ["SchemaController", "all-types"]}
+{"name": "schema dataSetElement", "method": "GET", "path": "/api/schemas/dataSetElement", "tags": ["SchemaController", "all-types"]}
+{"name": "schema interpretationComment", "method": "GET", "path": "/api/schemas/interpretationComment", "tags": ["SchemaController", "all-types"]}
+{"name": "schema trackedEntityDataElementDimension", "method": "GET", "path": "/api/schemas/trackedEntityDataElementDimension", "tags": ["SchemaController", "all-types"]}
+{"name": "schema metadataVersion", "method": "GET", "path": "/api/schemas/metadataVersion", "tags": ["SchemaController", "all-types"]}
+{"name": "schema axis", "method": "GET", "path": "/api/schemas/axis", "tags": ["SchemaController", "all-types"]}
+{"name": "schema sharing", "method": "GET", "path": "/api/schemas/sharing", "tags": ["SchemaController", "all-types"]}
+{"name": "schema minMaxDataElement", "method": "GET", "path": "/api/schemas/minMaxDataElement", "tags": ["SchemaController", "all-types"]}
+{"name": "schema programTrackedEntityAttributeDimensionItem", "method": "GET", "path": "/api/schemas/programTrackedEntityAttributeDimensionItem", "tags": ["SchemaController", "all-types"]}
+{"name": "schema access", "method": "GET", "path": "/api/schemas/access", "tags": ["SchemaController", "all-types"]}
+{"name": "schema proposal", "method": "GET", "path": "/api/schemas/proposal", "tags": ["SchemaController", "all-types"]}
+{"name": "schema programStageDataElement", "method": "GET", "path": "/api/schemas/programStageDataElement", "tags": ["SchemaController", "all-types"]}
+{"name": "schema userGroupAccess", "method": "GET", "path": "/api/schemas/userGroupAccess", "tags": ["SchemaController", "all-types"]}
+{"name": "schema seriesKey", "method": "GET", "path": "/api/schemas/seriesKey", "tags": ["SchemaController", "all-types"]}
+{"name": "schema legendDefinitions", "method": "GET", "path": "/api/schemas/legendDefinitions", "tags": ["SchemaController", "all-types"]}
+{"name": "schema relationshipConstraint", "method": "GET", "path": "/api/schemas/relationshipConstraint", "tags": ["SchemaController", "all-types"]}
+{"name": "schema legend", "method": "GET", "path": "/api/schemas/legend", "tags": ["SchemaController", "all-types"]}
+{"name": "schema outlierAnalysis", "method": "GET", "path": "/api/schemas/outlierAnalysis", "tags": ["SchemaController", "all-types"]}
+{"name": "schema programTrackedEntityAttribute", "method": "GET", "path": "/api/schemas/programTrackedEntityAttribute", "tags": ["SchemaController", "all-types"]}
+{"name": "schema interpretation", "method": "GET", "path": "/api/schemas/interpretation", "tags": ["SchemaController", "all-types"]}
+{"name": "schema oAuth2Client", "method": "GET", "path": "/api/schemas/oAuth2Client", "tags": ["SchemaController", "all-types"]}
+{"name": "dataElement fields=*", "method": "GET", "path": "/api/schemas/dataElement?fields=*", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=:all", "method": "GET", "path": "/api/schemas/dataElement?fields=:all", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=:simple", "method": "GET", "path": "/api/schemas/dataElement?fields=:simple", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=:owner", "method": "GET", "path": "/api/schemas/dataElement?fields=:owner", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=:persisted", "method": "GET", "path": "/api/schemas/dataElement?fields=:persisted", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=:identifiable", "method": "GET", "path": "/api/schemas/dataElement?fields=:identifiable", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=:nameable", "method": "GET", "path": "/api/schemas/dataElement?fields=:nameable", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=name", "method": "GET", "path": "/api/schemas/dataElement?fields=name", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=name,klass", "method": "GET", "path": "/api/schemas/dataElement?fields=name,klass", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=properties", "method": "GET", "path": "/api/schemas/dataElement?fields=properties", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=properties[name]", "method": "GET", "path": "/api/schemas/dataElement?fields=properties[name]", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=properties[name,href,apiEndpoint,relativeApiEndpoint]", "method": "GET", "path": "/api/schemas/dataElement?fields=properties[name,href,apiEndpoint,relativeApiEndpoint]", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=properties[*]", "method": "GET", "path": "/api/schemas/dataElement?fields=properties[*]", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=properties[:simple]", "method": "GET", "path": "/api/schemas/dataElement?fields=properties[:simple]", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=!properties", "method": "GET", "path": "/api/schemas/dataElement?fields=!properties", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=*,!properties", "method": "GET", "path": "/api/schemas/dataElement?fields=*,!properties", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=authorities", "method": "GET", "path": "/api/schemas/dataElement?fields=authorities", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=authorities[type]", "method": "GET", "path": "/api/schemas/dataElement?fields=authorities[type]", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=authorities[*]", "method": "GET", "path": "/api/schemas/dataElement?fields=authorities[*]", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=references", "method": "GET", "path": "/api/schemas/dataElement?fields=references", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=href,apiEndpoint,relativeApiEndpoint", "method": "GET", "path": "/api/schemas/dataElement?fields=href,apiEndpoint,relativeApiEndpoint", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=properties[gistPreferences]", "method": "GET", "path": "/api/schemas/dataElement?fields=properties[gistPreferences]", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=properties[gistPreferences[included]]", "method": "GET", "path": "/api/schemas/dataElement?fields=properties[gistPreferences[included]]", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=properties[constants]", "method": "GET", "path": "/api/schemas/dataElement?fields=properties[constants]", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=bad[", "method": "GET", "path": "/api/schemas/dataElement?fields=bad[", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=name[", "method": "GET", "path": "/api/schemas/dataElement?fields=name[", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=", "method": "GET", "path": "/api/schemas/dataElement?fields=", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=properties[name,klass,!name]", "method": "GET", "path": "/api/schemas/dataElement?fields=properties[name,klass,!name]", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=nonexistent", "method": "GET", "path": "/api/schemas/dataElement?fields=nonexistent", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=name,properties[name|rename(n)]", "method": "GET", "path": "/api/schemas/dataElement?fields=name,properties[name|rename(n)]", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=properties::size", "method": "GET", "path": "/api/schemas/dataElement?fields=properties::size", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=id,name,displayName,collectionName", "method": "GET", "path": "/api/schemas/dataElement?fields=id,name,displayName,collectionName", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=properties[name,constants,~nope]", "method": "GET", "path": "/api/schemas/dataElement?fields=properties[name,constants,~nope]", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=%2A", "method": "GET", "path": "/api/schemas/dataElement?fields=%2A", "tags": ["SchemaController", "fields"]}
+{"name": "dataElement fields=properties%5Bname%5D", "method": "GET", "path": "/api/schemas/dataElement?fields=properties%5Bname%5D", "tags": ["SchemaController", "fields"]}
+{"name": "list fields=name", "method": "GET", "path": "/api/schemas?fields=name", "tags": ["SchemaController", "fields"]}
+{"name": "list fields=name,klass,order", "method": "GET", "path": "/api/schemas?fields=name,klass,order", "tags": ["SchemaController", "fields"]}
+{"name": "list fields=references", "method": "GET", "path": "/api/schemas?fields=references", "tags": ["SchemaController", "fields"]}
+{"name": "list fields=properties[name]", "method": "GET", "path": "/api/schemas?fields=properties[name]", "tags": ["SchemaController", "fields"]}
+{"name": "list fields=href", "method": "GET", "path": "/api/schemas?fields=href", "tags": ["SchemaController", "fields"]}
+{"name": "list fields=*,!properties", "method": "GET", "path": "/api/schemas?fields=*,!properties", "tags": ["SchemaController", "fields"]}
+{"name": "list fields=:simple", "method": "GET", "path": "/api/schemas?fields=:simple", "tags": ["SchemaController", "fields"]}
+{"name": "list fields=bad[", "method": "GET", "path": "/api/schemas?fields=bad[", "tags": ["SchemaController", "fields"]}
+{"name": "path /api/41/schemas/user", "method": "GET", "path": "/api/41/schemas/user", "tags": ["SchemaController", "paths"]}
+{"name": "path /api/28/schemas/user", "method": "GET", "path": "/api/28/schemas/user", "tags": ["SchemaController", "paths"]}
+{"name": "path /api/44/schemas?fields=href,apiEndpoint", "method": "GET", "path": "/api/44/schemas?fields=href,apiEndpoint", "tags": ["SchemaController", "paths"]}
+{"name": "path /api/schemas/user.json", "method": "GET", "path": "/api/schemas/user.json", "tags": ["SchemaController", "paths"]}
+{"name": "path /api/41/schemas/user.json", "method": "GET", "path": "/api/41/schemas/user.json", "tags": ["SchemaController", "paths"]}
+{"name": "path /api/schemas/", "method": "GET", "path": "/api/schemas/", "tags": ["SchemaController", "paths"]}
+{"name": "path /api/schemas.json?fields=name", "method": "GET", "path": "/api/schemas.json?fields=name", "tags": ["SchemaController", "paths"]}
+{"name": "path /api/schemas/dataElement/", "method": "GET", "path": "/api/schemas/dataElement/", "tags": ["SchemaController", "paths"]}
+{"name": "path /api/40/schemas/", "method": "GET", "path": "/api/40/schemas/", "tags": ["SchemaController", "paths"]}
+{"name": "links forwarded https", "method": "GET", "path": "/api/schemas/dataElement?fields=href,apiEndpoint,properties[href,apiEndpoint]", "tags": ["SchemaController", "links"], "headers": {"X-Forwarded-Proto": "https", "X-Forwarded-Host": "play.dhis2.org:9999, x", "X-Forwarded-Port": "443"}}
+{"name": "links forwarded port", "method": "GET", "path": "/api/schemas/dataElement?fields=href,apiEndpoint,properties[href,apiEndpoint]", "tags": ["SchemaController", "links"], "headers": {"X-Forwarded-Port": "8443"}}
+{"name": "links forwarded ftp", "method": "GET", "path": "/api/schemas/dataElement?fields=href,apiEndpoint,properties[href,apiEndpoint]", "tags": ["SchemaController", "links"], "headers": {"X-Forwarded-Proto": "ftp"}}
+{"name": "links forwarded host only", "method": "GET", "path": "/api/schemas/dataElement?fields=href,apiEndpoint,properties[href,apiEndpoint]", "tags": ["SchemaController", "links"], "headers": {"X-Forwarded-Host": "example.org"}}
+{"name": "type DataElement", "method": "GET", "path": "/api/schemas/DataElement", "tags": ["SchemaController", "negative"]}
+{"name": "type dataElements", "method": "GET", "path": "/api/schemas/dataElements", "tags": ["SchemaController", "negative"]}
+{"name": "type nope", "method": "GET", "path": "/api/schemas/nope", "tags": ["SchemaController", "negative"]}
+{"name": "type %20", "method": "GET", "path": "/api/schemas/%20", "tags": ["SchemaController", "negative"]}
+{"name": "type data%20Element", "method": "GET", "path": "/api/schemas/data%20Element", "tags": ["SchemaController", "negative"]}
+{"name": "type Icon", "method": "GET", "path": "/api/schemas/Icon", "tags": ["SchemaController", "negative"]}
+{"name": "type icon", "method": "GET", "path": "/api/schemas/icon", "tags": ["SchemaController", "negative"]}
+{"name": "type identifiableObject", "method": "GET", "path": "/api/schemas/identifiableObject", "tags": ["SchemaController", "negative"]}
+{"name": "type dataElement.foo", "method": "GET", "path": "/api/schemas/dataElement.foo", "tags": ["SchemaController", "negative"]}
+{"name": "type dataElement.xml", "method": "GET", "path": "/api/schemas/dataElement.xml", "tags": ["SchemaController", "negative"]}
+{"name": "accept application/json", "method": "GET", "path": "/api/schemas/dataElement?fields=name", "tags": ["SchemaController", "accept"], "headers": {"Accept": "application/json"}}
+{"name": "list accept application/json", "method": "GET", "path": "/api/schemas?fields=name", "tags": ["SchemaController", "accept"], "headers": {"Accept": "application/json"}}
+{"name": "unknown accept application/json", "method": "GET", "path": "/api/schemas/nope", "tags": ["SchemaController", "accept", "negative"], "headers": {"Accept": "application/json"}}
+{"name": "accept */*", "method": "GET", "path": "/api/schemas/dataElement?fields=name", "tags": ["SchemaController", "accept"], "headers": {"Accept": "*/*"}}
+{"name": "list accept */*", "method": "GET", "path": "/api/schemas?fields=name", "tags": ["SchemaController", "accept"], "headers": {"Accept": "*/*"}}
+{"name": "unknown accept */*", "method": "GET", "path": "/api/schemas/nope", "tags": ["SchemaController", "accept", "negative"], "headers": {"Accept": "*/*"}}
+{"name": "accept application/xml", "method": "GET", "path": "/api/schemas/dataElement?fields=name", "tags": ["SchemaController", "accept"], "headers": {"Accept": "application/xml"}}
+{"name": "list accept application/xml", "method": "GET", "path": "/api/schemas?fields=name", "tags": ["SchemaController", "accept"], "headers": {"Accept": "application/xml"}}
+{"name": "unknown accept application/xml", "method": "GET", "path": "/api/schemas/nope", "tags": ["SchemaController", "accept", "negative"], "headers": {"Accept": "application/xml"}}
+{"name": "accept text/plain", "method": "GET", "path": "/api/schemas/dataElement?fields=name", "tags": ["SchemaController", "accept"], "headers": {"Accept": "text/plain"}}
+{"name": "list accept text/plain", "method": "GET", "path": "/api/schemas?fields=name", "tags": ["SchemaController", "accept"], "headers": {"Accept": "text/plain"}}
+{"name": "unknown accept text/plain", "method": "GET", "path": "/api/schemas/nope", "tags": ["SchemaController", "accept", "negative"], "headers": {"Accept": "text/plain"}}
+{"name": "accept application/json;q=0.9", "method": "GET", "path": "/api/schemas/dataElement?fields=name", "tags": ["SchemaController", "accept"], "headers": {"Accept": "application/json;q=0.9"}}
+{"name": "list accept application/json;q=0.9", "method": "GET", "path": "/api/schemas?fields=name", "tags": ["SchemaController", "accept"], "headers": {"Accept": "application/json;q=0.9"}}
+{"name": "unknown accept application/json;q=0.9", "method": "GET", "path": "/api/schemas/nope", "tags": ["SchemaController", "accept", "negative"], "headers": {"Accept": "application/json;q=0.9"}}
+{"name": "accept text/html,application/json", "method": "GET", "path": "/api/schemas/dataElement?fields=name", "tags": ["SchemaController", "accept"], "headers": {"Accept": "text/html,application/json"}}
+{"name": "list accept text/html,application/json", "method": "GET", "path": "/api/schemas?fields=name", "tags": ["SchemaController", "accept"], "headers": {"Accept": "text/html,application/json"}}
+{"name": "unknown accept text/html,application/json", "method": "GET", "path": "/api/schemas/nope", "tags": ["SchemaController", "accept", "negative"], "headers": {"Accept": "text/html,application/json"}}
+{"name": "non-super list", "method": "GET", "path": "/api/schemas?fields=name,authorities", "tags": ["SchemaController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "non-super one", "method": "GET", "path": "/api/schemas/user", "tags": ["SchemaController", "non-super"], "headers": {"Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "HEAD list", "method": "HEAD", "path": "/api/schemas", "tags": ["SchemaController", "head"]}
+{"name": "HEAD one", "method": "HEAD", "path": "/api/schemas/dataElement", "tags": ["SchemaController", "head"]}
+{"name": "no credentials", "method": "GET", "path": "/api/schemas", "tags": ["SchemaController", "negative"], "headers": {"Authorization": ""}}
+# SchemaController#getSchemaProperty (phase 2 slice 4): lookup by Property#key(), link state.
+{"name": "dataElement/dataSetElements", "method": "GET", "path": "/api/schemas/dataElement/dataSetElements", "tags": ["SchemaController", "property"]}
+{"name": "dataElement/optionSet", "method": "GET", "path": "/api/schemas/dataElement/optionSet", "tags": ["SchemaController", "property"]}
+{"name": "dataElement/categoryCombo", "method": "GET", "path": "/api/schemas/dataElement/categoryCombo", "tags": ["SchemaController", "property"]}
+{"name": "dataElement/translations", "method": "GET", "path": "/api/schemas/dataElement/translations", "tags": ["SchemaController", "property"]}
+{"name": "dataElement/commentOptionSet", "method": "GET", "path": "/api/schemas/dataElement/commentOptionSet", "tags": ["SchemaController", "property"]}
+{"name": "dataElement/lastUpdatedBy", "method": "GET", "path": "/api/schemas/dataElement/lastUpdatedBy", "tags": ["SchemaController", "property"]}
+{"name": "dataElement/dataElementGroups", "method": "GET", "path": "/api/schemas/dataElement/dataElementGroups", "tags": ["SchemaController", "property"]}
+{"name": "dataElement/createdBy", "method": "GET", "path": "/api/schemas/dataElement/createdBy", "tags": ["SchemaController", "property"]}
+{"name": "dataElement/legendSet", "method": "GET", "path": "/api/schemas/dataElement/legendSet", "tags": ["SchemaController", "property"]}
+{"name": "dataElement/legendSets", "method": "GET", "path": "/api/schemas/dataElement/legendSets", "tags": ["SchemaController", "property"]}
+{"name": "dataElement/aggregationLevels", "method": "GET", "path": "/api/schemas/dataElement/aggregationLevels", "tags": ["SchemaController", "property"]}
+{"name": "dataElement/user", "method": "GET", "path": "/api/schemas/dataElement/user", "tags": ["SchemaController", "property"]}
+{"name": "user/translations", "method": "GET", "path": "/api/schemas/user/translations", "tags": ["SchemaController", "property"]}
+{"name": "user/dataViewOrganisationUnits", "method": "GET", "path": "/api/schemas/user/dataViewOrganisationUnits", "tags": ["SchemaController", "property"]}
+{"name": "user/lastUpdatedBy", "method": "GET", "path": "/api/schemas/user/lastUpdatedBy", "tags": ["SchemaController", "property"]}
+{"name": "user/userRoles", "method": "GET", "path": "/api/schemas/user/userRoles", "tags": ["SchemaController", "property"]}
+{"name": "user/userGroups", "method": "GET", "path": "/api/schemas/user/userGroups", "tags": ["SchemaController", "property"]}
+{"name": "user/cogsDimensionConstraints", "method": "GET", "path": "/api/schemas/user/cogsDimensionConstraints", "tags": ["SchemaController", "property"]}
+{"name": "user/catDimensionConstraints", "method": "GET", "path": "/api/schemas/user/catDimensionConstraints", "tags": ["SchemaController", "property"]}
+{"name": "user/teiSearchOrganisationUnits", "method": "GET", "path": "/api/schemas/user/teiSearchOrganisationUnits", "tags": ["SchemaController", "property"]}
+{"name": "user/organisationUnits", "method": "GET", "path": "/api/schemas/user/organisationUnits", "tags": ["SchemaController", "property"]}
+{"name": "user/avatar", "method": "GET", "path": "/api/schemas/user/avatar", "tags": ["SchemaController", "property"]}
+{"name": "user/createdBy", "method": "GET", "path": "/api/schemas/user/createdBy", "tags": ["SchemaController", "property"]}
+{"name": "user/user", "method": "GET", "path": "/api/schemas/user/user", "tags": ["SchemaController", "property"]}
+{"name": "program/dataEntryForm", "method": "GET", "path": "/api/schemas/program/dataEntryForm", "tags": ["SchemaController", "property"]}
+{"name": "program/programIndicators", "method": "GET", "path": "/api/schemas/program/programIndicators", "tags": ["SchemaController", "property"]}
+{"name": "program/categoryCombo", "method": "GET", "path": "/api/schemas/program/categoryCombo", "tags": ["SchemaController", "property"]}
+{"name": "program/translations", "method": "GET", "path": "/api/schemas/program/translations", "tags": ["SchemaController", "property"]}
+{"name": "program/lastUpdatedBy", "method": "GET", "path": "/api/schemas/program/lastUpdatedBy", "tags": ["SchemaController", "property"]}
+{"name": "program/enrollmentCategoryCombo", "method": "GET", "path": "/api/schemas/program/enrollmentCategoryCombo", "tags": ["SchemaController", "property"]}
+{"name": "program/userRoles", "method": "GET", "path": "/api/schemas/program/userRoles", "tags": ["SchemaController", "property"]}
+{"name": "program/programRuleVariables", "method": "GET", "path": "/api/schemas/program/programRuleVariables", "tags": ["SchemaController", "property"]}
+{"name": "program/programTrackedEntityAttributes", "method": "GET", "path": "/api/schemas/program/programTrackedEntityAttributes", "tags": ["SchemaController", "property"]}
+{"name": "program/relatedProgram", "method": "GET", "path": "/api/schemas/program/relatedProgram", "tags": ["SchemaController", "property"]}
+{"name": "program/notificationTemplates", "method": "GET", "path": "/api/schemas/program/notificationTemplates", "tags": ["SchemaController", "property"]}
+{"name": "program/organisationUnits", "method": "GET", "path": "/api/schemas/program/organisationUnits", "tags": ["SchemaController", "property"]}
+{"name": "program/categoryMappings", "method": "GET", "path": "/api/schemas/program/categoryMappings", "tags": ["SchemaController", "property"]}
+{"name": "program/programSections", "method": "GET", "path": "/api/schemas/program/programSections", "tags": ["SchemaController", "property"]}
+{"name": "program/programStages", "method": "GET", "path": "/api/schemas/program/programStages", "tags": ["SchemaController", "property"]}
+{"name": "program/trackedEntityType", "method": "GET", "path": "/api/schemas/program/trackedEntityType", "tags": ["SchemaController", "property"]}
+{"name": "program/createdBy", "method": "GET", "path": "/api/schemas/program/createdBy", "tags": ["SchemaController", "property"]}
+{"name": "program/user", "method": "GET", "path": "/api/schemas/program/user", "tags": ["SchemaController", "property"]}
+{"name": "organisationUnit/parent", "method": "GET", "path": "/api/schemas/organisationUnit/parent", "tags": ["SchemaController", "property"]}
+{"name": "organisationUnit/children", "method": "GET", "path": "/api/schemas/organisationUnit/children", "tags": ["SchemaController", "property"]}
+{"name": "organisationUnit/translations", "method": "GET", "path": "/api/schemas/organisationUnit/translations", "tags": ["SchemaController", "property"]}
+{"name": "organisationUnit/ancestors", "method": "GET", "path": "/api/schemas/organisationUnit/ancestors", "tags": ["SchemaController", "property"]}
+{"name": "organisationUnit/organisationUnitGroups", "method": "GET", "path": "/api/schemas/organisationUnit/organisationUnitGroups", "tags": ["SchemaController", "property"]}
+{"name": "organisationUnit/image", "method": "GET", "path": "/api/schemas/organisationUnit/image", "tags": ["SchemaController", "property"]}
+{"name": "organisationUnit/lastUpdatedBy", "method": "GET", "path": "/api/schemas/organisationUnit/lastUpdatedBy", "tags": ["SchemaController", "property"]}
+{"name": "organisationUnit/users", "method": "GET", "path": "/api/schemas/organisationUnit/users", "tags": ["SchemaController", "property"]}
+{"name": "organisationUnit/dataSets", "method": "GET", "path": "/api/schemas/organisationUnit/dataSets", "tags": ["SchemaController", "property"]}
+{"name": "organisationUnit/legendSets", "method": "GET", "path": "/api/schemas/organisationUnit/legendSets", "tags": ["SchemaController", "property"]}
+{"name": "organisationUnit/programs", "method": "GET", "path": "/api/schemas/organisationUnit/programs", "tags": ["SchemaController", "property"]}
+{"name": "organisationUnit/createdBy", "method": "GET", "path": "/api/schemas/organisationUnit/createdBy", "tags": ["SchemaController", "property"]}
+{"name": "organisationUnit/legendSet", "method": "GET", "path": "/api/schemas/organisationUnit/legendSet", "tags": ["SchemaController", "property"]}
+{"name": "organisationUnit/user", "method": "GET", "path": "/api/schemas/organisationUnit/user", "tags": ["SchemaController", "property"]}
+{"name": "visualization/dataElementGroupSetDimensions", "method": "GET", "path": "/api/schemas/visualization/dataElementGroupSetDimensions", "tags": ["SchemaController", "property"]}
+{"name": "visualization/axes", "method": "GET", "path": "/api/schemas/visualization/axes", "tags": ["SchemaController", "property"]}
+{"name": "visualization/attributeDimensions", "method": "GET", "path": "/api/schemas/visualization/attributeDimensions", "tags": ["SchemaController", "property"]}
+{"name": "visualization/translations", "method": "GET", "path": "/api/schemas/visualization/translations", "tags": ["SchemaController", "property"]}
+{"name": "visualization/yearlySeries", "method": "GET", "path": "/api/schemas/visualization/yearlySeries", "tags": ["SchemaController", "property"]}
+{"name": "visualization/filterDimensions", "method": "GET", "path": "/api/schemas/visualization/filterDimensions", "tags": ["SchemaController", "property"]}
+{"name": "visualization/interpretations", "method": "GET", "path": "/api/schemas/visualization/interpretations", "tags": ["SchemaController", "property"]}
+{"name": "visualization/subscribers", "method": "GET", "path": "/api/schemas/visualization/subscribers", "tags": ["SchemaController", "property"]}
+{"name": "visualization/optionalAxes", "method": "GET", "path": "/api/schemas/visualization/optionalAxes", "tags": ["SchemaController", "property"]}
+{"name": "visualization/columns", "method": "GET", "path": "/api/schemas/visualization/columns", "tags": ["SchemaController", "property"]}
+{"name": "visualization/dataElementDimensions", "method": "GET", "path": "/api/schemas/visualization/dataElementDimensions", "tags": ["SchemaController", "property"]}
+{"name": "visualization/periods", "method": "GET", "path": "/api/schemas/visualization/periods", "tags": ["SchemaController", "property"]}
+{"name": "visualization/categoryDimensions", "method": "GET", "path": "/api/schemas/visualization/categoryDimensions", "tags": ["SchemaController", "property"]}
+{"name": "visualization/rowDimensions", "method": "GET", "path": "/api/schemas/visualization/rowDimensions", "tags": ["SchemaController", "property"]}
+{"name": "visualization/series", "method": "GET", "path": "/api/schemas/visualization/series", "tags": ["SchemaController", "property"]}
+{"name": "visualization/rawPeriods", "method": "GET", "path": "/api/schemas/visualization/rawPeriods", "tags": ["SchemaController", "property"]}
+{"name": "visualization/itemOrganisationUnitGroups", "method": "GET", "path": "/api/schemas/visualization/itemOrganisationUnitGroups", "tags": ["SchemaController", "property"]}
+{"name": "visualization/lastUpdatedBy", "method": "GET", "path": "/api/schemas/visualization/lastUpdatedBy", "tags": ["SchemaController", "property"]}
+{"name": "visualization/programIndicatorDimensions", "method": "GET", "path": "/api/schemas/visualization/programIndicatorDimensions", "tags": ["SchemaController", "property"]}
+{"name": "visualization/columnDimensions", "method": "GET", "path": "/api/schemas/visualization/columnDimensions", "tags": ["SchemaController", "property"]}
+{"name": "visualization/favorites", "method": "GET", "path": "/api/schemas/visualization/favorites", "tags": ["SchemaController", "property"]}
+{"name": "visualization/dataDimensionItems", "method": "GET", "path": "/api/schemas/visualization/dataDimensionItems", "tags": ["SchemaController", "property"]}
+{"name": "visualization/categoryOptionGroupSetDimensions", "method": "GET", "path": "/api/schemas/visualization/categoryOptionGroupSetDimensions", "tags": ["SchemaController", "property"]}
+{"name": "visualization/organisationUnitGroupSetDimensions", "method": "GET", "path": "/api/schemas/visualization/organisationUnitGroupSetDimensions", "tags": ["SchemaController", "property"]}
+{"name": "visualization/organisationUnitLevels", "method": "GET", "path": "/api/schemas/visualization/organisationUnitLevels", "tags": ["SchemaController", "property"]}
+{"name": "visualization/sorting", "method": "GET", "path": "/api/schemas/visualization/sorting", "tags": ["SchemaController", "property"]}
+{"name": "visualization/organisationUnits", "method": "GET", "path": "/api/schemas/visualization/organisationUnits", "tags": ["SchemaController", "property"]}
+{"name": "visualization/filters", "method": "GET", "path": "/api/schemas/visualization/filters", "tags": ["SchemaController", "property"]}
+{"name": "visualization/icons", "method": "GET", "path": "/api/schemas/visualization/icons", "tags": ["SchemaController", "property"]}
+{"name": "visualization/rows", "method": "GET", "path": "/api/schemas/visualization/rows", "tags": ["SchemaController", "property"]}
+{"name": "visualization/createdBy", "method": "GET", "path": "/api/schemas/visualization/createdBy", "tags": ["SchemaController", "property"]}
+{"name": "visualization/user", "method": "GET", "path": "/api/schemas/visualization/user", "tags": ["SchemaController", "property"]}
+{"name": "set links other host", "method": "GET", "path": "/api/schemas/dataElement?fields=name", "tags": ["SchemaController", "property", "state"], "headers": {"X-Forwarded-Host": "other.example"}}
+{"name": "property after other host", "method": "GET", "path": "/api/schemas/dataElement/categoryCombo", "tags": ["SchemaController", "property", "state"]}
+{"name": "other schema keeps its links", "method": "GET", "path": "/api/schemas/user/userRoles", "tags": ["SchemaController", "property", "state"]}
+{"name": "list resets all links", "method": "GET", "path": "/api/schemas?fields=name", "tags": ["SchemaController", "property", "state"], "headers": {"X-Forwarded-Proto": "https", "X-Forwarded-Host": "third.example"}}
+{"name": "property after list", "method": "GET", "path": "/api/schemas/dataElement/categoryCombo", "tags": ["SchemaController", "property", "state"]}
+{"name": "property after list 2", "method": "GET", "path": "/api/schemas/user/userRoles", "tags": ["SchemaController", "property", "state"]}
+{"name": "xml list fallback sets links too", "method": "GET", "path": "/api/schemas.xml?fields=name", "tags": ["SchemaController", "property", "state"], "headers": {"X-Forwarded-Host": "xml.example"}}
+{"name": "property after xml list", "method": "GET", "path": "/api/schemas/dataElement/categoryCombo", "tags": ["SchemaController", "property", "state"]}
+{"name": "unknown type set no links", "method": "GET", "path": "/api/schemas/nope", "tags": ["SchemaController", "property", "state"], "headers": {"X-Forwarded-Host": "nope.example"}}
+{"name": "property after unknown type", "method": "GET", "path": "/api/schemas/dataElement/categoryCombo", "tags": ["SchemaController", "property", "state"]}
+{"name": "lookup /api/schemas/dataElement/translation", "method": "GET", "path": "/api/schemas/dataElement/translation", "tags": ["SchemaController", "property", "negative"]}
+{"name": "lookup /api/schemas/dataElement/translations", "method": "GET", "path": "/api/schemas/dataElement/translations", "tags": ["SchemaController", "property", "negative"]}
+{"name": "lookup /api/schemas/dataElement/nope", "method": "GET", "path": "/api/schemas/dataElement/nope", "tags": ["SchemaController", "property", "negative"]}
+{"name": "lookup /api/schemas/nope/name", "method": "GET", "path": "/api/schemas/nope/name", "tags": ["SchemaController", "property", "negative"]}
+{"name": "lookup /api/schemas/dataElement/name.json", "method": "GET", "path": "/api/schemas/dataElement/name.json", "tags": ["SchemaController", "property", "negative"]}
+{"name": "lookup /api/41/schemas/dataElement/name", "method": "GET", "path": "/api/41/schemas/dataElement/name", "tags": ["SchemaController", "property", "negative"]}
+{"name": "lookup /api/schemas/dataElement/NAME", "method": "GET", "path": "/api/schemas/dataElement/NAME", "tags": ["SchemaController", "property", "negative"]}
+{"name": "lookup /api/schemas/dataElement/name/", "method": "GET", "path": "/api/schemas/dataElement/name/", "tags": ["SchemaController", "property", "negative"]}
+{"name": "lookup /api/schemas/dataElement/name.foo", "method": "GET", "path": "/api/schemas/dataElement/name.foo", "tags": ["SchemaController", "property", "negative"]}
+{"name": "lookup /api/schemas/dataElement/name?fields=klass", "method": "GET", "path": "/api/schemas/dataElement/name?fields=klass", "tags": ["SchemaController", "property", "negative"]}
+{"name": "property accept application/xml", "method": "GET", "path": "/api/schemas/dataElement/name", "tags": ["SchemaController", "property", "accept"], "headers": {"Accept": "application/xml"}}
+{"name": "missing property accept application/xml", "method": "GET", "path": "/api/schemas/dataElement/nope", "tags": ["SchemaController", "property", "accept"], "headers": {"Accept": "application/xml"}}
+{"name": "property accept text/plain", "method": "GET", "path": "/api/schemas/dataElement/name", "tags": ["SchemaController", "property", "accept"], "headers": {"Accept": "text/plain"}}
+{"name": "missing property accept text/plain", "method": "GET", "path": "/api/schemas/dataElement/nope", "tags": ["SchemaController", "property", "accept"], "headers": {"Accept": "text/plain"}}
+{"name": "property accept */*", "method": "GET", "path": "/api/schemas/dataElement/name", "tags": ["SchemaController", "property", "accept"], "headers": {"Accept": "*/*"}}
+{"name": "missing property accept */*", "method": "GET", "path": "/api/schemas/dataElement/nope", "tags": ["SchemaController", "property", "accept"], "headers": {"Accept": "*/*"}}

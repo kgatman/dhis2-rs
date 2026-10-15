@@ -2,6 +2,7 @@
 
 pub mod etag;
 pub mod negotiation;
+pub mod paths;
 pub mod rfd;
 pub mod security_headers;
 pub mod web_message;

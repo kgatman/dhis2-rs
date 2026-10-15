@@ -4,25 +4,52 @@ _Read this first at the start of every session; update it at the end._
 
 - **Last updated:** 2026-10-15 (session 2, continued)
 - **Java reference:** dhis2-core `2a7855b69e` (2.44-SNAPSHOT), pinned in `ci/dhis2-core.ref`
-- **Current phase:** 2 (read-only metadata). Slices 1 (`/api/system/{uid,id,uuid}`) and 2
-  (`/api/system/info` + the `fields=` engine) are `rust`. Slice 3 (`/api/me/authorities`,
-  `/authorization`, `/settings` and their `{...}` forms) is routed to Rust, `rust-shadow` until CI
-  e2e confirms.
-- **CI:** GitHub `kgatman/dhis2-rs`. `ci` and `e2e-through-gateway` green at `5e5a787` (with
-  `/api/system/info` on Rust).
+- **Current phase:** 2 (read-only metadata). Slices 1–3 (`/api/system/{uid,id,uuid}`,
+  `/api/system/info` + the `fields=` engine, the `/api/me` authorities and settings sub-resources)
+  are `rust`. Slice 4 (`/api/schemas`, `/{type}`, `/{type}/{property}`) is routed to Rust,
+  `rust-shadow` until CI e2e confirms.
+- **CI:** GitHub `kgatman/dhis2-rs`. `ci` and `e2e-through-gateway` green at `e6949d6` (with the
+  `/api/me` sub-resources on Rust).
 
 ## Ledger
 
 | Inventory | Total | `java` | `rust-shadow` | `rust` |
 |---|---:|---:|---:|---:|
-| Endpoint rows (method × path), `docs/inventory/endpoints.csv` | 3092 | 3080 | 6 | 6 |
-| — distinct handler methods | 770 | 762 | 4 | 4 |
+| Endpoint rows (method × path), `docs/inventory/endpoints.csv` | 3092 | 3077 | 3 | 12 |
+| — distinct handler methods | 770 | 759 | 3 | 8 |
 | — controllers | 195 | 195 | 0 | 0 |
 | Job types, `docs/inventory/jobs.csv` | 43 | 43 | 0 | 0 |
 | Config keys read by Rust, `docs/inventory/config-keys.csv` | 189 | — | — | 189 loadable |
 | Tables present after migrations, `docs/inventory/tables.csv` | 309 | — | — | 0 read/written |
 
 Regenerate the inventory with `tools/gen-inventory.sh`. CI fails if it is stale.
+
+## Phase 2, slice 4 (session 2): `/api/schemas`
+
+- Ported `SchemaController#getSchemas`, `getSchema`, `getSchemaProperty` (JSON; XML and field
+  transformers fall back; `validateSchema` stays on Java).
+- **Registered schemas captured from Java** (ADR 0007): `tools/gen-registered-schemas.sh` records
+  `/api/schemas` of the pinned build (116 schemas, Hibernate-derived values included) with a
+  placeholder host; `dhis-query::json_tree` loads it as field-filter beans described by the
+  dynamic schemas of `Schema`/`Property`/`Authority`/`GistPreferences` (generated with jshell).
+  Refresh the capture whenever the ref moves.
+- Measured Java quirks reproduced: links are request-dependent and written into shared objects;
+  `getSchemaProperty` shows the last request's links (none since startup) → kept as per-schema
+  state in Rust (deviation M3). `ApiVersionFilter` strips `/api/{28..44}/` before
+  `getApiPath`, so versioned requests get unversioned links. Lookup is by exact singular name;
+  properties by `Property#key()` (collection name for collections).
+- Java reorders schemas (ties in `order`), `references` and `properties` on every restart
+  (content identical): Rust serves the captured order (M4); diffcheck compares these arrays as sets
+  (new `[[unordered]]` rule, reasons in `rules.toml`). diffcheck rule paths now ignore the API
+  version like Java.
+- `WebMessage` gained `errorCode` (after the listed properties, as Jackson orders it): 404s
+  carry `E1005`.
+- Evidence: `corpus/phase2/schemas.jsonl` **333/333** (all 116 types, fields variants, links with
+  `X-Forwarded-*`, link-state sequences) against a Java restarted after the capture; full phase-2
+  corpus **802/802** through `config/routes.toml`; shadow **1216 match / 0 mismatch**. One shadow-mode diffcheck run had 25 failures that did not
+  reproduce in four later runs (output not kept).
+- Latency (release build, session cookie, 60 requests): full list p95 Rust 33 ms vs Java 37 ms;
+  small responses are 2–5 ms slower, see open problem 7.
 
 ## Phase 2, slice 3 (session 2): `/api/me` authorities and settings
 
@@ -158,18 +185,23 @@ Tracer bullet that built the shared Web API layer every later endpoint reuses:
    canonicalisation, no XML/CSV normalisers yet. Shadow mode covers reads.
 6. **`dhis-test-e2e` upstream flakiness is unknown.** Run `e2e.yml` with `baseline: true` once to
    record which tests fail without the gateway.
+7. **Delegated auth costs a full `/api/me` per Rust request** (measured: 3.4 ms p50, 8 ms p95;
+   Java builds the whole `MeDto` — programs, data sets, PATs, ACL — whatever `fields` asks).
+   Small Rust responses are therefore 2–5 ms slower than Java at p95 (`/api/system/uid` p95 7.1
+   vs 1.1 ms, `/api/me/authorities/ALL` 5.6 vs 1.7 ms), against the charter's p95 rule. Needs a
+   decision on the auth call (owner).
 
 ## Next three tasks (end of session 2)
 
-1. **CI e2e with the `/api/me` sub-resources on Rust**, then mark the six rows `rust`.
+1. **CI e2e with `/api/schemas` on Rust**, then mark the three rows `rust`. Decide how to cut the
+   delegated-auth cost (open problem 7).
 2. **`/api/me`** (MeController GET): `MeDto` through the field filter. Needs the registered `User`
    schema, ACL (`access`, filtered groups/roles), programs/data sets the user can read, PATs,
    impersonation flags, field transformers (`rename`, `size`, `isEmpty`, `pluck`, `keyBy`), and
    `settings[...]` with confidential values (not in the ADR 0006 snapshot).
-3. **Registered schemas** (`/api/schemas`, `dhis-schema`): generate descriptors for all ~150
-   metadata classes from Java (`/api/schemas?fields=:all` of the pinned build, or the jshell
-   route), then port `SchemaController`. Probably before task 2, since `/api/me` needs the
-   `User` schema.
+3. **Generic metadata reads** (`AbstractFullReadOnlyController` GET list/object for one simple
+   type, e.g. `/api/constants`): paging, `filter=`, `order=`, sharing/ACL read checks, using the
+   captured schemas.
 
 ## Earlier plan for slice 2 (done)
 

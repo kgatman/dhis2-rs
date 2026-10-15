@@ -13,6 +13,10 @@ classes=(
   org.hisp.dhis.system.SystemInfo
   org.hisp.dhis.system.database.DatabaseInfo
   org.hisp.dhis.system.capability.SystemCapability
+  org.hisp.dhis.schema.Schema
+  org.hisp.dhis.schema.Property
+  org.hisp.dhis.schema.GistPreferences
+  org.hisp.dhis.security.Authority
 )
 cp=$(ls "$app"/libs/*.jar | tr '\n' ':')$app/classes
 out=$(mktemp)

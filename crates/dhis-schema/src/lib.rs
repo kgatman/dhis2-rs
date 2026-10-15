@@ -139,14 +139,29 @@ const DYNAMIC: &[(&str, &str)] = &[
     dynamic!("org.hisp.dhis.system.SystemInfo"),
     dynamic!("org.hisp.dhis.system.database.DatabaseInfo"),
     dynamic!("org.hisp.dhis.system.capability.SystemCapability"),
+    dynamic!("org.hisp.dhis.schema.Schema"),
+    dynamic!("org.hisp.dhis.schema.Property"),
+    dynamic!("org.hisp.dhis.schema.GistPreferences"),
+    dynamic!("org.hisp.dhis.security.Authority"),
 ];
 
 static SCHEMAS: LazyLock<BTreeMap<&'static str, Schema>> = LazyLock::new(|| {
     DYNAMIC
         .iter()
         .map(|(klass, json)| {
-            let properties: BTreeMap<String, Property> = serde_json::from_str(json)
+            let mut raw: BTreeMap<String, serde_json::Value> = serde_json::from_str(json)
                 .unwrap_or_else(|e| panic!("bad generated schema for {klass}: {e}"));
+            // DefaultSchemaService#updateSelf drops the `__schema__` pseudo-property (from
+            // `@JacksonXmlRootElement`) from every schema, dynamic ones included.
+            raw.remove("__schema__");
+            let properties: BTreeMap<String, Property> = raw
+                .into_iter()
+                .map(|(k, v)| {
+                    let p = serde_json::from_value(v)
+                        .unwrap_or_else(|e| panic!("bad generated property {klass}.{k}: {e}"));
+                    (k, p)
+                })
+                .collect();
             (
                 *klass,
                 Schema {
@@ -157,6 +172,14 @@ static SCHEMAS: LazyLock<BTreeMap<&'static str, Schema>> = LazyLock::new(|| {
         })
         .collect()
 });
+
+/// The registered schemas (`SchemaService#getSortedSchemas`) as Java renders them, captured from
+/// the pinned build by `tools/gen-registered-schemas.sh` (ADR 0007). Links (`href`,
+/// `apiEndpoint`) carry the placeholder base [`CAPTURE_API_PATH`].
+pub const REGISTERED_SCHEMAS_JSON: &str = include_str!("../data/registered/schemas.json");
+
+/// The API path the registered schemas were captured with; replaced by the request's API path.
+pub const CAPTURE_API_PATH: &str = "http://rust-capture.invalid/api";
 
 /// `SchemaService#getSchema(Class)`. Classes Java would describe with a property-less dynamic
 /// schema (JDK types such as `java.lang.String`, `java.util.Map`) have none here (`None`).
