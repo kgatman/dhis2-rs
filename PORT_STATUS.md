@@ -2,7 +2,7 @@
 
 _Read this first at the start of every session; update it at the end._
 
-- **Last updated:** 2026-10-15 (session 1)
+- **Last updated:** 2026-10-15 (session 1, continued)
 - **Java reference:** dhis2-core `2a7855b69e` (2.44-SNAPSHOT), pinned in `ci/dhis2-core.ref`
 - **Current phase:** 1 (Foundations). Phase 0 (inventory) is done.
 
@@ -10,8 +10,8 @@ _Read this first at the start of every session; update it at the end._
 
 | Inventory | Total | `java` | `rust-shadow` | `rust` |
 |---|---:|---:|---:|---:|
-| Endpoint rows (method × path), `docs/inventory/endpoints.csv` | 3086 | 3086 | 0 | 0 |
-| — distinct handler methods | 764 | 764 | 0 | 0 |
+| Endpoint rows (method × path), `docs/inventory/endpoints.csv` | 3092 | 3092 | 0 | 0 |
+| — distinct handler methods | 770 | 770 | 0 | 0 |
 | — controllers | 195 | 195 | 0 | 0 |
 | Job types, `docs/inventory/jobs.csv` | 43 | 43 | 0 | 0 |
 | Config keys read by Rust, `docs/inventory/config-keys.csv` | 189 | — | — | 189 loadable |
@@ -34,13 +34,31 @@ Regenerate the inventory with `tools/gen-inventory.sh`. CI fails if it is stale.
 - CI: `ci.yml` (fmt, clippy, tests, inventory drift check); `e2e.yml` (builds Java at the pinned
   ref and runs `dhis-test-e2e` through the gateway, with an optional direct baseline).
 
-## Not yet verified
+## Done later in session 1
 
-- **The e2e suite has not been run through the gateway yet.** That needs the Java image (Maven
-  build) and roughly an hour, either in CI (`e2e.yml`) or locally (`ci/e2e/run.sh`). The compose
-  wiring was checked with `docker compose config` only.
-- The inventory has not been cross-checked against a live Java instance (`/api/openapi.json`,
-  `information_schema`).
+- Java image built locally at the pinned ref (`dhis2/core-dev:local`, Maven+Jib, 13 min).
+- **Live cross-checks** (against Java at the pinned ref):
+  - `tables.csv` vs `information_schema` of the Java-migrated DB: **309/309** after two fixes
+    (tables created only inside `DO $$` blocks are now `conditional`; Flyway/PostGIS tables are
+    listed).
+  - `endpoints.csv` vs `/api/openapi.json`: 2462 common, **0 unexplained** rows. Fixing this
+    found a generator bug (same-class overloads were dropped; +6 rows). The new `openapi` column
+    marks 226 rows Spring routes but the docs hide (`@OpenApi.Ignore`/`@OpenApi.Filter`). 2
+    OpenAPI-only paths are RouteController's overridden collection handlers, a docs artifact
+    (to be confirmed with a live request).
+- Gateway **shadow mode** (GET/HEAD only, Rust compared off the request path, no added latency).
+- Phase-2 seed corpus `corpus/phase2/*.jsonl` (40 read-only cases).
+- **e2e through the gateway, partial:** the stack starts, the tests reach Java via the gateway,
+  and Java sees the test container IP (`ip: 172.30.0.10`) and the original Host. The full suite
+  did **not** complete locally: Java was OOM-killed twice (see blocker below).
+
+## Blocker
+
+- **Local Docker memory.** The Docker VM has 7.75 GB, and other stacks (`bahmni-standard-*`,
+  `vuba-*`) use about 5.5 GB of it. The e2e stack needs about 5 GB more (upstream runs it on 16 GB
+  CI runners). Options: stop those stacks during the run, raise Docker Desktop memory to 12+ GB,
+  or push to GitHub and run `.github/workflows/e2e.yml`. `E2E_LOW_MEMORY=1` (heap caps) was not
+  enough with the other stacks running.
 
 ## Open problems / risks
 
@@ -55,22 +73,22 @@ Regenerate the inventory with `tools/gen-inventory.sh`. CI fails if it is stale.
 4. **IP-sensitive Java code sees the gateway IP** (deviation G1). This is fine in e2e thanks to
    the network-namespace wiring, but must be in deployment docs.
 5. **diffcheck gaps**: no DB-row diff for writes, no snapshot/restore orchestration, no UID
-   canonicalisation, no XML/CSV normalisers yet.
+   canonicalisation, no XML/CSV normalisers yet. Shadow mode covers reads.
 6. **`dhis-test-e2e` upstream flakiness is unknown.** Run `e2e.yml` with `baseline: true` once to
    record which tests fail without the gateway.
 
 ## Next three tasks
 
-1. **Get e2e green through the gateway.** Run `.github/workflows/e2e.yml` (or `ci/e2e/run.sh`
-   with a locally built `dhis2/core-dev:local`), once with `baseline: true`. Record failures that
-   also fail on the baseline as known upstream issues in this file.
-2. **Live Java cross-check.** Start Java at the pinned ref on the Sierra Leone dump. Diff
-   `endpoints.csv` against `/api/openapi.json` and `tables.csv` against `information_schema`.
-   Fix the generator. Add a `--from-openapi` check mode to `tools/inventory`.
-3. **diffcheck for phase 2.** Add DB snapshot/restore (pg_dump template DB per run) and gateway
-   shadow mode. Seed the first corpus for `/api/schemas`, `/api/system/info` and `/api/me` from
-   `dhis-test-web-api` (`SchemaControllerTest`, `SystemControllerTest`, `MeControllerTest`) and
-   the e2e tests.
+1. **Full e2e run through the gateway, plus a direct baseline**, once the memory blocker is
+   resolved (`DHIS2_CORE_DIR=<pinned clone> ci/e2e/run.sh`, then the same suite without the
+   override). Record baseline failures here as known upstream issues.
+2. **Start phase 2 with `/api/system/info` and `/api/schemas`.** Read `SystemController`,
+   `SchemaController`, `dhis-service-schema` and their tests. Build `dhis-schema` and the
+   `WebMessage` error envelope in `dhis-web`. Mount them as `shadow` routes and drive them with
+   `corpus/phase2`.
+3. **Sierra Leone DB** for diffcheck/shadow runs (realistic data), and confirm the two
+   RouteController OpenAPI-only paths with live requests. DB snapshot/restore for write
+   comparisons is deferred to the start of phase 3, since phase 2 is read-only.
 
 ## Phase plan with sizes
 
