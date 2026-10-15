@@ -21,16 +21,23 @@ Rust cannot see that memory while authentication is delegated to Java (ADR 0004)
 
 ## Decision
 
-The delegated authentication call already asks Java's `/api/me` about the requesting user on
-every request routed to Rust. It now also requests `settings`
-(`/api/me?fields=id,username,authorities,settings`), which Java renders from the same
-`ThreadUserSettings` / session state it would use for the request itself
-(`UserSettings.toJson(false)`). Rust keeps that object verbatim (member order and JSON text), as
-`CurrentUser::settings`, and builds the settings responses from it. Per-request overrides
-(`translate=true&locale=`, `UserContextInterceptor`) are applied by Rust, as the auth call does
-not carry the client's query.
+The delegated authentication call (ADR 0004) is the one request per Rust-served request that
+Java answers from the session state. It asks for exactly what the handler needs
+(`dhis_auth::delegated::Probe`, chosen by `dhis_web::auth_probe` from the path):
 
-No extra round trip; the snapshot is exactly what Java would use at that moment.
+- `GET /api/me/authorities` (default): the session's `UserDetails#getAllAuthorities()`, in Java's
+  own iteration order;
+- `GET /api/me/settings` (for `/api/me/settings[/{key}]`): `UserSettings.toJson(false)`, rendered
+  from the same `ThreadUserSettings` / session state Java would use for the request itself.
+
+Rust keeps the result verbatim (member order and JSON text) as `CurrentUser::authorities` /
+`CurrentUser::settings`; a handler that needs the other one falls back to Java. Per-request
+overrides (`translate=true&locale=`, `UserContextInterceptor`) are applied by Rust, as the auth
+call does not carry the client's query.
+
+Both endpoints are cheap (measured 0.4–0.7 ms; the first version of this ADR used
+`/api/me?fields=...`, but `/api/me` builds the whole `MeDto` whatever `fields` asks: 2.5–8 ms per
+request, which made small Rust responses several ms slower than Java at p95).
 
 What the snapshot cannot tell (raw stored strings behind typed values, the empty-settings case)
 makes the handler fall back to Java (`user setting value`).

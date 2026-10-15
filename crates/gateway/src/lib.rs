@@ -58,7 +58,7 @@ pub struct Config {
     /// when the gateway's peer is not the real client (e.g. sharing a network namespace with it).
     pub inject_forwarded_for: bool,
     pub shadow: ShadowConfig,
-    /// Authenticate Rust-routed requests through Java's `/api/me` (phases 1–6). Off only in
+    /// Authenticate Rust-routed requests through Java (`dhis_auth::delegated`, phases 1–6). Off only in
     /// tests and for routers without authenticated endpoints.
     pub delegate_auth: bool,
 }

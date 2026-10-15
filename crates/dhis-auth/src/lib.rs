@@ -12,20 +12,18 @@ use serde::de::{MapAccess, Visitor};
 use serde::{Deserialize, Deserializer};
 use serde_json::value::RawValue;
 
-/// The authenticated user, as Rust handlers see it (`UserDetails` in Java).
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+/// The authenticated user, as Rust handlers see it (`UserDetails` in Java). Delegated
+/// authentication asks Java for one of these per request ([`delegated::Probe`]); the other is
+/// `None`, and a handler needing it falls back to Java.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct CurrentUser {
-    pub id: String,
-    pub username: String,
-    /// In the order Java listed them (`User#getAllAuthorities()`, an immutable set whose
-    /// iteration order is randomised per JVM start).
-    #[serde(default)]
-    pub authorities: Vec<String>,
-    /// `UserSettings.getCurrentSettings().toJson(false)` as Java rendered it for this request.
-    /// Java keeps user settings per session in memory (`SessionUserSettings`, refreshed on
-    /// authentication and on user-setting writes, not on system-setting writes), so they cannot
-    /// be recomputed from the database. `None` when Java did not send them.
-    #[serde(default)]
+    /// `UserDetails#getAllAuthorities()` of the session, in Java's iteration order
+    /// (`/api/me/authorities`).
+    pub authorities: Option<Vec<String>>,
+    /// `UserSettings.getCurrentSettings().toJson(false)` as Java rendered it for this request
+    /// (`/api/me/settings`). Java keeps user settings per session in memory
+    /// (`SessionUserSettings`, refreshed on authentication and on user-setting writes, not on
+    /// system-setting writes), so they cannot be recomputed from the database (ADR 0006).
     pub settings: Option<JsonMembers>,
 }
 
@@ -67,13 +65,14 @@ impl<'de> Deserialize<'de> for JsonMembers {
 }
 
 impl CurrentUser {
-    /// `UserDetails#isSuper()`: has the `ALL` authority.
-    pub fn is_super(&self) -> bool {
-        self.authorities.iter().any(|a| a == "ALL")
+    /// `UserDetails#isSuper()`: has the `ALL` authority (`None` without authorities).
+    pub fn is_super(&self) -> Option<bool> {
+        Some(self.authorities.as_ref()?.iter().any(|a| a == "ALL"))
     }
 
     /// `UserDetails#isAuthorized(String)`: super users have every authority.
-    pub fn is_authorized(&self, authority: &str) -> bool {
-        self.is_super() || self.authorities.iter().any(|a| a == authority)
+    pub fn is_authorized(&self, authority: &str) -> Option<bool> {
+        let auths = self.authorities.as_ref()?;
+        Some(auths.iter().any(|a| a == "ALL" || a == authority))
     }
 }

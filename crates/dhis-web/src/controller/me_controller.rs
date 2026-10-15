@@ -62,15 +62,18 @@ fn json_response(body: String, cache_control: Option<&'static str>) -> Response 
 }
 
 /// `getAuthorities`: `UserDetails#getAllAuthorities()`, a `new HashSet<>(Set.copyOf(...))`, so
-/// the order is the hash table's. Authorities sharing a bucket keep their insertion order, which
-/// comes from an immutable set whose order Java randomises per JVM start; the order Java lists
-/// them in `/api/me` is used for that (it matches in the cases measured, but is not guaranteed).
+/// the order is the hash table's. The delegated authentication call fetched this very set from
+/// the session (`/api/me/authorities`), so its order is Java's; re-deriving the hash order keeps
+/// it (a stable sort of an already ordered set) and checks it.
 async fn get_authorities(Authenticated(user): Authenticated, req: Request) -> Response {
     if !json_only(&req) {
         return fallback("content negotiation");
     }
+    let Some(authorities) = &user.authorities else {
+        return fallback("no authorities");
+    };
     let Some(order) = hash_set_order(
-        user.authorities.iter().map(String::as_str),
+        authorities.iter().map(String::as_str),
         Construction::Presized,
     ) else {
         return fallback("treeified hash bin");
@@ -90,10 +93,10 @@ async fn has_authority(
     let Ok(Path(authority)) = authority else {
         return fallback("path variable");
     };
-    let body = if user.is_authorized(&authority) {
-        "true"
-    } else {
-        "false"
+    let body = match user.is_authorized(&authority) {
+        Some(true) => "true",
+        Some(false) => "false",
+        None => return fallback("no authorities"),
     };
     json_response(body.into(), Some("no-store"))
 }

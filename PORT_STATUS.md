@@ -24,6 +24,20 @@ _Read this first at the start of every session; update it at the end._
 
 Regenerate the inventory with `tools/gen-inventory.sh`. CI fails if it is stale.
 
+## Delegated auth cost (session 2)
+
+- `/api/me?fields=...` as the auth call cost 2.5–8 ms per Rust request (Java builds the whole
+  `MeDto`), making small Rust responses 2–5 ms slower than Java at p95. The call is now a cheap
+  probe chosen per route (`dhis_auth::delegated::Probe`, `dhis_web::auth_probe`):
+  `/api/me/authorities` by default, `/api/me/settings` for the settings endpoints (0.4–0.7 ms).
+  Still one Java request per Rust request (no caching, ADR 0004); ADR 0006 updated.
+- Release build, session cookie, p95 Java vs Rust: `/api/system/uid` 0.8 vs 2.1 ms,
+  `/api/me/authorities/ALL` 1.6 vs 2.1, `/api/me/settings` 0.7 vs 2.7, `/api/system/info` 3.7 vs
+  3.4, `/api/schemas/dataElement` 2.8 vs 2.1, `/api/schemas` 36.5 vs 30.0. Remaining gap: G7.
+- `/api/me/authorities` now returns Java's own order (the probe is that endpoint), so M2 is gone.
+  `CurrentUser` no longer carries `id`/`username` (unused).
+- Full phase-2 corpus **802/802** after the change.
+
 ## Phase 2, slice 4 (session 2): `/api/schemas`
 
 - Ported `SchemaController#getSchemas`, `getSchema`, `getSchemaProperty` (JSON; XML and field
@@ -49,7 +63,8 @@ Regenerate the inventory with `tools/gen-inventory.sh`. CI fails if it is stale.
   corpus **802/802** through `config/routes.toml`; shadow **1216 match / 0 mismatch**. One shadow-mode diffcheck run had 25 failures that did not
   reproduce in four later runs (output not kept).
 - Latency (release build, session cookie, 60 requests): full list p95 Rust 33 ms vs Java 37 ms;
-  small responses are 2–5 ms slower, see open problem 7.
+  small responses were 2–5 ms slower until the auth call was made cheap (see "Delegated auth
+  cost").
 
 ## Phase 2, slice 3 (session 2): `/api/me` authorities and settings
 
@@ -79,8 +94,8 @@ Regenerate the inventory with `tools/gen-inventory.sh`. CI fails if it is stale.
   rule: `lastUpdated` under `/api/me` (Java stamps it on every basic-auth login).
   Fallbacks by design: non-JSON `Accept`/q-values, setting keys without the `key` prefix that
   resolve to a stored key, keys that need JSON escaping (Java writes them raw or fails with 500).
-- Deviations M2 (tie order of `/api/me/authorities`, randomised per JVM in Java) and R1 (JDK 21
-  is the reference runtime).
+- Deviation R1 (JDK 21 is the reference runtime). (M2, the tie order of `/api/me/authorities`,
+  was removed once the auth call started returning Java's own set; see "Delegated auth cost".)
 
 ## Phase 2, slice 2 (session 2): `fields=` engine and `/api/system/info`
 
@@ -185,16 +200,12 @@ Tracer bullet that built the shared Web API layer every later endpoint reuses:
    canonicalisation, no XML/CSV normalisers yet. Shadow mode covers reads.
 6. **`dhis-test-e2e` upstream flakiness is unknown.** Run `e2e.yml` with `baseline: true` once to
    record which tests fail without the gateway.
-7. **Delegated auth costs a full `/api/me` per Rust request** (measured: 3.4 ms p50, 8 ms p95;
-   Java builds the whole `MeDto` — programs, data sets, PATs, ACL — whatever `fields` asks).
-   Small Rust responses are therefore 2–5 ms slower than Java at p95 (`/api/system/uid` p95 7.1
-   vs 1.1 ms, `/api/me/authorities/ALL` 5.6 vs 1.7 ms), against the charter's p95 rule. Needs a
-   decision on the auth call (owner).
+7. **Delegated auth adds ~1–2 ms at p95** to the smallest Rust responses (one cheap Java request
+   plus the proxy hop; deviation G7). Removed by native auth (phase 7).
 
 ## Next three tasks (end of session 2)
 
-1. **CI e2e with `/api/schemas` on Rust**, then mark the three rows `rust`. Decide how to cut the
-   delegated-auth cost (open problem 7).
+1. **CI e2e with `/api/schemas` and the probe-based auth**, then mark the three schema rows `rust`.
 2. **`/api/me`** (MeController GET): `MeDto` through the field filter. Needs the registered `User`
    schema, ACL (`access`, filtered groups/roles), programs/data sets the user can read, PATs,
    impersonation flags, field transformers (`rename`, `size`, `isEmpty`, `pluck`, `keyBy`), and

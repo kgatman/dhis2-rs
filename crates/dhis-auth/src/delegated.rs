@@ -1,8 +1,8 @@
 //! Authentication delegated to the Java server (charter §2, "shared auth during transition").
 //!
 //! For each request routed to Rust, the client's credentials (all request headers minus the
-//! body-related and hop-by-hop ones) are replayed to Java's `GET /api/me`. Java then does exactly
-//! what it does for any API request: authenticates (session cookie, basic auth, PAT, OAuth2
+//! body-related and hop-by-hop ones) are replayed to a cheap Java endpoint ([`Probe`]). Java then
+//! does exactly what it does for any API request: authenticates (session cookie, basic auth, PAT, OAuth2
 //! bearer, ...), creates or touches the session and emits its `Set-Cookie` headers
 //! (`JSESSIONID` for new sessions, `SESSION_EXPIRE` from `SessionTimeoutHeaderFilter`), and logs
 //! the authentication event. Those `Set-Cookie` headers are relayed on the Rust response, so the
@@ -18,10 +18,28 @@ use hyper_util::client::legacy::Client;
 use hyper_util::client::legacy::connect::HttpConnector;
 use hyper_util::rt::TokioExecutor;
 
-use crate::CurrentUser;
+use crate::{CurrentUser, JsonMembers};
 
-/// Fields requested from `/api/me`: authority checks, plus the session-bound user settings.
-pub const ME_FIELDS: &str = "id,username,authorities,settings";
+/// What the authentication call asks Java for. Both are cheap `MeController` endpoints answered
+/// from the session (`/api/me` itself builds the whole `MeDto`: measured 2.5–8 ms against
+/// 0.4–0.7 ms), and both go through the same security filter chain, so authentication, session
+/// and cookie side effects are those of any API request.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Probe {
+    /// `GET /api/me/authorities` → [`CurrentUser::authorities`].
+    Authorities,
+    /// `GET /api/me/settings` → [`CurrentUser::settings`].
+    Settings,
+}
+
+impl Probe {
+    fn path(self) -> &'static str {
+        match self {
+            Probe::Authorities => "/api/me/authorities",
+            Probe::Settings => "/api/me/settings",
+        }
+    }
+}
 
 #[derive(Debug)]
 pub enum AuthOutcome {
@@ -116,11 +134,8 @@ impl JavaAuthenticator {
         serde_json::from_slice(&body).ok()
     }
 
-    pub async fn authenticate(&self, client_headers: &HeaderMap) -> AuthOutcome {
-        let resp = match self
-            .get(&format!("/api/me?fields={ME_FIELDS}"), client_headers)
-            .await
-        {
+    pub async fn authenticate(&self, client_headers: &HeaderMap, probe: Probe) -> AuthOutcome {
+        let resp = match self.get(probe.path(), client_headers).await {
             Ok(r) => r,
             Err(e) => return AuthOutcome::Unavailable(e),
         };
@@ -138,9 +153,21 @@ impl JavaAuthenticator {
             Ok(b) => b.to_bytes(),
             Err(e) => return AuthOutcome::Unavailable(e.to_string()),
         };
-        match serde_json::from_slice::<CurrentUser>(&body) {
+        let user = match probe {
+            Probe::Authorities => {
+                serde_json::from_slice::<Vec<String>>(&body).map(|a| CurrentUser {
+                    authorities: Some(a),
+                    settings: None,
+                })
+            }
+            Probe::Settings => serde_json::from_slice::<JsonMembers>(&body).map(|s| CurrentUser {
+                authorities: None,
+                settings: Some(s),
+            }),
+        };
+        match user {
             Ok(user) => AuthOutcome::Authenticated { user, set_cookies },
-            Err(e) => AuthOutcome::Unavailable(format!("unexpected /api/me body: {e}")),
+            Err(e) => AuthOutcome::Unavailable(format!("unexpected {} body: {e}", probe.path())),
         }
     }
 }

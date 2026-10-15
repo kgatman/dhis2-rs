@@ -26,9 +26,7 @@ fn app() -> axum::Router {
 
 fn admin() -> CurrentUser {
     CurrentUser {
-        id: "M5zQapPyTZI".into(),
-        username: "admin".into(),
-        authorities: vec!["ALL".into()],
+        authorities: Some(vec!["ALL".into()]),
         settings: None,
     }
 }

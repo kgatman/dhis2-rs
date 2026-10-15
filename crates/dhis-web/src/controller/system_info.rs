@@ -162,7 +162,9 @@ pub async fn get_system_info(
     else {
         return fallback("system info mirror unavailable");
     };
-    let superuser = user.is_super();
+    let Some(superuser) = user.is_super() else {
+        return fallback("no authorities");
+    };
     let super_values = if superuser {
         match state
             .system_info
@@ -249,7 +251,8 @@ fn build(
     user: &CurrentUser,
 ) -> Node {
     let config = &state.config;
-    let superuser = user.is_super();
+    // The handler has checked that the authorities are known.
+    let superuser = user.is_super() == Some(true);
     let now = now_millis();
     let tz_id = system_tz_id();
 

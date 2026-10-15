@@ -61,6 +61,17 @@ pub fn router(state: Arc<AppState>) -> Router {
         .with_state(state)
 }
 
+/// What delegated authentication must fetch for a request to this (normalised) path: the
+/// settings endpoints need the user settings snapshot, everything else the authorities.
+pub fn auth_probe(normalized_path: &str) -> dhis_auth::delegated::Probe {
+    use dhis_auth::delegated::Probe;
+    if normalized_path == "/api/me/settings" || normalized_path.starts_with("/api/me/settings/") {
+        Probe::Settings
+    } else {
+        Probe::Authorities
+    }
+}
+
 /// Extracts the authenticated user; without one (the gateway did not authenticate), the request
 /// goes back to Java.
 pub struct Authenticated(pub CurrentUser);

@@ -84,6 +84,7 @@ impl RustSide {
 
     pub async fn run(&self, head: &RequestHead, body: Bytes) -> RustOutcome {
         let (normalized, extension) = routes::normalize(head.uri.path());
+        let probe = dhis_web::auth_probe(&normalized);
         let path_and_query = match head.uri.query() {
             Some(q) => format!("{normalized}?{q}"),
             None => normalized,
@@ -100,7 +101,7 @@ impl RustSide {
 
         let mut set_cookies = Vec::new();
         if let Some(auth) = &self.auth {
-            match auth.authenticate(&head.headers).await {
+            match auth.authenticate(&head.headers, probe).await {
                 AuthOutcome::Authenticated {
                     user,
                     set_cookies: c,

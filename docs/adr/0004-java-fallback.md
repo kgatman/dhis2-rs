@@ -21,7 +21,7 @@ an approximation would break the drop-in guarantee.
 
 1. **Route rules list methods.** Methods not listed stay on Java, so Java answers them (405,
    handlers not ported yet).
-2. **Authentication failures go to Java.** If the delegated `/api/me` check does not return 200,
+2. **Authentication failures go to Java.** If the delegated check (a cheap `/api/me/...` request, ADR 0006) does not return 200,
    the gateway replays the original request to Java, which produces its exact 302/401/403.
 3. **A handler may return `JavaFallback { reason }`** for any branch it does not implement:
    content negotiation outside the modelled cases, `Origin`/CORS requests, unported
@@ -42,8 +42,8 @@ an approximation would break the drop-in guarantee.
   because Java answers it.
 - At cutover (phase 9) every fallback must be gone. The counters show what is left.
 - On fallback after successful delegated authentication, a basic-auth request creates one
-  extra Java session (from the `/api/me` call). Fallback responses carry Java's own
+  extra Java session (from the delegated check). Fallback responses carry Java's own
   `Set-Cookie`, so clients see no difference; the orphan session expires normally.
-- Shadow runs also authenticate through `/api/me`, so they add a session (basic auth) and an
+- Shadow runs also authenticate through the delegated check, so they add a session (basic auth) and an
   authentication event per shadowed request. That's acceptable for a validation mode; don't
   leave shadow on for heavy production traffic.
