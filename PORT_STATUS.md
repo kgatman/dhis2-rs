@@ -111,6 +111,12 @@ Tracer bullet that built the shared Web API layer every later endpoint reuses:
    fields removed for non-superusers, `setNoStore`). Needs `SystemService#getSystemInfo` (system
    settings, DB info, build info) and the `fields` grammar (`*`, `:all`, `:owner`, `[...]`,
    `!exclusions`, transformers). Port `FieldFilterParser` tests from Java first.
+   Scope note: DHIS2 has **three** field-filter engines. Phase 2's consumers
+   (`AbstractFullReadOnlyController`, `MeController`, `SchemaController`, `SystemController`)
+   use `dhis-service-field-filtering` (`org.hisp.dhis.fieldfiltering`, Jackson-based, ~1.3k LOC
+   + `FieldFilterParserTest`/`FieldFilterServiceTest`). The older `dhis-service-node`
+   `fieldfilter` engine (12 controllers: audits, data approval, dimensions, ...) and tracker's
+   `export.fieldfiltering` (20 files) come later with their phases.
 3. **`/api/me`** (MeController GET, e2e uses it on almost every test) on top of the same engine,
    then `/api/schemas`.
 
