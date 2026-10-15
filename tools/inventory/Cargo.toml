@@ -1,0 +1,21 @@
+[package]
+name = "dhis-inventory"
+description = "Generates docs/inventory/*.csv (and dhis-config's key table) from the Java dhis2-core source."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+csv.workspace = true
+quick-xml.workspace = true
+regex.workspace = true
+tree-sitter.workspace = true
+tree-sitter-java.workspace = true
+walkdir.workspace = true

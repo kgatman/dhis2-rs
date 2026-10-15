@@ -1,0 +1,44 @@
+status,name,ordinal,user_defined,parameters_class,default_uid,default_name,default_cron,default_delay_seconds,valid_user_required,using_notifications,using_error_notification,using_continuous_execution,relative_api_elements,implementations
+java,DATA_INTEGRITY,0,true,DataIntegrityJobParameters,,,,,false,false,false,true,checks=/api/dataIntegrity,DataIntegrityJob
+java,DATA_INTEGRITY_DETAILS,1,true,DataIntegrityDetailsJobParameters,,,,,false,false,false,true,checks=/api/dataIntegrity,DataIntegrityDetailsJob
+java,RESOURCE_TABLE,2,true,,,,,,false,true,false,false,,ResourceTableJob
+java,ANALYTICS_TABLE,3,true,AnalyticsJobParameters,,,,,false,true,true,false,skipTableTypes=/api/analytics/tableTypes;skipPrograms=/api/programs,AnalyticsTableJob
+java,CONTINUOUS_ANALYTICS_TABLE,4,true,ContinuousAnalyticsJobParameters,,,,,false,true,false,false,skipTableTypes=/api/analytics/tableTypes,ContinuousAnalyticsTableJob
+java,SINGLE_EVENT_DATA_SYNC,5,true,SingleEventDataSynchronizationJobParameters,,,,,true,true,false,false,,SingleEventDataSynchronizationJob
+java,TRACKED_ENTITY_DATA_SYNC,6,true,TrackerDataSynchronizationJobParameters,,,,,true,true,false,false,,TrackerDataSynchronizationJob
+java,DATA_SYNC,7,true,DataSynchronizationJobParameters,,,,,false,true,false,false,,DataSynchronizationJob
+java,META_DATA_SYNC,8,true,MetadataSyncJobParameters,,,,,true,false,false,false,,MetadataSyncJob
+java,AGGREGATE_DATA_EXCHANGE,9,true,AggregateDataExchangeJobParameters,,,,,true,false,false,false,dataExchangeIds=/api/aggregateDataExchanges,AggregateDataExchangeJob
+java,SEND_SCHEDULED_MESSAGE,10,true,,,,,,false,true,false,false,,SendScheduledMessageJob
+java,PROGRAM_NOTIFICATIONS,11,true,,,,,,false,false,true,false,,ProgramNotificationJob
+java,MONITORING,12,true,MonitoringJobParameters,,,,,false,true,false,false,relativePeriods=/api/periodTypes/relativePeriodTypes;validationRuleGroups=/api/validationRuleGroups,MonitoringJob
+java,HTML_PUSH_ANALYTICS,13,true,HtmlPushAnalyticsJobParameters,,,,,true,false,false,false,dashboard=/api/dashboards;receivers=/api/userGroups,HtmlPushAnalyticsJob
+java,TRACKER_TRIGRAM_INDEX_MAINTENANCE,14,true,TrackerTrigramIndexJobParameters,,,,,false,false,false,false,,TrackerTrigramIndexingJob
+java,PREDICTOR,15,true,PredictorJobParameters,,,,,false,true,false,false,predictors=/api/predictors;predictorGroups=/api/predictorGroups,PredictorJob
+java,MATERIALIZED_SQL_VIEW_UPDATE,16,true,SqlViewUpdateParameters,,,,,false,false,false,false,,SqlViewUpdateJob
+java,DISABLE_INACTIVE_USERS,17,true,DisableInactiveUsersJobParameters,,,,,false,false,false,false,,DisableInactiveUsersJob
+java,TEST,18,true,TestJobParameters,,,,,false,false,false,false,,TestJob
+java,LOCK_EXCEPTION_CLEANUP,19,true,LockExceptionCleanupJobParameters,,,,,false,false,false,false,,LockExceptionCleanupJob
+java,MOCK,20,false,MockJobParameters,,,,,false,false,false,false,,MockJob
+java,SMS_SEND,21,false,SmsJobParameters,,,,,false,true,false,false,,SendSmsJob
+java,SMS_INBOUND_PROCESSING,22,false,SmsInboundProcessingJobParameters,,,,,false,false,false,true,,InboundSmsProcessingJob
+java,TRACKER_IMPORT_JOB,23,false,,,,,,false,true,false,true,,TrackerImportJob
+java,TRACKER_IMPORT_NOTIFICATION_JOB,24,false,,,,,,false,false,false,false,,
+java,TRACKER_IMPORT_RULE_ENGINE_JOB,25,false,,,,,,false,false,false,false,,
+java,IMAGE_PROCESSING,26,false,,,,,,false,false,false,false,,ImageResizingJob
+java,COMPLETE_DATA_SET_REGISTRATION_IMPORT,27,false,,,,,,false,true,false,false,,ImportCompleteDataSetRegistrationsJob
+java,DATAVALUE_IMPORT_INTERNAL,28,false,,,,,,false,false,false,false,,
+java,METADATA_IMPORT,29,false,,,,,,false,true,true,true,,MetadataImportJob
+java,DATAVALUE_IMPORT,30,false,ImportOptions,,,,,false,true,true,false,,DataEntryJob
+java,GEOJSON_IMPORT,31,false,GeoJsonImportJobParams,,,,,false,true,false,true,,GeoJsonImportJob
+java,GML_IMPORT,32,false,,,,,,false,false,false,false,,
+java,HOUSEKEEPING,33,false,,DHIS2rocks1,Housekeeping,,20,false,false,false,false,,HousekeepingJob
+java,DATA_VALUE_TRIM,34,false,,D2datatrim8,Data value trim,0 0 1 ? * *,,false,false,false,false,,DataValueTrimJob
+java,DATA_SET_NOTIFICATION,35,false,,YvAwAmrqAtN,Dataset notification,0 0 2 ? * *,,false,true,true,false,,DataSetNotificationJob
+java,CREDENTIALS_EXPIRY_ALERT,36,false,,sHMedQF7VYa,Credentials expiry alert,0 0 2 ? * *,,false,false,false,false,,CredentialsExpiryAlertJob
+java,DATA_STATISTICS,37,false,,BFa3jDsbtdO,Data statistics,0 0 2 ? * *,,false,false,false,false,,DataStatisticsJob
+java,FILE_RESOURCE_CLEANUP,38,false,,pd6O228pqr0,File resource clean up,0 0 2 ? * *,,false,false,false,false,,FileResourceCleanUpJob
+java,ACCOUNT_EXPIRY_ALERT,39,false,,fUWM1At1TUx,User account expiry alert,0 0 2 ? * *,,false,false,false,false,,AccountExpiryAlertJob
+java,VALIDATION_RESULTS_NOTIFICATION,40,false,,Js3vHn2AVuG,Validation result notification,0 0 7 ? * *,,false,true,true,false,,ValidationResultNotificationJob
+java,REMOVE_USED_OR_EXPIRED_RESERVED_VALUES,41,false,,uwWCT2BMmlq,Remove expired or used reserved values,0 0 2 ? * *,,false,false,false,false,,RemoveUsedOrExpiredReservedValuesJob
+java,SYSTEM_VERSION_UPDATE_CHECK,42,false,,vt21671bgno,System version update check notification,<random sec> <random min> <random 3-5> ? * *,,false,true,true,false,,SystemUpdateNotificationAlertJob
