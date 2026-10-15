@@ -28,7 +28,11 @@ Java answers from the session state. It asks for exactly what the handler needs
 - `GET /api/me/authorities` (default): the session's `UserDetails#getAllAuthorities()`, in Java's
   own iteration order;
 - `GET /api/me/settings` (for `/api/me/settings[/{key}]`): `UserSettings.toJson(false)`, rendered
-  from the same `ThreadUserSettings` / session state Java would use for the request itself.
+  from the same `ThreadUserSettings` / session state Java would use for the request itself;
+- both (`Probe::AuthoritiesAndSettings`, Gist lists: ADR 0008): at once when the request is on
+  an existing session; otherwise the settings call follows on the session the authorities call
+  created (`JSESSIONID`, credentials dropped), so Java sees one authentication. Credentials that
+  create no session (tokens) get no settings, and the handler falls back.
 
 Rust keeps the result verbatim (member order and JSON text) as `CurrentUser::authorities` /
 `CurrentUser::settings`; a handler that needs the other one falls back to Java. Per-request

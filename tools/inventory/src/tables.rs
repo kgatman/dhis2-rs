@@ -98,16 +98,13 @@ fn files_with_suffix(root: &Path, suffix: &str) -> Vec<PathBuf> {
 // Hibernate mappings
 // ---------------------------------------------------------------------------------------------
 
-fn hbm_tables(dhis2: &Path) -> Result<BTreeMap<String, TableInfo>> {
+/// Every `*.hbm.xml` (path relative to `dhis-2/`, content) with its `classpath://` external
+/// entities (e.g. `&identifiableProperties;`) expanded and the DOCTYPE removed.
+pub fn expanded_hbm_files(dhis2: &Path) -> Result<Vec<(String, String)>> {
     let doctype = Regex::new(r"(?s)<!DOCTYPE.*?(\[.*?\])?\s*>")?;
     let entity_decl = Regex::new(r#"<!ENTITY\s+(\w+)\s+SYSTEM\s+"classpath://([^"]+)"\s*>"#)?;
     let resources: Vec<PathBuf> = files_with_suffix(dhis2, ".hbm");
-
-    let mut tables: BTreeMap<String, TableInfo> = BTreeMap::new();
-    let mut entity_table: HashMap<String, String> = HashMap::new();
-    // (child entity class, key column, file) for one-to-many collections without a table.
-    let mut pending_fk: Vec<(String, String, String)> = Vec::new();
-
+    let mut out = Vec::new();
     for path in files_with_suffix(dhis2, ".hbm.xml") {
         let raw = std::fs::read_to_string(&path)?;
         let mut xml = raw.clone();
@@ -127,8 +124,20 @@ fn hbm_tables(dhis2: &Path) -> Result<BTreeMap<String, TableInfo>> {
             .unwrap_or(&path)
             .display()
             .to_string();
+        out.push((file, xml));
+    }
+    Ok(out)
+}
+
+fn hbm_tables(dhis2: &Path) -> Result<BTreeMap<String, TableInfo>> {
+    let mut tables: BTreeMap<String, TableInfo> = BTreeMap::new();
+    let mut entity_table: HashMap<String, String> = HashMap::new();
+    // (child entity class, key column, file) for one-to-many collections without a table.
+    let mut pending_fk: Vec<(String, String, String)> = Vec::new();
+
+    for (file, xml) in expanded_hbm_files(dhis2)? {
         parse_hbm(&xml, &file, &mut tables, &mut entity_table, &mut pending_fk)
-            .with_context(|| format!("parsing {}", path.display()))?;
+            .with_context(|| format!("parsing {file}"))?;
     }
 
     for (entity, column, file) in pending_fk {

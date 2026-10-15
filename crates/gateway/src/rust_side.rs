@@ -16,7 +16,7 @@ use dhis_auth::delegated::{AuthOutcome, JavaAuthenticator};
 use dhis_web::http::{JavaFallback, RequestContext};
 use http::{HeaderMap, Method, Request, Response, Uri, Version, header};
 use tower::ServiceExt;
-use tracing::{error, info};
+use tracing::{debug, error, info};
 
 use crate::routes;
 
@@ -129,6 +129,12 @@ impl RustSide {
                 .entry(fb.reason)
                 .or_default() += 1;
             info!(method = %head.method, path = %head.uri.path(), reason = fb.reason, "fallback to Java");
+            // the query can carry values worth keeping out of normal logs
+            debug!(
+                query = head.uri.query().unwrap_or(""),
+                reason = fb.reason,
+                "fallback query"
+            );
             return RustOutcome::Fallback(fb.reason);
         }
         let mut resp = resp;

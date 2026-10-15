@@ -112,3 +112,20 @@ methods = ["GET", "HEAD"]
 path = "/api/schemas/{type}/{property}"
 backend = "rust"
 note = "SchemaController#getSchemaProperty"
+
+# ConstantController (AbstractFullReadOnlyController#getObjectList via the GistBridge, and
+# AbstractGistReadOnlyController#getObjectListGist), ADR 0008. diffcheck
+# corpus/phase2/constants.jsonl: 244/244 through rust routes. Shadow only for now: just superusers
+# are answered by Rust (the sharing filter needs the user's id and groups, which delegated auth
+# does not provide), and routing everyone to Rust would add the auth calls to the fallbacks.
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/constants"
+backend = "shadow"
+note = "ConstantController#getObjectList (Gist bridge)"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/constants/gist"
+backend = "shadow"
+note = "ConstantController#getObjectListGist"

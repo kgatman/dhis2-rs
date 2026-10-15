@@ -11,6 +11,7 @@ publish.workspace = true
 workspace = true
 
 [dependencies]
+regex.workspace = true
 thiserror.workspace = true
 dhis-core-model.workspace = true
 dhis-schema.workspace = true

@@ -6,23 +6,58 @@ _Read this first at the start of every session; update it at the end._
 - **Java reference:** dhis2-core `2a7855b69e` (2.44-SNAPSHOT), pinned in `ci/dhis2-core.ref`
 - **Current phase:** 2 (read-only metadata). Slices 1–3 (`/api/system/{uid,id,uuid}`,
   `/api/system/info` + the `fields=` engine, the `/api/me` authorities and settings sub-resources)
-  are `rust`. Slice 4 (`/api/schemas`, `/{type}`, `/{type}/{property}`) is routed to Rust,
-  `rust-shadow` until CI e2e confirms.
-- **CI:** GitHub `kgatman/dhis2-rs`. `ci` and `e2e-through-gateway` green at `e6949d6` (with the
-  `/api/me` sub-resources on Rust).
+  and slice 4 (`/api/schemas`, `/{type}`, `/{type}/{property}`) are `rust`. Slice 5 (the Gist
+  engine: `/api/constants` via the Gist bridge and `/api/constants/gist`) is `rust-shadow`
+  (superusers only, see open problem 8).
+- **CI:** GitHub `kgatman/dhis2-rs`. `ci` and `e2e-through-gateway` green at `b7f2d1f` (with the
+  `/api/schemas` handlers on Rust).
 
 ## Ledger
 
 | Inventory | Total | `java` | `rust-shadow` | `rust` |
 |---|---:|---:|---:|---:|
-| Endpoint rows (method × path), `docs/inventory/endpoints.csv` | 3092 | 3077 | 3 | 12 |
-| — distinct handler methods | 770 | 759 | 3 | 8 |
+| Endpoint rows (method × path), `docs/inventory/endpoints.csv` | 3092 | 3075 | 2 | 15 |
+| — distinct handler methods | 770 | 757 | 2 | 11 |
 | — controllers | 195 | 195 | 0 | 0 |
 | Job types, `docs/inventory/jobs.csv` | 43 | 43 | 0 | 0 |
 | Config keys read by Rust, `docs/inventory/config-keys.csv` | 189 | — | — | 189 loadable |
 | Tables present after migrations, `docs/inventory/tables.csv` | 309 | — | — | 0 read/written |
 
 Regenerate the inventory with `tools/gen-inventory.sh`. CI fails if it is stale.
+
+## Phase 2, slice 5 (session 2): the Gist engine, on `/api/constants`
+
+- Finding: `AbstractFullReadOnlyController#getObjectList` hands most list requests to the **Gist
+  engine** (`GistBridge`; the default `fields=id,displayName` qualifies), so `/api/{type}` lists
+  are usually Gist responses (`"gist":true`, json-tree JSON, not Jackson). Only `fields=*`,
+  presets, `query`, `paging=false` and the like use the metadata query engine.
+- `dhis-inventory` now also writes `crates/dhis-schema/data/hibernate/hbm-entities.json`
+  (table, id column, column/relation per property, from the `*.hbm.xml` files; drift-checked);
+  all 1694 columns verified against the Java-migrated DB. JPA-mapped classes not covered yet.
+- `dhis-schema`: typed registered schemas (`registered::by_singular/by_klass`), the extra
+  `Property` members (readable, sortable, translatable, relation flags, gist preferences), and
+  the mappings (`hibernate::entity`).
+- `dhis_query::gist` (ADR 0008): filter/order parsing, `GistBridge` decision (14 cases checked
+  against Java), planner/validator/SQL builder for list queries, json-tree output (fixtures from
+  the server image: `tools/gen-json-tree-fixtures.sh`, 441 doubles), Spring's pager links.
+  Supported: simple/translated/`href`/reference fields, presets but `:identifiable`/`:nameable`,
+  filters and orders on simple persisted properties, paging/totals/links, `headless`, `unwrap`,
+  `absoluteUrls`, `references`, `auto`, `locale`. Everything else and every Java error response
+  falls back.
+- `dhis-web`: `metadata_controller` (generic, types listed in `GIST_TYPES`: `constant`), Spring
+  binding of the Gist/list parameters (repeated string parameters joined with commas, other
+  types strict). `dhis-auth`: `Probe::AuthoritiesAndSettings` (the translation locale is the
+  session's `keyDbLocale`); at once on a session, sequential for basic auth (ADR 0006).
+- Fixtures (`corpus/phase2/setup.sh`): 60 constants with codes, descriptions, translations and
+  four sharing patterns, a user group, and a superuser `corpussuper` with database locale `fr`.
+- Evidence: `corpus/phase2/constants.jsonl` **244/244** through rust routes (157 answered by
+  Rust, the rest fall back by design: unported features, non-superusers, Java errors); full
+  phase-2 corpus **1046/1046**; shadow **163 match / 0 mismatch**.
+- Latency (release, session cookie, p95 Java vs Rust): `/api/constants` 2.4 vs 2.8 ms, 60 rows
+  with 5 fields 2.7 vs 2.8, `/gist?fields=id,name` 1.9 vs 2.3, `/gist` (all fields) 2.2 vs 3.1,
+  filtered+ordered page with total 8.3 vs 3.3 (G7).
+- Routes are `shadow`: non-superusers fall back after the two auth calls, which would make their
+  requests slower than Java.
 
 ## Delegated auth cost (session 2)
 
@@ -202,17 +237,33 @@ Tracer bullet that built the shared Web API layer every later endpoint reuses:
    record which tests fail without the gateway.
 7. **Delegated auth adds ~1–2 ms at p95** to the smallest Rust responses (one cheap Java request
    plus the proxy hop; deviation G7). Removed by native auth (phase 7).
+8. **Identity for sharing checks.** Every list of a shareable type needs, for non-superusers, a
+   sharing filter on the session user's id and group ids (`UserDetails`, a snapshot taken at
+   login). No cheap Java endpoint returns them (`/api/me` builds the whole `MeDto`, 2.5–8 ms);
+   sessions live in Tomcat's memory. Until decided, Gist routes serve superusers only and stay
+   `shadow`. Options: an expensive `/api/me?fields=id,userGroups[id]` probe (slower than Java),
+   the database for basic auth only (Java rebuilds `UserDetails` per basic-auth request, so that
+   is exact) with fallback for sessions, or native sessions earlier than phase 7 (phase-order
+   change: owner decision).
 
 ## Next three tasks (end of session 2)
 
-1. **CI e2e with `/api/schemas` and the probe-based auth**, then mark the three schema rows `rust`.
-2. **`/api/me`** (MeController GET): `MeDto` through the field filter. Needs the registered `User`
-   schema, ACL (`access`, filtered groups/roles), programs/data sets the user can read, PATs,
-   impersonation flags, field transformers (`rename`, `size`, `isEmpty`, `pluck`, `keyBy`), and
-   `settings[...]` with confidential values (not in the ADR 0006 snapshot).
-3. **Generic metadata reads** (`AbstractFullReadOnlyController` GET list/object for one simple
-   type, e.g. `/api/constants`): paging, `filter=`, `order=`, sharing/ACL read checks, using the
-   captured schemas.
+1. **Decide identity for non-superusers** (open problem 8, owner decision), then the sharing
+   filter (`JpaQueryUtils.generateHqlQueryForSharingCheck`) and `aclService.canRead(user, type)`,
+   and flip the Gist routes to `rust` once CI e2e is green.
+2. **Widen the Gist port**: JSONB values (`sharing`, `translations`, `attributeValues`, `access`),
+   collections (`size`, `ids`, `pluck`), nested reference fields, date filters, single-object
+   `/api/{type}/{uid}/gist`; then more types (needs JPA mappings in the generator for some).
+3. **Metadata query engine** for the non-Gist lists (`fields=*`, presets) and
+   `getObject`: `QueryService`, the field filter over DB-loaded entities, `href`/`access`.
+   `/api/me` (`MeDto`) follows, as it needs the same pieces.
+
+## Earlier next-tasks (start of slice 5, done or superseded)
+
+1. CI e2e with `/api/schemas` and the probe-based auth, then the three schema rows `rust` (done:
+   green at `b7f2d1f`).
+2. `/api/me` (MeController GET), moved behind the metadata engine.
+3. Generic metadata reads for `/api/constants` (slice 5, in shadow).
 
 ## Earlier plan for slice 2 (done)
 

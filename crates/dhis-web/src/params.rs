@@ -33,6 +33,11 @@ impl Params {
             .map(|(_, v)| v.as_str())
     }
 
+    /// Every parameter name, once per occurrence, in request order.
+    pub fn names(&self) -> impl Iterator<Item = &str> {
+        self.0.iter().map(|(k, _)| k.as_str())
+    }
+
     /// All values of `name`, in request order (`getParameterValues`).
     pub fn all(&self, name: &str) -> Vec<&str> {
         self.0

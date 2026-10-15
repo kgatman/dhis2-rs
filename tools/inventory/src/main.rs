@@ -7,6 +7,7 @@
 //! - `docs/inventory/config-keys.csv`— every `ConfigurationKey`
 //! - `docs/inventory/jobs.csv`       — every `JobType`
 //! - `crates/dhis-config/src/keys_generated.rs`
+//! - `crates/dhis-schema/data/hibernate/hbm-entities.json` — table/columns per hbm-mapped class
 //!
 //! The `status` columns (`java` -> `rust-shadow` -> `rust`) are preserved across regenerations.
 //! `--check` fails if any output would change (used in CI to catch drift).
@@ -14,6 +15,7 @@
 mod config_keys;
 mod endpoints;
 mod eval;
+mod hibernate;
 mod java;
 mod jobs;
 mod openapi;
@@ -131,6 +133,13 @@ fn main() -> Result<()> {
     // Tables.
     let rows = tables::extract(&dhis2, &idx)?;
     outputs.push((out_dir.join("tables.csv"), to_csv(tables::COLUMNS, &rows)?));
+
+    // Hibernate mappings for Rust's own SQL.
+    outputs.push((
+        args.repo_root
+            .join("crates/dhis-schema/data/hibernate/hbm-entities.json"),
+        hibernate::extract(&dhis2)?,
+    ));
 
     let mut drift = Vec::new();
     for (path, content) in &outputs {

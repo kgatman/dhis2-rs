@@ -1,0 +1,247 @@
+# Phase 2 corpus for the Gist engine and the metadata list bridge, on /api/constants
+# (fixtures from corpus/phase2/setup.sh: 60 constants, users corpussuper and corpusbasic).
+# Read-only requests only. Sources: GistControllerTest & co. in dhis-test-web-api, plus edge cases.
+{"name": "gist default", "method": "GET", "path": "/api/constants/gist", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields id", "method": "GET", "path": "/api/constants/gist?fields=id", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields id,name", "method": "GET", "path": "/api/constants/gist?fields=id,name", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields id,code", "method": "GET", "path": "/api/constants/gist?fields=id,code", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields code (null single column)", "method": "GET", "path": "/api/constants/gist?fields=code", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields value unwrapped", "method": "GET", "path": "/api/constants/gist?fields=value", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields value filtered", "method": "GET", "path": "/api/constants/gist?fields=value&filter=value:ge:-2&filter=value:le:2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields name unwrapped", "method": "GET", "path": "/api/constants/gist?fields=name&pageSize=5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields created", "method": "GET", "path": "/api/constants/gist?fields=created&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields lastUpdated,created,id", "method": "GET", "path": "/api/constants/gist?fields=lastUpdated,created,id&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields lastUpdatedBy", "method": "GET", "path": "/api/constants/gist?fields=lastUpdatedBy&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields id,lastUpdatedBy", "method": "GET", "path": "/api/constants/gist?fields=id,lastUpdatedBy&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields createdBy,id", "method": "GET", "path": "/api/constants/gist?fields=createdBy,id&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields href", "method": "GET", "path": "/api/constants/gist?fields=href&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields href,id", "method": "GET", "path": "/api/constants/gist?fields=href,id&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields id,href,lastUpdatedBy absolute", "method": "GET", "path": "/api/constants/gist?fields=id,href,lastUpdatedBy&absoluteUrls=true&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields displayName", "method": "GET", "path": "/api/constants/gist?fields=displayName&pageSize=10", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields id,displayName,displayShortName,displayDescription", "method": "GET", "path": "/api/constants/gist?fields=id,displayName,displayShortName,displayDescription&pageSize=15", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields displayFormName", "method": "GET", "path": "/api/constants/gist?fields=id,displayFormName&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields formName", "method": "GET", "path": "/api/constants/gist?fields=id,formName&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields star", "method": "GET", "path": "/api/constants/gist?fields=*&pageSize=5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields all", "method": "GET", "path": "/api/constants/gist?fields=:all&pageSize=5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields star minus code", "method": "GET", "path": "/api/constants/gist?fields=*,!code&pageSize=5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields star minus lastUpdatedBy", "method": "GET", "path": "/api/constants/gist?fields=*,-lastUpdatedBy&pageSize=5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields exclude before star", "method": "GET", "path": "/api/constants/gist?fields=!code,*&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields persisted", "method": "GET", "path": "/api/constants/gist?fields=:persisted&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields owner", "method": "GET", "path": "/api/constants/gist?fields=:owner&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields identifiable", "method": "GET", "path": "/api/constants/gist?fields=:identifiable&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields nameable", "method": "GET", "path": "/api/constants/gist?fields=:nameable&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields bogus preset", "method": "GET", "path": "/api/constants/gist?fields=:bogus&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields sharing", "method": "GET", "path": "/api/constants/gist?fields=id,sharing&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields access", "method": "GET", "path": "/api/constants/gist?fields=id,access&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields translations", "method": "GET", "path": "/api/constants/gist?fields=id,translations&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields attributeValues", "method": "GET", "path": "/api/constants/gist?fields=id,attributeValues&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields nested", "method": "GET", "path": "/api/constants/gist?fields=id,lastUpdatedBy.name&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields unknown", "method": "GET", "path": "/api/constants/gist?fields=id,nope", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields rename", "method": "GET", "path": "/api/constants/gist?fields=id~rename(uid),name::rename(label)&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields displayName rename", "method": "GET", "path": "/api/constants/gist?fields=displayName~rename(n)&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields duplicate", "method": "GET", "path": "/api/constants/gist?fields=id,id,name&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields user", "method": "GET", "path": "/api/constants/gist?fields=id,user&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields empty", "method": "GET", "path": "/api/constants/gist?fields=&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist fields invalid", "method": "GET", "path": "/api/constants/gist?fields=id[&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist auto XS", "method": "GET", "path": "/api/constants/gist?auto=XS&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist auto M", "method": "GET", "path": "/api/constants/gist?auto=M&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist auto L", "method": "GET", "path": "/api/constants/gist?auto=L&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist auto XL", "method": "GET", "path": "/api/constants/gist?auto=XL&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist auto lower", "method": "GET", "path": "/api/constants/gist?auto=s&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter eq name", "method": "GET", "path": "/api/constants/gist?fields=id,name&filter=name:eq:Corpus%20constant%2007", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter eq id", "method": "GET", "path": "/api/constants/gist?fields=id,name&filter=id:eq:Crp0Cnst011", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter ieq", "method": "GET", "path": "/api/constants/gist?fields=id,name&filter=name:ieq:CORPUS%20CONSTANT%2007", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter ne", "method": "GET", "path": "/api/constants/gist?fields=id&filter=code:ne:CORPUS_C01&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter !eq", "method": "GET", "path": "/api/constants/gist?fields=id&filter=code:!eq:CORPUS_C01&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter neq", "method": "GET", "path": "/api/constants/gist?fields=id&filter=code:neq:CORPUS_C01&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter lt value", "method": "GET", "path": "/api/constants/gist?fields=id,value&filter=value:lt:-15", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter le value", "method": "GET", "path": "/api/constants/gist?fields=id,value&filter=value:le:-15", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter gt value", "method": "GET", "path": "/api/constants/gist?fields=id,value&filter=value:gt:50", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter ge value", "method": "GET", "path": "/api/constants/gist?fields=id,value&filter=value:ge:50", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter gte value", "method": "GET", "path": "/api/constants/gist?fields=id,value&filter=value:gte:50.0", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter value exp", "method": "GET", "path": "/api/constants/gist?fields=id,value&filter=value:lt:-1.5e1", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter value int form", "method": "GET", "path": "/api/constants/gist?fields=id,value&filter=value:eq:55", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter value bad", "method": "GET", "path": "/api/constants/gist?fields=id,value&filter=value:eq:abc", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter value trailing dot", "method": "GET", "path": "/api/constants/gist?fields=id,value&filter=value:eq:1.", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter value leading zero", "method": "GET", "path": "/api/constants/gist?fields=id,value&filter=value:eq:01", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter in ids", "method": "GET", "path": "/api/constants/gist?fields=id&filter=id:in:[Crp0Cnst001,Crp0Cnst005,Crp0Cnst009]", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter in one", "method": "GET", "path": "/api/constants/gist?fields=id&filter=id:in:[Crp0Cnst002]", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter in empty", "method": "GET", "path": "/api/constants/gist?fields=id&filter=id:in:[]", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter !in", "method": "GET", "path": "/api/constants/gist?fields=id&filter=id:!in:[Crp0Cnst001,Crp0Cnst002]&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter in values", "method": "GET", "path": "/api/constants/gist?fields=id,value&filter=value:in:[0,1.25,55]", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter null code", "method": "GET", "path": "/api/constants/gist?fields=id,code&filter=code:null&pageSize=4", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter !null code", "method": "GET", "path": "/api/constants/gist?fields=id,code&filter=code:!null&pageSize=4", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter null with arg", "method": "GET", "path": "/api/constants/gist?fields=id&filter=code:null:x", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter eq without arg", "method": "GET", "path": "/api/constants/gist?fields=id&filter=code:eq", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter eq two args", "method": "GET", "path": "/api/constants/gist?fields=id&filter=code:eq:[a,b]", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter empty description", "method": "GET", "path": "/api/constants/gist?fields=id&filter=description:empty&pageSize=4", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter !empty description", "method": "GET", "path": "/api/constants/gist?fields=id&filter=description:!empty&pageSize=4", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter empty code", "method": "GET", "path": "/api/constants/gist?fields=id&filter=code:empty&pageSize=4", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter empty value", "method": "GET", "path": "/api/constants/gist?fields=id&filter=value:empty&pageSize=4", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter length gt", "method": "GET", "path": "/api/constants/gist?fields=id,name&filter=name:gt:5&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter length eq", "method": "GET", "path": "/api/constants/gist?fields=id,name&filter=name:eq:18&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter length lt", "method": "GET", "path": "/api/constants/gist?fields=id,name&filter=description:lt:45&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter code gt string", "method": "GET", "path": "/api/constants/gist?fields=id,code&filter=code:gt:CORPUS_C50", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter like", "method": "GET", "path": "/api/constants/gist?fields=id,name&filter=name:like:stant%201&pageSize=20", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter like wildcard", "method": "GET", "path": "/api/constants/gist?fields=id,name&filter=name:like:*stant%20?3&pageSize=20", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter !like", "method": "GET", "path": "/api/constants/gist?fields=id&filter=name:!like:1&pageSize=5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter $like", "method": "GET", "path": "/api/constants/gist?fields=id&filter=code:$like:CORPUS_C1", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter !$like", "method": "GET", "path": "/api/constants/gist?fields=id&filter=code:!$like:CORPUS_C1&pageSize=5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter like$", "method": "GET", "path": "/api/constants/gist?fields=id&filter=code:like$:9", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter !like$", "method": "GET", "path": "/api/constants/gist?fields=id&filter=code:!like$:9&pageSize=5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter ilike", "method": "GET", "path": "/api/constants/gist?fields=id&filter=name:ilike:CONSTANT%202", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter !ilike", "method": "GET", "path": "/api/constants/gist?fields=id&filter=name:!ilike:CONSTANT%202&pageSize=5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter $ilike", "method": "GET", "path": "/api/constants/gist?fields=id&filter=shortName:$ilike:cc%204", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter startswith", "method": "GET", "path": "/api/constants/gist?fields=id&filter=shortName:startswith:cc%204", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter !startswith", "method": "GET", "path": "/api/constants/gist?fields=id&filter=shortName:!startswith:cc%204&pageSize=5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter ilike$", "method": "GET", "path": "/api/constants/gist?fields=id&filter=code:ilike$:c07", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter endswith", "method": "GET", "path": "/api/constants/gist?fields=id&filter=code:endswith:c07", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter !endswith", "method": "GET", "path": "/api/constants/gist?fields=id&filter=code:!endswith:c07&pageSize=5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter ilike non-ascii", "method": "GET", "path": "/api/constants/gist?fields=id&filter=description:ilike:d%C3%A9scription", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter like non-ascii", "method": "GET", "path": "/api/constants/gist?fields=id&filter=name:like:%C3%A9", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter description quotes", "method": "GET", "path": "/api/constants/gist?fields=id,description&filter=description:like:%22quotes%22&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter like on value", "method": "GET", "path": "/api/constants/gist?fields=id&filter=value:like:5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter ieq on value", "method": "GET", "path": "/api/constants/gist?fields=id&filter=value:ieq:5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter tilde", "method": "GET", "path": "/api/constants/gist?fields=id&filter=name~eq~Corpus%20constant%2007", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter at", "method": "GET", "path": "/api/constants/gist?fields=id&filter=name@eq@Corpus%20constant%2007", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter op upper", "method": "GET", "path": "/api/constants/gist?fields=id&filter=name:EQ:Corpus%20constant%2007", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter value with colon", "method": "GET", "path": "/api/constants/gist?fields=id&filter=name:eq:a:b", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter two and", "method": "GET", "path": "/api/constants/gist?fields=id,value&filter=value:gt:0&filter=value:lt:5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter two comma", "method": "GET", "path": "/api/constants/gist?fields=id,value&filter=value:gt:0,value:lt:5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter two or", "method": "GET", "path": "/api/constants/gist?fields=id,value&filter=value:lt:-18&filter=value:gt:54&rootJunction=OR", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter rootJunction lower", "method": "GET", "path": "/api/constants/gist?fields=id&filter=value:lt:-18&rootJunction=or", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter groups", "method": "GET", "path": "/api/constants/gist?fields=id&filter=1:value:lt:-18,2:value:gt:54", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter one group", "method": "GET", "path": "/api/constants/gist?fields=id&filter=1:value:lt:-18", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter unknown property", "method": "GET", "path": "/api/constants/gist?fields=id&filter=nope:eq:1", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter non persisted", "method": "GET", "path": "/api/constants/gist?fields=id&filter=displayName:eq:x", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter reference", "method": "GET", "path": "/api/constants/gist?fields=id&filter=lastUpdatedBy:eq:M5zQapPyTZI&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter nested", "method": "GET", "path": "/api/constants/gist?fields=id&filter=lastUpdatedBy.username:eq:admin&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter bad op", "method": "GET", "path": "/api/constants/gist?fields=id&filter=name:bogus:1", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter canread", "method": "GET", "path": "/api/constants/gist?fields=id&filter=sharing:canread&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter invalid", "method": "GET", "path": "/api/constants/gist?fields=id&filter=name", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter created gt", "method": "GET", "path": "/api/constants/gist?fields=id&filter=created:gt:2000-01-01&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist filter created now", "method": "GET", "path": "/api/constants/gist?fields=id&filter=created:lt:now&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist order name", "method": "GET", "path": "/api/constants/gist?fields=id,name&order=name&pageSize=5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist order name desc", "method": "GET", "path": "/api/constants/gist?fields=id,name&order=name:desc&pageSize=5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist order code desc nulls first", "method": "GET", "path": "/api/constants/gist?fields=id,code&order=code:desc&pageSize=5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist order code asc nulls last", "method": "GET", "path": "/api/constants/gist?fields=id,code&order=code:asc&page=6&pageSize=10", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist order value", "method": "GET", "path": "/api/constants/gist?fields=id,value&order=value:desc&pageSize=5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist order displayName", "method": "GET", "path": "/api/constants/gist?fields=id,displayName&order=displayName&pageSize=5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist order displayName desc", "method": "GET", "path": "/api/constants/gist?fields=id,displayName&order=displayName:desc&pageSize=5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist order displayShortName", "method": "GET", "path": "/api/constants/gist?fields=id,displayShortName&order=displayShortName:desc&pageSize=5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist order two", "method": "GET", "path": "/api/constants/gist?fields=id,code,value&order=code:desc,value:desc&pageSize=5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist order two params", "method": "GET", "path": "/api/constants/gist?fields=id,code,value&order=code:desc&order=value&pageSize=5", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist order tilde", "method": "GET", "path": "/api/constants/gist?fields=id&order=value~desc&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist order double colon", "method": "GET", "path": "/api/constants/gist?fields=id&order=value::desc&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist order DESC upper", "method": "GET", "path": "/api/constants/gist?fields=id&order=value:DESC&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist order iasc", "method": "GET", "path": "/api/constants/gist?fields=id&order=name:iasc&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist order unknown", "method": "GET", "path": "/api/constants/gist?fields=id&order=nope&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist order reference", "method": "GET", "path": "/api/constants/gist?fields=id&order=lastUpdatedBy&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist order bad direction", "method": "GET", "path": "/api/constants/gist?fields=id&order=name:up&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist order created", "method": "GET", "path": "/api/constants/gist?fields=id&order=created:desc&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist order id", "method": "GET", "path": "/api/constants/gist?fields=id&order=id:desc&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist page 2", "method": "GET", "path": "/api/constants/gist?fields=id&page=2&pageSize=7", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist last page", "method": "GET", "path": "/api/constants/gist?fields=id&page=9&pageSize=7", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist beyond last page", "method": "GET", "path": "/api/constants/gist?fields=id&page=20&pageSize=7", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist page 0", "method": "GET", "path": "/api/constants/gist?fields=id&page=0&pageSize=7", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist page negative", "method": "GET", "path": "/api/constants/gist?fields=id&page=-2&pageSize=7", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist pageSize 0", "method": "GET", "path": "/api/constants/gist?fields=id&pageSize=0", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist pageSize negative", "method": "GET", "path": "/api/constants/gist?fields=id&pageSize=-3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist pageSize 2000", "method": "GET", "path": "/api/constants/gist?fields=id&pageSize=2000", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist pageSize 1", "method": "GET", "path": "/api/constants/gist?fields=id&pageSize=1&page=60", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist page abc", "method": "GET", "path": "/api/constants/gist?fields=id&page=abc", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist page plus", "method": "GET", "path": "/api/constants/gist?fields=id&page=+2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist total", "method": "GET", "path": "/api/constants/gist?fields=id&pageSize=7&total=true&page=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist totalPages", "method": "GET", "path": "/api/constants/gist?fields=id&pageSize=7&totalPages=true&page=9", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist total false", "method": "GET", "path": "/api/constants/gist?fields=id&pageSize=7&total=false", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist total conflict", "method": "GET", "path": "/api/constants/gist?fields=id&pageSize=7&total=true&totalPages=false", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist total same", "method": "GET", "path": "/api/constants/gist?fields=id&pageSize=7&total=true&totalPages=true", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist total filtered", "method": "GET", "path": "/api/constants/gist?fields=id&pageSize=2&totalPages=true&filter=value:gt:50", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist total empty", "method": "GET", "path": "/api/constants/gist?fields=id&totalPages=true&filter=value:gt:500", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist headless", "method": "GET", "path": "/api/constants/gist?fields=id,name&headless=true&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist headless unwrapped", "method": "GET", "path": "/api/constants/gist?fields=id&headless=true&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist unwrap false", "method": "GET", "path": "/api/constants/gist?fields=id&unwrap=false&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist unwrap false value", "method": "GET", "path": "/api/constants/gist?fields=value&unwrap=false&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist references false", "method": "GET", "path": "/api/constants/gist?fields=id,lastUpdatedBy&references=false&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist references false star", "method": "GET", "path": "/api/constants/gist?fields=*&references=false&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist absoluteUrls", "method": "GET", "path": "/api/constants/gist?fields=id,href&absoluteUrls=true&pageSize=2&page=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist pageListName", "method": "GET", "path": "/api/constants/gist?fields=id&pageListName=items&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist locale fr", "method": "GET", "path": "/api/constants/gist?fields=id,displayName,displayShortName,displayDescription&locale=fr&pageSize=10", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist locale es_419", "method": "GET", "path": "/api/constants/gist?fields=id,displayName&locale=es_419&pageSize=6", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist locale FR", "method": "GET", "path": "/api/constants/gist?fields=id,displayName&locale=FR&pageSize=6", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist locale unknown", "method": "GET", "path": "/api/constants/gist?fields=id,displayName&locale=xx&pageSize=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist locale order", "method": "GET", "path": "/api/constants/gist?fields=id,displayName&locale=fr&order=displayName&pageSize=6", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist locale name order", "method": "GET", "path": "/api/constants/gist?fields=id,name&locale=fr&order=name:desc&pageSize=6", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist orgUnitsTree", "method": "GET", "path": "/api/constants/gist?fields=id&orgUnitsTree=true&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist unknown param", "method": "GET", "path": "/api/constants/gist?fields=id&foo=bar&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist pipe in query", "method": "GET", "path": "/api/constants/gist?fields=id&x=a|b&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist space encoded", "method": "GET", "path": "/api/constants/gist?fields=id&x=a%20b&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist plus", "method": "GET", "path": "/api/constants/gist?fields=id&x=a+b&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist valueless param", "method": "GET", "path": "/api/constants/gist?fields=id&x&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist repeated page param", "method": "GET", "path": "/api/constants/gist?fields=id&pageSize=2&page=2&page=3", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist repeated fields", "method": "GET", "path": "/api/constants/gist?fields=id&fields=code&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist brackets raw", "method": "GET", "path": "/api/constants/gist?fields=id&filter=id:in:[Crp0Cnst001,Crp0Cnst002]", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist bool True", "method": "GET", "path": "/api/constants/gist?fields=id&headless=True&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist super default", "method": "GET", "path": "/api/constants/gist", "tags": ["Gist"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzc3VwZXI6Q29ycHVzMTIzIQ=="}}
+{"name": "gist basic default", "method": "GET", "path": "/api/constants/gist", "tags": ["Gist", "nonsuper"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "gist super fields id,displayName", "method": "GET", "path": "/api/constants/gist?fields=id,displayName&pageSize=10", "tags": ["Gist"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzc3VwZXI6Q29ycHVzMTIzIQ=="}}
+{"name": "gist basic fields id,displayName", "method": "GET", "path": "/api/constants/gist?fields=id,displayName&pageSize=10", "tags": ["Gist", "nonsuper"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "gist super locale es_419", "method": "GET", "path": "/api/constants/gist?fields=id,displayName&locale=es_419&pageSize=10", "tags": ["Gist"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzc3VwZXI6Q29ycHVzMTIzIQ=="}}
+{"name": "gist basic locale es_419", "method": "GET", "path": "/api/constants/gist?fields=id,displayName&locale=es_419&pageSize=10", "tags": ["Gist", "nonsuper"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "gist super order displayName", "method": "GET", "path": "/api/constants/gist?fields=id,displayName&order=displayName:desc&pageSize=5", "tags": ["Gist"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzc3VwZXI6Q29ycHVzMTIzIQ=="}}
+{"name": "gist basic order displayName", "method": "GET", "path": "/api/constants/gist?fields=id,displayName&order=displayName:desc&pageSize=5", "tags": ["Gist", "nonsuper"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "gist versioned", "method": "GET", "path": "/api/41/constants/gist?fields=id&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist json extension", "method": "GET", "path": "/api/constants/gist.json?fields=id&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "gist csv accept", "method": "GET", "path": "/api/constants/gist?fields=id&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "text/csv"}}
+{"name": "gist xml accept", "method": "GET", "path": "/api/constants/gist?fields=id&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/xml"}}
+{"name": "gist no accept", "method": "GET", "path": "/api/constants/gist?fields=id&pageSize=2", "tags": ["Gist"], "headers": {}}
+{"name": "gist forwarded absolute", "method": "GET", "path": "/api/constants/gist?fields=id,href&absoluteUrls=true&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json", "X-Forwarded-Proto": "https", "X-Forwarded-Host": "example.org", "X-Forwarded-Port": "443"}}
+{"name": "gist trailing slash", "method": "GET", "path": "/api/constants/gist/?fields=id&pageSize=2", "tags": ["Gist"], "headers": {"Accept": "application/json"}}
+{"name": "list default", "method": "GET", "path": "/api/constants", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list page 2", "method": "GET", "path": "/api/constants?page=2", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list pageSize 7 page 3", "method": "GET", "path": "/api/constants?pageSize=7&page=3", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list fields id,name", "method": "GET", "path": "/api/constants?fields=id,name&pageSize=5", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list fields id", "method": "GET", "path": "/api/constants?fields=id&pageSize=5", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list fields value", "method": "GET", "path": "/api/constants?fields=value&pageSize=5", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list fields code", "method": "GET", "path": "/api/constants?fields=code&pageSize=5", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list fields id,code", "method": "GET", "path": "/api/constants?fields=id,code&pageSize=5", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list fields id,lastUpdatedBy.name", "method": "GET", "path": "/api/constants?fields=id,lastUpdatedBy.name&pageSize=5", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list fields id,sharing", "method": "GET", "path": "/api/constants?fields=id,sharing&pageSize=3", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list fields star", "method": "GET", "path": "/api/constants?fields=*&pageSize=3", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list fields href", "method": "GET", "path": "/api/constants?fields=id,href&pageSize=3", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list fields display", "method": "GET", "path": "/api/constants?fields=id,displayName,displayShortName,displayDescription&pageSize=15", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list filter value", "method": "GET", "path": "/api/constants?filter=value:gt:50", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list filter two", "method": "GET", "path": "/api/constants?filter=value:gt:0&filter=value:lt:10", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list filter or", "method": "GET", "path": "/api/constants?filter=value:lt:-18&filter=value:gt:54&rootJunction=OR", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list filter display", "method": "GET", "path": "/api/constants?filter=displayName:eq:x", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list filter token", "method": "GET", "path": "/api/constants?filter=name:token:corpus", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list filter in", "method": "GET", "path": "/api/constants?filter=id:in:[Crp0Cnst001,Crp0Cnst002]", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list filter ilike", "method": "GET", "path": "/api/constants?filter=name:ilike:CONSTANT%201", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list order displayName desc", "method": "GET", "path": "/api/constants?order=displayName:desc&pageSize=5", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list order name iasc", "method": "GET", "path": "/api/constants?order=name:iasc&pageSize=5", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list order code", "method": "GET", "path": "/api/constants?order=code:desc&pageSize=5", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list paging false", "method": "GET", "path": "/api/constants?paging=false&fields=id", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list gist true", "method": "GET", "path": "/api/constants?gist=true&fields=id&pageSize=3", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list gist false", "method": "GET", "path": "/api/constants?gist=false&fields=id&pageSize=3", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list gist true paging false", "method": "GET", "path": "/api/constants?gist=true&paging=false&fields=id&pageSize=3", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list query", "method": "GET", "path": "/api/constants?query=Corpus%20constant%200", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list locale fr", "method": "GET", "path": "/api/constants?locale=fr&pageSize=10", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list locale es_419 order", "method": "GET", "path": "/api/constants?locale=es_419&order=displayName&pageSize=10", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list defaults exclude", "method": "GET", "path": "/api/constants?defaults=EXCLUDE&pageSize=3", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list unknown param", "method": "GET", "path": "/api/constants?foo=bar&pageSize=3", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list total param", "method": "GET", "path": "/api/constants?total=true&pageSize=3", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list pageSize 0", "method": "GET", "path": "/api/constants?pageSize=0", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list page 0", "method": "GET", "path": "/api/constants?page=0&pageSize=5", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list beyond", "method": "GET", "path": "/api/constants?page=100", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list bad page", "method": "GET", "path": "/api/constants?page=x", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list super default", "method": "GET", "path": "/api/constants", "tags": ["MetadataList"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzc3VwZXI6Q29ycHVzMTIzIQ=="}}
+{"name": "list basic default", "method": "GET", "path": "/api/constants", "tags": ["MetadataList", "nonsuper"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "list super locale es_419", "method": "GET", "path": "/api/constants?locale=es_419&pageSize=10", "tags": ["MetadataList"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzc3VwZXI6Q29ycHVzMTIzIQ=="}}
+{"name": "list basic locale es_419", "method": "GET", "path": "/api/constants?locale=es_419&pageSize=10", "tags": ["MetadataList", "nonsuper"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "list super fields display", "method": "GET", "path": "/api/constants?fields=id,displayName,displayShortName&pageSize=10", "tags": ["MetadataList"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzc3VwZXI6Q29ycHVzMTIzIQ=="}}
+{"name": "list basic fields display", "method": "GET", "path": "/api/constants?fields=id,displayName,displayShortName&pageSize=10", "tags": ["MetadataList", "nonsuper"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "list versioned", "method": "GET", "path": "/api/41/constants?fields=id&pageSize=2", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list json extension", "method": "GET", "path": "/api/constants.json?pageSize=2", "tags": ["MetadataList"], "headers": {"Accept": "application/json"}}
+{"name": "list xml accept", "method": "GET", "path": "/api/constants?pageSize=2", "tags": ["MetadataList"], "headers": {"Accept": "application/xml"}}
+{"name": "list csv accept", "method": "GET", "path": "/api/constants?pageSize=2", "tags": ["MetadataList"], "headers": {"Accept": "text/csv"}}
+{"name": "list host default port", "method": "GET", "path": "/api/constants?pageSize=2", "tags": ["MetadataList"], "headers": {"Accept": "application/json", "Host": "web:80"}}

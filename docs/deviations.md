@@ -35,6 +35,12 @@ Entries marked **transition** go away at cutover (phase 9).
 |---|---|---|---|
 | Q1 | A `fields=` parse error at a supplementary character (e.g. `𝔸`) prints the lone high surrogate (`charAt`) in the message | Prints U+FFFD | A Rust `String` cannot hold a lone surrogate. Position numbers are UTF-16 based, as in Java. |
 
+**Gist bugs kept on purpose** (ADR 0008): in single-field lists (`unwrap`) json-tree prints
+doubles with up to three decimals through a shortcut that drops leading zeros of the decimals and
+the sign between -1 and 0 (`0.05` → `0.5`, `-0.5` → `0.5`); `name:gt:5` on a text property
+compares the **length** (`isStringLengthFilter`); `order=name` sorts by the translated name.
+Requests on which Java fails (`fields=code` with a null code: 500; `pageSize=0`: 500) go to Java.
+
 **Bugs kept on purpose:** `Fields.of("a::rename(x)::rename(y)")` yields no field at all, and an
 inherited rename plus one transform drops the transform (`a::rename(x)[b::size]` → `a.b` without
 `size`). See `crates/dhis-query/tests/fixtures/fields.tsv`.
@@ -58,8 +64,8 @@ inherited rename plus one transform drops the transform (`a::rename(x)[b::size]`
 | G3 | Tomcat closes the connection after some error responses (`Connection: close` on 400) | The gateway keeps client connections alive | Hop-by-hop behaviour of the transport, not of the API. No client relies on connection closing. |
 | G4 | A request target containing raw `"`, `<` or `>` gets Tomcat's HTML 400 | hyper rejects it before routing with an empty `400 Bad Request` (any route) | hyper's request parser; same status, no client sends these unencoded. Other invalid targets (raw non-ASCII, `^`, `` ` ``, `[` `]` in the path, ...) and undecodable query parameters (Java's 409) are sent to Java and match exactly (`gateway::tomcat`). |
 | G6 | A `#fragment` in the request target gets Tomcat's HTML 400 | `http::Uri` drops the fragment, so the request is served as if it had none (any route) | Clients never send fragments (RFC 9110 §4.2.4 forbids them in the request target). |
-| G5 | — | A basic-auth request answered by Rust after a `JavaFallback` leaves one extra (unused) Java session | Delegated authentication calls `/api/me` first (ADR 0004). The session expires normally. |
-| G7 | — | A Rust-served request costs one extra cheap Java request (delegated authentication, ADR 0004/0006) plus the proxy hop: about 1–2 ms more than Java at p95 for the smallest responses (release build, session cookie: `/api/system/uid` 2.1 vs 0.8 ms, `/api/me/settings` 2.7 vs 0.7 ms); larger responses are as fast or faster (`/api/schemas` 30 vs 37 ms, `/api/schemas/dataElement` 2.1 vs 2.8 ms) | Inherent while Java authenticates. Goes away with native auth (phase 7); the cutover gate (phase 9) measures p95 without it. |
+| G5 | — | A basic-auth request answered by Rust after a `JavaFallback` leaves one extra (unused) Java session; so can a Gist request with an expired session cookie (both authentication calls run at once and each may start a session) | Delegated authentication calls Java first (ADR 0004, 0006). The sessions expire normally. |
+| G7 | — | A Rust-served request costs one extra cheap Java request (delegated authentication, ADR 0004/0006) plus the proxy hop: about 1–2 ms more than Java at p95 for the smallest responses (release build, session cookie: `/api/system/uid` 2.1 vs 0.8 ms, `/api/me/settings` 2.7 vs 0.7 ms); larger responses are as fast or faster (`/api/schemas` 30 vs 37 ms, `/api/schemas/dataElement` 2.1 vs 2.8 ms) | Inherent while Java authenticates. Gist lists need two authentication calls (authorities and settings, ADR 0008), at once on a session: `/api/constants` 2.8 vs 2.4 ms, `/api/constants/gist?fields=id,name` 2.3 vs 1.9 ms, a filtered and ordered page of 60 with total 3.3 vs 8.3 ms. Goes away with native auth (phase 7); the cutover gate (phase 9) measures p95 without it. |
 
 ## Mirrored from Java (transition)
 
@@ -67,7 +73,7 @@ inherited rename plus one transform drops the transform (`a::rename(x)[b::size]`
 |---|---|---|---|
 | M1 | `/api/system/info` JVM/build values (`version`, `revision`, `buildTime`, `systemId`, `jasperReportsVersion`, `java*`, `os*`, `memoryInfo`, `cpuCores`) computed at JVM start | Read once from Java's own `/api/system/info` and cached | No JVM in Rust; identical output while both run (ADR 0005). If Java restarts, Rust keeps the old snapshot until it restarts. Native values are due at cutover. |
 | M3 | `/api/schemas/{type}/{property}` shows the links (`href`, `apiEndpoint`, `relativeApiEndpoint`) the last `/api/schemas[/{type}]` request wrote into the shared schema objects; none since JVM start | Same state, kept by the gateway's Rust side: empty when the gateway starts, updated by every schema request it receives (including those it falls back on). XML requests for a property fall back and show Java's own state | Matches while Java and the gateway start together and all traffic goes through one gateway. Different only after a restart of just one of them, until a schema request is served (ADR 0007). |
-| M4 | The order of `/api/schemas` entries with equal `order`, of `references`, and of `properties` changes on every JVM start (identity hashes, reflection order) | The order of the run the data was captured from (`tools/gen-registered-schemas.sh`) | One of Java's own orders; content verified identical across restarts (ADR 0007). |
+| M4 | The order of `/api/schemas` entries with equal `order`, of `references`, and of `properties` changes on every JVM start (identity hashes, reflection order). Gist presets (`fields=*`, `:all`, `:persisted`, `:owner`) list fields in that property order within each property type | The order of the run the data was captured from (`tools/gen-registered-schemas.sh`) | One of Java's own orders; content verified identical across restarts (ADR 0007, ADR 0008). For Gist only the member order of the objects is affected. |
 
 ## Java runtime
 

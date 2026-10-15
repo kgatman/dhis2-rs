@@ -5,6 +5,7 @@
 
 pub mod field_filter;
 pub mod fields;
+pub mod gist;
 pub mod json_tree;
 pub mod property_path;
 

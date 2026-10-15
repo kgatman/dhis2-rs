@@ -52,6 +52,7 @@ pub fn router(state: Arc<AppState>) -> Router {
         .merge(controller::system_controller::routes())
         .merge(controller::me_controller::routes())
         .merge(controller::schema_controller::routes())
+        .merge(controller::metadata_controller::routes())
         .layer(axum::middleware::from_fn(crate::http::rfd::layer))
         .layer(axum::middleware::from_fn(crate::http::etag::layer))
         .layer(axum::middleware::from_fn_with_state(
@@ -62,11 +63,14 @@ pub fn router(state: Arc<AppState>) -> Router {
 }
 
 /// What delegated authentication must fetch for a request to this (normalised) path: the
-/// settings endpoints need the user settings snapshot, everything else the authorities.
+/// settings endpoints need the user settings snapshot, the Gist lists both (authorities for the
+/// access checks, settings for the translation locale), everything else the authorities.
 pub fn auth_probe(normalized_path: &str) -> dhis_auth::delegated::Probe {
     use dhis_auth::delegated::Probe;
     if normalized_path == "/api/me/settings" || normalized_path.starts_with("/api/me/settings/") {
         Probe::Settings
+    } else if controller::metadata_controller::needs_settings(normalized_path) {
+        Probe::AuthoritiesAndSettings
     } else {
         Probe::Authorities
     }

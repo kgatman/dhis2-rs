@@ -52,6 +52,48 @@ impl PropertyType {
     pub fn is_simple(&self) -> bool {
         !matches!(self, Self::Reference | Self::Complex | Self::Collection)
     }
+
+    /// The Java enum constant name.
+    pub fn name(&self) -> &str {
+        match self {
+            Self::Identifier => "IDENTIFIER",
+            Self::Text => "TEXT",
+            Self::Boolean => "BOOLEAN",
+            Self::Integer => "INTEGER",
+            Self::Number => "NUMBER",
+            Self::Date => "DATE",
+            Self::Reference => "REFERENCE",
+            Self::Complex => "COMPLEX",
+            Self::Collection => "COLLECTION",
+            Self::Other(s) => s,
+        }
+    }
+
+    /// `Enum#ordinal()` in `org.hisp.dhis.schema.PropertyType` (`None` for a name Java does not
+    /// declare).
+    pub fn ordinal(&self) -> Option<usize> {
+        const ORDER: [&str; 18] = [
+            "IDENTIFIER",
+            "TEXT",
+            "NUMBER",
+            "INTEGER",
+            "BOOLEAN",
+            "USERNAME",
+            "EMAIL",
+            "PASSWORD",
+            "URL",
+            "DATE",
+            "PHONENUMBER",
+            "GEOLOCATION",
+            "COLOR",
+            "CONSTANT",
+            "COMPLEX",
+            "COLLECTION",
+            "REFERENCE",
+            "DEFAULT",
+        ];
+        ORDER.iter().position(|n| *n == self.name())
+    }
 }
 
 /// `org.hisp.dhis.schema.Property` (fields used by field filtering so far).
@@ -77,6 +119,53 @@ pub struct Property {
     pub embedded_object: bool,
     #[serde(default)]
     pub property_transformer: bool,
+    // The members below are only in registered schemas (`/api/schemas`); dynamic ones default.
+    #[serde(default)]
+    pub readable: bool,
+    #[serde(default)]
+    pub sortable: bool,
+    #[serde(default)]
+    pub translatable: bool,
+    #[serde(default)]
+    pub translation_key: Option<String>,
+    #[serde(default)]
+    pub required: bool,
+    #[serde(default)]
+    pub one_to_one: bool,
+    #[serde(default)]
+    pub many_to_one: bool,
+    #[serde(default)]
+    pub one_to_many: bool,
+    #[serde(default)]
+    pub many_to_many: bool,
+    #[serde(default)]
+    pub owning_role: Option<String>,
+    #[serde(default)]
+    pub identifiable_object: bool,
+    #[serde(default)]
+    pub gist_preferences: GistPreferences,
+}
+
+/// `org.hisp.dhis.schema.GistPreferences` (`DEFAULT`: included and transformation `AUTO`).
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GistPreferences {
+    #[serde(default)]
+    pub included: GistInclude,
+    #[serde(default)]
+    pub transformation: Option<String>,
+    #[serde(default)]
+    pub order: Option<i32>,
+}
+
+/// `GistPreferences.Flag`.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "UPPERCASE")]
+pub enum GistInclude {
+    #[default]
+    Auto,
+    True,
+    False,
 }
 
 fn nullable_type<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<PropertyType>, D::Error> {
@@ -100,6 +189,21 @@ impl Property {
 
     pub fn item_is(&self, t: &PropertyType) -> bool {
         self.item_property_type.as_ref() == Some(t)
+    }
+
+    /// `Property#key()`: the name properties are looked up by (`collectionName` for collections).
+    pub fn key(&self) -> &str {
+        self.output_name()
+    }
+
+    /// `Property#isRelation()`.
+    pub fn is_relation(&self) -> bool {
+        self.one_to_one || self.one_to_many || self.many_to_one || self.many_to_many
+    }
+
+    /// `Property#canBeTranslated()`.
+    pub fn can_be_translated(&self) -> bool {
+        self.translatable && self.translation_key.is_some()
     }
 
     /// The class whose schema describes this property's value (item class for collections).
@@ -172,6 +276,21 @@ static SCHEMAS: LazyLock<BTreeMap<&'static str, Schema>> = LazyLock::new(|| {
         })
         .collect()
 });
+
+pub mod hibernate;
+pub mod registered;
+
+/// `Property.resolveTranslationBasePropertyName`: `displayX` → `x` (first letter lower-cased).
+pub fn resolve_translation_base_property_name(name: &str) -> String {
+    match name.strip_prefix("display") {
+        Some(rest) if !rest.is_empty() => {
+            let mut chars = rest.chars();
+            let first = chars.next().map(|c| c.to_lowercase().to_string());
+            format!("{}{}", first.unwrap_or_default(), chars.as_str())
+        }
+        _ => name.to_string(),
+    }
+}
 
 /// The registered schemas (`SchemaService#getSortedSchemas`) as Java renders them, captured from
 /// the pinned build by `tools/gen-registered-schemas.sh` (ADR 0007). Links (`href`,
