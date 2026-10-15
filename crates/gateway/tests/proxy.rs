@@ -89,6 +89,7 @@ async fn gateway(java: SocketAddr, routes: RouteTable, inject_xff: bool) -> Sock
         Config {
             java_upstream: format!("http://{java}").parse().unwrap(),
             inject_forwarded_for: inject_xff,
+            shadow: Default::default(),
         },
         routes,
         rust,

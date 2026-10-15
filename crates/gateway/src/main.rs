@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use anyhow::{Context, Result};
 use clap::Parser;
-use gateway::{Config, Gateway, RouteTable};
+use gateway::{Config, Gateway, RouteTable, ShadowConfig};
 use tokio::net::TcpListener;
 use tracing::{error, info};
 
@@ -22,6 +22,12 @@ struct Args {
     /// Add X-Forwarded-For with the peer address when the client did not send one.
     #[arg(long, env = "GATEWAY_INJECT_FORWARDED_FOR", default_value_t = true, action = clap::ArgAction::Set)]
     inject_forwarded_for: bool,
+    /// diffcheck rules (TOML) used to compare Java and Rust on `shadow` routes.
+    #[arg(long, env = "GATEWAY_SHADOW_RULES")]
+    shadow_rules: Option<PathBuf>,
+    /// Append shadow comparison results here (JSON lines).
+    #[arg(long, env = "GATEWAY_SHADOW_LOG")]
+    shadow_log: Option<PathBuf>,
 }
 
 fn load_routes(path: Option<&PathBuf>) -> Result<RouteTable> {
@@ -50,6 +56,14 @@ async fn main() -> Result<()> {
         Config {
             java_upstream: args.java_upstream.clone(),
             inject_forwarded_for: args.inject_forwarded_for,
+            shadow: ShadowConfig {
+                rules: match &args.shadow_rules {
+                    Some(p) => diffcheck::Rules::load(p)?,
+                    None => diffcheck::Rules::default(),
+                },
+                log_path: args.shadow_log.clone(),
+                ..ShadowConfig::default()
+            },
         },
         routes,
         dhis_web::router(),

@@ -12,8 +12,12 @@
 //!   did not send one (configurable, see [`Config::inject_forwarded_for`]);
 //! - bodies stream in both directions (no buffering), so large exports and imports behave the
 //!   same.
+//!
+//! `shadow` routes (GET/HEAD only) are served by Java while the request is replayed to Rust in the
+//! background; the responses are compared with diffcheck's rules and logged ([`shadow`]).
 
 pub mod routes;
+mod shadow;
 
 use std::convert::Infallible;
 use std::net::SocketAddr;
@@ -34,6 +38,7 @@ use tower::ServiceExt;
 use tracing::{debug, error, warn};
 
 pub use routes::{Backend, RouteTable};
+pub use shadow::{ShadowConfig, ShadowStats};
 
 pub type BoxError = Box<dyn std::error::Error + Send + Sync>;
 pub type Body = UnsyncBoxBody<Bytes, BoxError>;
@@ -47,13 +52,15 @@ pub struct Config {
     /// header (API-token IP allowlists, auth audit) still sees the client's address. Turn off
     /// when the gateway's peer is not the real client (e.g. sharing a network namespace with it).
     pub inject_forwarded_for: bool,
+    pub shadow: ShadowConfig,
 }
 
 pub struct Gateway {
     config: Config,
     routes: RwLock<Arc<RouteTable>>,
-    client: Client<HttpConnector, Incoming>,
+    client: Client<HttpConnector, Body>,
     rust: axum::Router,
+    shadow: Arc<shadow::Shadow>,
 }
 
 impl Gateway {
@@ -64,17 +71,23 @@ impl Gateway {
             .http1_preserve_header_case(true)
             .http1_title_case_headers(true)
             .build(connector);
+        let shadow = Arc::new(shadow::Shadow::new(config.shadow.clone()));
         Self {
             config,
             routes: RwLock::new(Arc::new(routes)),
             client,
             rust,
+            shadow,
         }
     }
 
     /// Swaps the route table (used on `SIGHUP`).
     pub fn set_routes(&self, routes: RouteTable) {
         *self.routes.write().unwrap_or_else(|e| e.into_inner()) = Arc::new(routes);
+    }
+
+    pub fn shadow_stats(&self) -> ShadowStats {
+        self.shadow.stats()
     }
 
     pub fn routes(&self) -> Arc<RouteTable> {
@@ -114,8 +127,9 @@ impl Gateway {
         let path = req.uri().path().to_string();
         let (backend, _) = self.routes().route(&method, &path);
         let resp = match backend {
-            Backend::Java => self.to_java(req, peer).await,
-            Backend::Rust => self.to_rust(req).await,
+            Backend::Java => self.to_java(req.map(box_incoming), peer).await,
+            Backend::Rust => self.to_rust(req.map(axum::body::Body::new)).await,
+            Backend::Shadow => self.to_shadow(req, peer).await,
         };
         debug!(
             %method, %path, ?backend, status = resp.status().as_u16(),
@@ -124,7 +138,7 @@ impl Gateway {
         resp
     }
 
-    async fn to_java(&self, req: Request<Incoming>, peer: SocketAddr) -> Response<Body> {
+    async fn to_java(&self, req: Request<Body>, peer: SocketAddr) -> Response<Body> {
         let (mut parts, body) = req.into_parts();
         let client_version = parts.version;
 
@@ -184,13 +198,79 @@ impl Gateway {
         }
     }
 
-    async fn to_rust(&self, req: Request<Incoming>) -> Response<Body> {
-        let req = req.map(axum::body::Body::new);
+    async fn to_rust(&self, req: Request<axum::body::Body>) -> Response<Body> {
         match self.rust.clone().oneshot(req).await {
             Ok(resp) => resp.map(|b| b.map_err(Into::into).boxed_unsync()),
             Err(never) => match never {},
         }
     }
+
+    /// Serves Java's response to the client and compares Rust's in the background.
+    async fn to_shadow(&self, req: Request<Incoming>, peer: SocketAddr) -> Response<Body> {
+        let (parts, body) = req.into_parts();
+        // GET/HEAD bodies are empty in practice; buffer so both backends get the same bytes.
+        let body = match body.collect().await {
+            Ok(b) => b.to_bytes(),
+            Err(e) => {
+                debug!("client body read failed: {e}");
+                return status_only(StatusCode::BAD_REQUEST);
+            }
+        };
+        let mut rust_req = Request::builder()
+            .method(parts.method.clone())
+            .uri(parts.uri.clone())
+            .version(parts.version);
+        if let Some(h) = rust_req.headers_mut() {
+            *h = parts.headers.clone();
+        }
+        let rust_req = rust_req
+            .body(axum::body::Body::from(body.clone()))
+            .expect("parts of a valid request");
+        let method = parts.method.clone();
+        let path_and_query = parts
+            .uri
+            .path_and_query()
+            .map(|p| p.to_string())
+            .unwrap_or_else(|| "/".into());
+
+        let java_req = Request::from_parts(parts, full(body));
+        let java = self.to_java(java_req, peer).await;
+        let (java_parts, java_body) = java.into_parts();
+        let (tee, java_capture) = shadow::Tee::new(java_body, self.shadow.body_limit());
+
+        let shadow = self.shadow.clone();
+        let rust = self.rust.clone();
+        let java_status = java_parts.status;
+        let java_headers = java_parts.headers.clone();
+        // The Rust side runs off the request path: the client only waits for Java.
+        tokio::spawn(async move {
+            let rust_resp = match rust.oneshot(rust_req).await {
+                Ok(r) => r,
+                Err(never) => match never {},
+            };
+            shadow
+                .compare(
+                    method,
+                    path_and_query,
+                    java_status,
+                    java_headers,
+                    java_capture,
+                    rust_resp,
+                )
+                .await;
+        });
+        Response::from_parts(java_parts, tee.boxed_unsync())
+    }
+}
+
+fn box_incoming(b: Incoming) -> Body {
+    b.map_err(Into::into).boxed_unsync()
+}
+
+fn full(b: Bytes) -> Body {
+    http_body_util::Full::new(b)
+        .map_err(|never| match never {})
+        .boxed_unsync()
 }
 
 fn status_only(status: StatusCode) -> Response<Body> {

@@ -25,6 +25,10 @@ use thiserror::Error;
 pub enum Backend {
     Java,
     Rust,
+    /// Java serves the client; the same request is replayed to Rust in the background and the
+    /// responses are compared. Only allowed for GET/HEAD: replaying a write would apply it twice
+    /// to the shared database.
+    Shadow,
 }
 
 #[derive(Debug, Error)]
@@ -142,7 +146,7 @@ impl RouteTable {
                 };
                 segments.push(seg);
             }
-            let methods = raw
+            let methods: Vec<Method> = raw
                 .methods
                 .iter()
                 .map(|m| {
@@ -150,6 +154,17 @@ impl RouteTable {
                         .map_err(|_| invalid(format!("bad method {m:?}")))
                 })
                 .collect::<Result<_, _>>()?;
+            if raw.backend == Backend::Shadow
+                && (methods.is_empty()
+                    || methods
+                        .iter()
+                        .any(|m| *m != Method::GET && *m != Method::HEAD))
+            {
+                return Err(invalid(
+                    "shadow rules must list methods, and only GET/HEAD (writes would run twice)"
+                        .into(),
+                ));
+            }
             rules.push(Rule {
                 methods,
                 segments,
@@ -337,6 +352,19 @@ backend = "java"
         assert!(RouteTable::parse("[[route]]\npath = \"api\"\nbackend = \"rust\"").is_err());
         assert!(RouteTable::parse("[[route]]\npath = \"/a/**/b\"\nbackend = \"rust\"").is_err());
         assert!(RouteTable::parse("[[route]]\npath = \"/a\"\nbackend = \"go\"").is_err());
+        assert!(RouteTable::parse("[[route]]\npath = \"/a\"\nbackend = \"shadow\"").is_err());
+        assert!(
+            RouteTable::parse(
+                "[[route]]\nmethods = [\"GET\", \"POST\"]\npath = \"/a\"\nbackend = \"shadow\""
+            )
+            .is_err()
+        );
+        assert!(
+            RouteTable::parse(
+                "[[route]]\nmethods = [\"GET\"]\npath = \"/a\"\nbackend = \"shadow\""
+            )
+            .is_ok()
+        );
         assert!(RouteTable::parse("[[route]]\npath = \"/a\"\nbackend = \"rust\"\nx = 1").is_err());
     }
 }
