@@ -16,3 +16,25 @@
 # path = "/api/schemas/**"
 # backend = "rust"
 # note = "SchemaController (phase 2)"
+
+# --- Phase 2 ---------------------------------------------------------------------------------
+
+# SystemController#getUid/getUidCsv/getUuid. diffcheck corpus/phase2/system-uid.jsonl: 84/84,
+# shadow: 67 matched, 0 mismatched. XML for /uuid and other Accept values fall back to Java.
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/system/uid"
+backend = "rust"
+note = "SystemController#getUid, getUidCsv"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/system/id"
+backend = "rust"
+note = "SystemController#getUid, getUidCsv"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/system/uuid"
+backend = "rust"
+note = "SystemController#getUuid (JSON; XML falls back)"

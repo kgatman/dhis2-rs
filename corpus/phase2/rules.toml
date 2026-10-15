@@ -1,0 +1,24 @@
+# diffcheck rules for the phase-2 corpus. Every rule states why the difference is irrelevant.
+
+compare_headers = [
+  "content-type",
+  "content-disposition",
+  "location",
+  "cache-control",
+  "content-security-policy",
+  "x-content-type-options",
+  "x-xss-protection",
+  "x-frame-options",
+]
+
+[[replace]]
+regex = "[a-zA-Z][a-zA-Z0-9]{10}"
+with = "<uid>"
+paths = ["/api/system/uid", "/api/system/id", "/api/41/system/uid", "/api/41/system/id"]
+reason = "CodeGenerator UIDs are random per call; count, shape and position must still match."
+
+[[replace]]
+regex = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+with = "<uuid>"
+paths = ["/api/system/uuid"]
+reason = "Random v4 UUIDs differ per call; count and format must still match."

@@ -1,0 +1,85 @@
+# SystemController uid/id/uuid: cases measured against Java at the pinned ref (phase 2 slice 1).
+{"name": "uid default", "method": "GET", "path": "/api/system/uid", "tags": ["SystemController"]}
+{"name": "uid limit=3", "method": "GET", "path": "/api/system/uid?limit=3", "tags": ["SystemController"]}
+{"name": "uid limit=-5", "method": "GET", "path": "/api/system/uid?limit=-5", "tags": ["SystemController"]}
+{"name": "uid limit=0", "method": "GET", "path": "/api/system/uid?limit=0", "tags": ["SystemController"]}
+{"name": "uid limit=20000", "method": "GET", "path": "/api/system/uid?limit=20000", "tags": ["SystemController"]}
+{"name": "uid limit=0x10", "method": "GET", "path": "/api/system/uid?limit=0x10", "tags": ["SystemController"]}
+{"name": "uid limit=%233", "method": "GET", "path": "/api/system/uid?limit=%233", "tags": ["SystemController"]}
+{"name": "uid limit=-0x2", "method": "GET", "path": "/api/system/uid?limit=-0x2", "tags": ["SystemController"]}
+{"name": "uid limit=010", "method": "GET", "path": "/api/system/uid?limit=010", "tags": ["SystemController"]}
+{"name": "uid limit=", "method": "GET", "path": "/api/system/uid?limit=", "tags": ["SystemController"]}
+{"name": "uid limit=%20", "method": "GET", "path": "/api/system/uid?limit=%20", "tags": ["SystemController"]}
+{"name": "uid limit=%203", "method": "GET", "path": "/api/system/uid?limit=%203", "tags": ["SystemController"]}
+{"name": "uid limit=1%092", "method": "GET", "path": "/api/system/uid?limit=1%092", "tags": ["SystemController"]}
+{"name": "uid limit=%D9%A3", "method": "GET", "path": "/api/system/uid?limit=%D9%A3", "tags": ["SystemController"]}
+{"name": "uid limit=%EF%BC%93", "method": "GET", "path": "/api/system/uid?limit=%EF%BC%93", "tags": ["SystemController"]}
+{"name": "uid limit=3&limit=5", "method": "GET", "path": "/api/system/uid?limit=3&limit=5", "tags": ["SystemController"]}
+{"name": "uid LIMIT=3", "method": "GET", "path": "/api/system/uid?LIMIT=3", "tags": ["SystemController"]}
+{"name": "uid invalid limit=abc", "method": "GET", "path": "/api/system/uid?limit=abc", "tags": ["SystemController", "negative"]}
+{"name": "uid invalid limit=1.5", "method": "GET", "path": "/api/system/uid?limit=1.5", "tags": ["SystemController", "negative"]}
+{"name": "uid invalid limit=99999999999", "method": "GET", "path": "/api/system/uid?limit=99999999999", "tags": ["SystemController", "negative"]}
+{"name": "uid invalid limit=%C2%A05", "method": "GET", "path": "/api/system/uid?limit=%C2%A05", "tags": ["SystemController", "negative"]}
+{"name": "uid invalid limit=0xZZ", "method": "GET", "path": "/api/system/uid?limit=0xZZ", "tags": ["SystemController", "negative"]}
+{"name": "uid invalid limit=0x-1", "method": "GET", "path": "/api/system/uid?limit=0x-1", "tags": ["SystemController", "negative"]}
+{"name": "uid accept json", "method": "GET", "path": "/api/system/uid", "tags": ["SystemController"], "headers": {"Accept": "application/json"}}
+{"name": "uid accept csv", "method": "GET", "path": "/api/system/uid?limit=4", "tags": ["SystemController"], "headers": {"Accept": "application/csv"}}
+{"name": "uid accept csv,json", "method": "GET", "path": "/api/system/uid", "tags": ["SystemController"], "headers": {"Accept": "application/csv, application/json"}}
+{"name": "uid accept */*,csv", "method": "GET", "path": "/api/system/uid", "tags": ["SystemController"], "headers": {"Accept": "*/*, application/csv"}}
+{"name": "uid accept text/csv", "method": "GET", "path": "/api/system/uid", "tags": ["SystemController", "negative"], "headers": {"Accept": "text/csv"}}
+{"name": "uid accept xml", "method": "GET", "path": "/api/system/uid", "tags": ["SystemController", "negative"], "headers": {"Accept": "application/xml"}}
+{"name": "uid accept csv q", "method": "GET", "path": "/api/system/uid", "tags": ["SystemController"], "headers": {"Accept": "application/csv;q=0.9, application/json"}}
+{"name": "uid .json", "method": "GET", "path": "/api/system/uid.json?limit=2", "tags": ["SystemController"]}
+{"name": "uid .csv", "method": "GET", "path": "/api/system/uid.csv", "tags": ["SystemController", "negative"]}
+{"name": "uid versioned", "method": "GET", "path": "/api/41/system/uid?limit=2", "tags": ["SystemController"]}
+{"name": "uid trailing slash", "method": "GET", "path": "/api/system/uid/", "tags": ["SystemController"]}
+{"name": "uid text/csv + bad limit", "method": "GET", "path": "/api/system/uid?limit=abc", "tags": ["SystemController", "negative"], "headers": {"Accept": "text/csv"}}
+{"name": "uid head", "method": "HEAD", "path": "/api/system/uid", "tags": ["SystemController"]}
+{"name": "uid head csv", "method": "HEAD", "path": "/api/system/uid", "tags": ["SystemController"], "headers": {"Accept": "application/csv"}}
+{"name": "uid post", "method": "POST", "path": "/api/system/uid", "tags": ["SystemController", "negative"]}
+{"name": "uid wrong password", "method": "GET", "path": "/api/system/uid", "tags": ["SystemController", "negative"], "headers": {"Authorization": "Basic YWRtaW46d3Jvbmc="}}
+{"name": "uid no credentials", "method": "GET", "path": "/api/system/uid", "tags": ["SystemController", "negative"], "headers": {"Authorization": ""}}
+{"name": "id default", "method": "GET", "path": "/api/system/id", "tags": ["SystemController"]}
+{"name": "id limit=3", "method": "GET", "path": "/api/system/id?limit=3", "tags": ["SystemController"]}
+{"name": "id limit=-5", "method": "GET", "path": "/api/system/id?limit=-5", "tags": ["SystemController"]}
+{"name": "id limit=0", "method": "GET", "path": "/api/system/id?limit=0", "tags": ["SystemController"]}
+{"name": "id limit=20000", "method": "GET", "path": "/api/system/id?limit=20000", "tags": ["SystemController"]}
+{"name": "id limit=0x10", "method": "GET", "path": "/api/system/id?limit=0x10", "tags": ["SystemController"]}
+{"name": "id limit=%233", "method": "GET", "path": "/api/system/id?limit=%233", "tags": ["SystemController"]}
+{"name": "id limit=-0x2", "method": "GET", "path": "/api/system/id?limit=-0x2", "tags": ["SystemController"]}
+{"name": "id limit=010", "method": "GET", "path": "/api/system/id?limit=010", "tags": ["SystemController"]}
+{"name": "id limit=", "method": "GET", "path": "/api/system/id?limit=", "tags": ["SystemController"]}
+{"name": "id limit=%20", "method": "GET", "path": "/api/system/id?limit=%20", "tags": ["SystemController"]}
+{"name": "id limit=%203", "method": "GET", "path": "/api/system/id?limit=%203", "tags": ["SystemController"]}
+{"name": "id limit=1%092", "method": "GET", "path": "/api/system/id?limit=1%092", "tags": ["SystemController"]}
+{"name": "id limit=%D9%A3", "method": "GET", "path": "/api/system/id?limit=%D9%A3", "tags": ["SystemController"]}
+{"name": "id limit=%EF%BC%93", "method": "GET", "path": "/api/system/id?limit=%EF%BC%93", "tags": ["SystemController"]}
+{"name": "id limit=3&limit=5", "method": "GET", "path": "/api/system/id?limit=3&limit=5", "tags": ["SystemController"]}
+{"name": "id LIMIT=3", "method": "GET", "path": "/api/system/id?LIMIT=3", "tags": ["SystemController"]}
+{"name": "id invalid limit=abc", "method": "GET", "path": "/api/system/id?limit=abc", "tags": ["SystemController", "negative"]}
+{"name": "id invalid limit=1.5", "method": "GET", "path": "/api/system/id?limit=1.5", "tags": ["SystemController", "negative"]}
+{"name": "id invalid limit=99999999999", "method": "GET", "path": "/api/system/id?limit=99999999999", "tags": ["SystemController", "negative"]}
+{"name": "id invalid limit=%C2%A05", "method": "GET", "path": "/api/system/id?limit=%C2%A05", "tags": ["SystemController", "negative"]}
+{"name": "id invalid limit=0xZZ", "method": "GET", "path": "/api/system/id?limit=0xZZ", "tags": ["SystemController", "negative"]}
+{"name": "id invalid limit=0x-1", "method": "GET", "path": "/api/system/id?limit=0x-1", "tags": ["SystemController", "negative"]}
+{"name": "id accept json", "method": "GET", "path": "/api/system/id", "tags": ["SystemController"], "headers": {"Accept": "application/json"}}
+{"name": "id accept csv", "method": "GET", "path": "/api/system/id?limit=4", "tags": ["SystemController"], "headers": {"Accept": "application/csv"}}
+{"name": "id accept csv,json", "method": "GET", "path": "/api/system/id", "tags": ["SystemController"], "headers": {"Accept": "application/csv, application/json"}}
+{"name": "id accept */*,csv", "method": "GET", "path": "/api/system/id", "tags": ["SystemController"], "headers": {"Accept": "*/*, application/csv"}}
+{"name": "id accept text/csv", "method": "GET", "path": "/api/system/id", "tags": ["SystemController", "negative"], "headers": {"Accept": "text/csv"}}
+{"name": "id accept xml", "method": "GET", "path": "/api/system/id", "tags": ["SystemController", "negative"], "headers": {"Accept": "application/xml"}}
+{"name": "id accept csv q", "method": "GET", "path": "/api/system/id", "tags": ["SystemController"], "headers": {"Accept": "application/csv;q=0.9, application/json"}}
+{"name": "id .json", "method": "GET", "path": "/api/system/id.json?limit=2", "tags": ["SystemController"]}
+{"name": "id .csv", "method": "GET", "path": "/api/system/id.csv", "tags": ["SystemController", "negative"]}
+{"name": "id versioned", "method": "GET", "path": "/api/41/system/id?limit=2", "tags": ["SystemController"]}
+{"name": "id trailing slash", "method": "GET", "path": "/api/system/id/", "tags": ["SystemController"]}
+{"name": "id text/csv + bad limit", "method": "GET", "path": "/api/system/id?limit=abc", "tags": ["SystemController", "negative"], "headers": {"Accept": "text/csv"}}
+{"name": "id head", "method": "HEAD", "path": "/api/system/id", "tags": ["SystemController"]}
+{"name": "id head csv", "method": "HEAD", "path": "/api/system/id", "tags": ["SystemController"], "headers": {"Accept": "application/csv"}}
+{"name": "id post", "method": "POST", "path": "/api/system/id", "tags": ["SystemController", "negative"]}
+{"name": "id wrong password", "method": "GET", "path": "/api/system/id", "tags": ["SystemController", "negative"], "headers": {"Authorization": "Basic YWRtaW46d3Jvbmc="}}
+{"name": "id no credentials", "method": "GET", "path": "/api/system/id", "tags": ["SystemController", "negative"], "headers": {"Authorization": ""}}
+{"name": "uuid default", "method": "GET", "path": "/api/system/uuid", "tags": ["SystemController"]}
+{"name": "uuid limit", "method": "GET", "path": "/api/system/uuid?limit=3", "tags": ["SystemController"]}
+{"name": "uuid xml", "method": "GET", "path": "/api/system/uuid", "tags": ["SystemController"], "headers": {"Accept": "application/xml"}}
+{"name": "uuid bad limit", "method": "GET", "path": "/api/system/uuid?limit=x", "tags": ["SystemController", "negative"]}

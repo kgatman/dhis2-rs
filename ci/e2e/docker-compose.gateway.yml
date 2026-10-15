@@ -37,12 +37,18 @@ services:
   gateway:
     image: "${GATEWAY_IMAGE:-dhis2-rust/gateway:local}"
     network_mode: "service:test"
+    # DHIS2_HOME must be a writable directory (DefaultLocationManager semantics); the image's
+    # nonroot user cannot write the mount point's parent, so run as root in this test stack.
+    user: "0"
     environment:
+      # Same dhis.conf as the Java server, so the Rust handlers use the same database.
+      DHIS2_HOME: /tmp/dhis2
       GATEWAY_LISTEN: 0.0.0.0:8080
       GATEWAY_JAVA_UPSTREAM: http://java:8080
       GATEWAY_INJECT_FORWARDED_FOR: "false"
       GATEWAY_ROUTES: /etc/dhis2-rust/routes.toml
       RUST_LOG: "${GATEWAY_LOG:-info}"
     volumes:
+      - ./config/dhis2_home/dhis.conf:/tmp/dhis2/dhis.conf:ro
       # Absolute path (relative paths would resolve against dhis-test-e2e). ci/e2e/run.sh sets it.
       - "${GATEWAY_ROUTES_FILE:?set GATEWAY_ROUTES_FILE to the absolute path of config/routes.toml}:/etc/dhis2-rust/routes.toml:ro"
