@@ -12,7 +12,17 @@
 //! key = "serverDate"
 //! paths = ["/api/system/info"]   # optional: only for cases whose path starts with one of these
 //! reason = "Wall clock time of the server."
+//!
+//!
+//! [[replace]]
+//! regex = "[a-zA-Z][a-zA-Z0-9]{10}"
+//! with = "<uid>"
+//! paths = ["/api/system/uid", "/api/system/id"]
+//! reason = "Freshly generated UIDs are random; the count and shape are what must match."
 //! ```
+//!
+//! `replace` rules run on the canonical text form (after JSON normalisation), so they apply to
+//! JSON, CSV and XML alike.
 //!
 //! JSON bodies are compared structurally: object key order is ignored (it is not significant in
 //! JSON), array order is kept. Non-JSON bodies are compared byte for byte.
@@ -35,6 +45,28 @@ pub struct Rules {
     compare_headers: Option<Vec<String>>,
     #[serde(default)]
     ignore_key: Vec<IgnoreKey>,
+    #[serde(default)]
+    replace: Vec<Replace>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Replace {
+    #[serde(with = "serde_regex")]
+    pub regex: regex::Regex,
+    pub with: String,
+    #[serde(default)]
+    pub paths: Vec<String>,
+    pub reason: String,
+}
+
+mod serde_regex {
+    use serde::{Deserialize, Deserializer};
+
+    pub fn deserialize<'de, D: Deserializer<'de>>(d: D) -> Result<regex::Regex, D::Error> {
+        let s = String::deserialize(d)?;
+        regex::Regex::new(&s).map_err(serde::de::Error::custom)
+    }
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -49,6 +81,14 @@ pub struct IgnoreKey {
 impl Rules {
     pub fn parse(text: &str) -> Result<Self> {
         let rules: Rules = toml::from_str(text)?;
+        for (i, r) in rules.replace.iter().enumerate() {
+            if r.reason.trim().len() < 10 {
+                bail!(
+                    "replace[{i}] ({}): every rule needs a real `reason`",
+                    r.regex
+                );
+            }
+        }
         for (i, r) in rules.ignore_key.iter().enumerate() {
             if r.reason.trim().len() < 10 {
                 bail!(
@@ -75,6 +115,16 @@ impl Rules {
 
     /// A canonical text form of the body for comparison and diffing.
     pub fn normalize_body(&self, case: &Case, headers: &HeaderMap, body: &[u8]) -> String {
+        let mut text = self.canonical(case, headers, body);
+        for r in &self.replace {
+            if r.paths.is_empty() || r.paths.iter().any(|p| case.path.starts_with(p)) {
+                text = r.regex.replace_all(&text, r.with.as_str()).into_owned();
+            }
+        }
+        text
+    }
+
+    fn canonical(&self, case: &Case, headers: &HeaderMap, body: &[u8]) -> String {
         let is_json = headers
             .get(http::header::CONTENT_TYPE)
             .and_then(|v| v.to_str().ok())
@@ -170,6 +220,27 @@ mod tests {
         assert!(!n.contains("serverDate"));
         let n = r.normalize_body(&case("/api/me"), &json_headers(), body);
         assert!(n.contains("serverDate"));
+    }
+
+    #[test]
+    fn replace_rules() {
+        let r = Rules::parse(
+            "[[replace]]\nregex = \"[a-zA-Z][a-zA-Z0-9]{10}\"\nwith = \"<uid>\"\n\
+             reason = \"generated UIDs are random\"",
+        )
+        .unwrap();
+        let a = r.normalize_body(
+            &case("/a"),
+            &json_headers(),
+            br#"{"codes":["abcdefghijk"]}"#,
+        );
+        let b = r.normalize_body(
+            &case("/a"),
+            &json_headers(),
+            br#"{"codes":["Zyxwvutsrq1"]}"#,
+        );
+        assert_eq!(a, b);
+        assert!(Rules::parse("[[replace]]\nregex = \"x\"\nwith = \"y\"\nreason = \"\"").is_err());
     }
 
     #[test]

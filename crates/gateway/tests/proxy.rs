@@ -84,12 +84,18 @@ fn find(hay: &[u8], needle: &[u8]) -> Option<usize> {
 }
 
 async fn gateway(java: SocketAddr, routes: RouteTable, inject_xff: bool) -> SocketAddr {
-    let rust = axum::Router::new().route("/api/ping", get(|| async { "pong" }));
+    let rust = axum::Router::new()
+        .route("/api/ping", get(|| async { "pong" }))
+        .route(
+            "/api/partial",
+            get(|| async { dhis_web::http::fallback("not ported") }),
+        );
     let gw = Arc::new(Gateway::new(
         Config {
             java_upstream: format!("http://{java}").parse().unwrap(),
             inject_forwarded_for: inject_xff,
             shadow: Default::default(),
+            delegate_auth: false,
         },
         routes,
         rust,
@@ -277,4 +283,27 @@ async fn response_uses_client_http_version() {
     let gw = gateway(java.addr, RouteTable::all_java(), true).await;
     let resp = raw_request(gw, "GET / HTTP/1.1\r\nHost: h\r\n\r\n").await;
     assert!(resp.starts_with("HTTP/1.1 200"), "{resp:?}");
+}
+
+#[tokio::test]
+async fn fallback_replays_the_original_request_to_java() {
+    let java = upstream("HTTP/1.1 200 \r\nContent-Length: 4\r\n\r\njava").await;
+    let routes = RouteTable::parse(
+        "[[route]]\nmethods = [\"GET\"]\npath = \"/api/partial\"\nbackend = \"rust\"\n",
+    )
+    .unwrap();
+    let gw = gateway(java.addr, routes, false).await;
+    // Versioned path + extension: Rust sees the normalised path, Java the original one.
+    let resp = raw_request(
+        gw,
+        "GET /api/41/partial.json?x=1 HTTP/1.1\r\nHost: h\r\nX-Custom: a\r\n\r\n",
+    )
+    .await;
+    assert!(resp.ends_with("java"), "{resp}");
+    let r = java.requests.lock().unwrap()[0].clone();
+    assert!(
+        r.starts_with("GET /api/41/partial.json?x=1 HTTP/1.1\r\n"),
+        "{r}"
+    );
+    assert!(r.contains("X-Custom: a\r\n"), "{r}");
 }

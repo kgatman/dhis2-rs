@@ -5,7 +5,7 @@ use anyhow::{Context, Result};
 use clap::Parser;
 use gateway::{Config, Gateway, RouteTable, ShadowConfig};
 use tokio::net::TcpListener;
-use tracing::{error, info};
+use tracing::{error, info, warn};
 
 #[derive(Parser)]
 #[command(about = "DHIS2 strangler-fig gateway: Java by default, Rust per route table")]
@@ -28,6 +28,41 @@ struct Args {
     /// Append shadow comparison results here (JSON lines).
     #[arg(long, env = "GATEWAY_SHADOW_LOG")]
     shadow_log: Option<PathBuf>,
+    /// DHIS2_HOME holding dhis.conf, for the Rust handlers (stand-in for -Ddhis2.home; the
+    /// DHIS2_HOME env var and /opt/dhis2 are used otherwise, as in Java).
+    #[arg(long)]
+    dhis2_home: Option<String>,
+    /// Max connections of the Rust DB pool (Java's own pool uses connection.pool.max_size;
+    /// both must fit in Postgres max_connections).
+    #[arg(long, env = "GATEWAY_DB_POOL_MAX", default_value_t = 10)]
+    db_pool_max: u32,
+}
+
+/// The Rust router, or one that hands everything back to Java when dhis.conf is not available
+/// (e.g. a gateway deployed purely as a proxy).
+fn rust_router(args: &Args) -> axum::Router {
+    let opts = dhis_config::LoadOptions::from_process(args.dhis2_home.clone());
+    let config = match dhis_config::DhisConfigurationProvider::load(&opts) {
+        Ok(c) => c,
+        Err(e) => {
+            warn!("dhis.conf not loaded ({e}); every Rust route falls back to Java");
+            return axum::Router::new()
+                .fallback(|| async { dhis_web::http::fallback("rust side not configured") });
+        }
+    };
+    let pool = match dhis_db::pool(&config, Some(args.db_pool_max)) {
+        Ok(p) => p,
+        Err(e) => {
+            warn!("database pool not created ({e}); every Rust route falls back to Java");
+            return axum::Router::new()
+                .fallback(|| async { dhis_web::http::fallback("rust side not configured") });
+        }
+    };
+    info!(home = ?config.home(), "Rust side configured");
+    dhis_web::router(Arc::new(dhis_web::AppState {
+        config: Arc::new(config),
+        cors_whitelist: dhis_web::CorsWhitelistSource::Db(pool),
+    }))
 }
 
 fn load_routes(path: Option<&PathBuf>) -> Result<RouteTable> {
@@ -64,9 +99,10 @@ async fn main() -> Result<()> {
                 log_path: args.shadow_log.clone(),
                 ..ShadowConfig::default()
             },
+            delegate_auth: true,
         },
         routes,
-        dhis_web::router(),
+        rust_router(&args),
     ));
 
     #[cfg(unix)]

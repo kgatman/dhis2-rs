@@ -149,6 +149,12 @@ impl Shadow {
         }
     }
 
+    /// The Rust side did not produce a comparable response (fallback, auth).
+    pub(crate) fn skip(&self, method: &Method, path: &str, reason: &str) {
+        self.skipped.fetch_add(1, Ordering::Relaxed);
+        self.record(method, path, "skipped", &[reason.to_string()]);
+    }
+
     fn record(&self, method: &Method, path: &str, outcome: &str, diffs: &[String]) {
         let mut guard = self.log.lock().unwrap_or_else(|e| e.into_inner());
         if let Some(f) = guard.as_mut() {

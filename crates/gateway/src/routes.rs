@@ -226,6 +226,27 @@ impl Rule {
     }
 }
 
+/// The path a handler sees after Java's normalisation (version prefix, one trailing slash and a
+/// registered media-type extension stripped), plus the stripped extension.
+pub fn normalize(path: &str) -> (String, Option<String>) {
+    let unversioned = match API_VERSION.captures(path) {
+        Some(c) => format!("{}{}", &c[1], &c[3]),
+        None => path.to_string(),
+    };
+    let mut p = unversioned.as_str();
+    if p.len() > 1 && p.ends_with('/') {
+        p = &p[..p.len() - 1];
+    }
+    let last_sep = p.rfind('/').map_or(0, |i| i + 1);
+    if let Some(dot) = p[last_sep..].find('.') {
+        let ext = &p[last_sep + dot + 1..];
+        if MEDIA_TYPE_EXTENSIONS.contains(&ext) {
+            return (p[..last_sep + dot].to_string(), Some(ext.to_string()));
+        }
+    }
+    (p.to_string(), None)
+}
+
 /// The version-stripped path, and its suffix/slash-normalised form when different.
 pub fn candidate_paths(path: &str) -> Vec<String> {
     let unversioned = match API_VERSION.captures(path) {
@@ -345,6 +366,20 @@ backend = "java"
             vec!["/api/dataValueSets.adx.xml.gz", "/api/dataValueSets"]
         );
         assert_eq!(candidate_paths("/"), vec!["/"]);
+    }
+
+    #[test]
+    fn normalize_like_java() {
+        assert_eq!(
+            normalize("/api/41/system/uid.json/"),
+            ("/api/system/uid".into(), Some("json".into()))
+        );
+        assert_eq!(
+            normalize("/api/x.adx.xml.gz"),
+            ("/api/x".into(), Some("adx.xml.gz".into()))
+        );
+        assert_eq!(normalize("/api/x.txt"), ("/api/x.txt".into(), None));
+        assert_eq!(normalize("/"), ("/".into(), None));
     }
 
     #[test]

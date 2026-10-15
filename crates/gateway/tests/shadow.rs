@@ -71,6 +71,7 @@ async fn setup(rules: &str) -> (Arc<Gateway>, std::net::SocketAddr) {
                 rules: diffcheck::Rules::parse(rules).unwrap(),
                 ..ShadowConfig::default()
             },
+            delegate_auth: false,
         },
         routes,
         rust,

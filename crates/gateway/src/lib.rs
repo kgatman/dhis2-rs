@@ -15,9 +15,13 @@
 //!
 //! `shadow` routes (GET/HEAD only) are served by Java while the request is replayed to Rust in the
 //! background; the responses are compared with diffcheck's rules and logged ([`shadow`]).
+//!
+//! Rust requests are authenticated by Java and may fall back to Java ([`rust_side`], ADR 0004).
 
 pub mod routes;
+pub mod rust_side;
 mod shadow;
+pub mod tomcat;
 
 use std::convert::Infallible;
 use std::net::SocketAddr;
@@ -34,10 +38,10 @@ use hyper_util::client::legacy::Client;
 use hyper_util::client::legacy::connect::HttpConnector;
 use hyper_util::rt::{TokioExecutor, TokioIo};
 use tokio::net::TcpListener;
-use tower::ServiceExt;
 use tracing::{debug, error, warn};
 
 pub use routes::{Backend, RouteTable};
+pub use rust_side::{RequestHead, RustOutcome, RustSide};
 pub use shadow::{ShadowConfig, ShadowStats};
 
 pub type BoxError = Box<dyn std::error::Error + Send + Sync>;
@@ -53,13 +57,16 @@ pub struct Config {
     /// when the gateway's peer is not the real client (e.g. sharing a network namespace with it).
     pub inject_forwarded_for: bool,
     pub shadow: ShadowConfig,
+    /// Authenticate Rust-routed requests through Java's `/api/me` (phases 1–6). Off only in
+    /// tests and for routers without authenticated endpoints.
+    pub delegate_auth: bool,
 }
 
 pub struct Gateway {
     config: Config,
     routes: RwLock<Arc<RouteTable>>,
     client: Client<HttpConnector, Body>,
-    rust: axum::Router,
+    rust: Arc<RustSide>,
     shadow: Arc<shadow::Shadow>,
 }
 
@@ -72,11 +79,14 @@ impl Gateway {
             .http1_title_case_headers(true)
             .build(connector);
         let shadow = Arc::new(shadow::Shadow::new(config.shadow.clone()));
+        let auth = config
+            .delegate_auth
+            .then(|| dhis_auth::delegated::JavaAuthenticator::new(config.java_upstream.clone()));
         Self {
+            rust: Arc::new(RustSide::new(rust, auth)),
             config,
             routes: RwLock::new(Arc::new(routes)),
             client,
-            rust,
             shadow,
         }
     }
@@ -84,6 +94,11 @@ impl Gateway {
     /// Swaps the route table (used on `SIGHUP`).
     pub fn set_routes(&self, routes: RouteTable) {
         *self.routes.write().unwrap_or_else(|e| e.into_inner()) = Arc::new(routes);
+    }
+
+    /// Requests the Rust side handed back to Java, by reason.
+    pub fn fallback_counts(&self) -> std::collections::BTreeMap<&'static str, u64> {
+        self.rust.fallback_counts()
     }
 
     pub fn shadow_stats(&self) -> ShadowStats {
@@ -125,10 +140,18 @@ impl Gateway {
         let start = Instant::now();
         let method = req.method().clone();
         let path = req.uri().path().to_string();
-        let (backend, _) = self.routes().route(&method, &path);
+        let (mut backend, _) = self.routes().route(&method, &path);
+        // Requests Tomcat rejects (HTML 400) never reach a servlet; let Java answer them.
+        let target = req.uri().path_and_query().map_or("/", |p| p.as_str());
+        if backend != Backend::Java
+            && (!tomcat::is_valid_request_target(target)
+                || tomcat::has_parameter_decode_failure(req.uri().query()))
+        {
+            backend = Backend::Java;
+        }
         let resp = match backend {
             Backend::Java => self.to_java(req.map(box_incoming), peer).await,
-            Backend::Rust => self.to_rust(req.map(axum::body::Body::new)).await,
+            Backend::Rust => self.to_rust(req, peer).await,
             Backend::Shadow => self.to_shadow(req, peer).await,
         };
         debug!(
@@ -198,10 +221,30 @@ impl Gateway {
         }
     }
 
-    async fn to_rust(&self, req: Request<axum::body::Body>) -> Response<Body> {
-        match self.rust.clone().oneshot(req).await {
-            Ok(resp) => resp.map(|b| b.map_err(Into::into).boxed_unsync()),
-            Err(never) => match never {},
+    async fn to_rust(&self, req: Request<Incoming>, peer: SocketAddr) -> Response<Body> {
+        let (parts, body) = req.into_parts();
+        // Buffered so the request can be replayed to Java on fallback.
+        let body = match body.collect().await {
+            Ok(b) => b.to_bytes(),
+            Err(e) => {
+                debug!("client body read failed: {e}");
+                return status_only(StatusCode::BAD_REQUEST);
+            }
+        };
+        let head = RequestHead::from_parts(&parts);
+        match self.rust.run(&head, body.clone()).await {
+            RustOutcome::Response(mut r) => {
+                // Tomcat writes no reason phrase ("HTTP/1.1 200 "); match it.
+                r.extensions_mut()
+                    .insert(hyper::ext::ReasonPhrase::from_static(b""));
+                r.map(|b| b.map_err(Into::into).boxed_unsync())
+            }
+            RustOutcome::Fallback(_) | RustOutcome::NotAuthenticated => {
+                // `parts` keeps the original extensions (header-case map) for Java.
+                self.to_java(Request::from_parts(parts, full(body)), peer)
+                    .await
+            }
+            RustOutcome::Unavailable => status_only(StatusCode::BAD_GATEWAY),
         }
     }
 
@@ -216,16 +259,8 @@ impl Gateway {
                 return status_only(StatusCode::BAD_REQUEST);
             }
         };
-        let mut rust_req = Request::builder()
-            .method(parts.method.clone())
-            .uri(parts.uri.clone())
-            .version(parts.version);
-        if let Some(h) = rust_req.headers_mut() {
-            *h = parts.headers.clone();
-        }
-        let rust_req = rust_req
-            .body(axum::body::Body::from(body.clone()))
-            .expect("parts of a valid request");
+        let head = RequestHead::from_parts(&parts);
+        let rust_body = body.clone();
         let method = parts.method.clone();
         let path_and_query = parts
             .uri
@@ -244,20 +279,27 @@ impl Gateway {
         let java_headers = java_parts.headers.clone();
         // The Rust side runs off the request path: the client only waits for Java.
         tokio::spawn(async move {
-            let rust_resp = match rust.oneshot(rust_req).await {
-                Ok(r) => r,
-                Err(never) => match never {},
-            };
-            shadow
-                .compare(
-                    method,
-                    path_and_query,
-                    java_status,
-                    java_headers,
-                    java_capture,
-                    rust_resp,
-                )
-                .await;
+            match rust.run(&head, rust_body).await {
+                RustOutcome::Response(rust_resp) => {
+                    shadow
+                        .compare(
+                            method,
+                            path_and_query,
+                            java_status,
+                            java_headers,
+                            java_capture,
+                            rust_resp,
+                        )
+                        .await
+                }
+                RustOutcome::Fallback(reason) => shadow.skip(&method, &path_and_query, reason),
+                RustOutcome::NotAuthenticated => {
+                    shadow.skip(&method, &path_and_query, "not authenticated")
+                }
+                RustOutcome::Unavailable => {
+                    shadow.skip(&method, &path_and_query, "auth unavailable")
+                }
+            }
         });
         Response::from_parts(java_parts, tee.boxed_unsync())
     }

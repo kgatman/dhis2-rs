@@ -15,8 +15,11 @@ anyhow.workspace = true
 axum.workspace = true
 bytes.workspace = true
 clap.workspace = true
+dhis-auth.workspace = true
+dhis-config.workspace = true
+dhis-db.workspace = true
 dhis-web.workspace = true
-diffcheck = { path = "../diffcheck" }
+diffcheck.workspace = true
 http.workspace = true
 http-body-util.workspace = true
 hyper.workspace = true
@@ -32,4 +35,4 @@ tracing.workspace = true
 tracing-subscriber.workspace = true
 
 [dev-dependencies]
-diffcheck = { path = "../diffcheck" }
+diffcheck.workspace = true
