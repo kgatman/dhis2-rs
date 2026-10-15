@@ -11,3 +11,5 @@ publish.workspace = true
 workspace = true
 
 [dependencies]
+rand.workspace = true
+uuid.workspace = true
