@@ -1,0 +1,17 @@
+# Gateway image. Build from the repository root:
+#   docker build -f Dockerfile.gateway -t dhis2-rust/gateway:local .
+FROM rust:1.98-slim-bookworm AS build
+WORKDIR /src
+COPY . .
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/src/target \
+    cargo build --release --locked -p gateway \
+ && cp target/release/gateway /gateway
+
+FROM gcr.io/distroless/cc-debian12:nonroot
+COPY --from=build /gateway /usr/local/bin/gateway
+COPY config/routes.toml /etc/dhis2-rust/routes.toml
+ENV GATEWAY_LISTEN=0.0.0.0:8080 \
+    GATEWAY_ROUTES=/etc/dhis2-rust/routes.toml
+EXPOSE 8080
+ENTRYPOINT ["/usr/local/bin/gateway"]

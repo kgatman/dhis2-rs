@@ -1,0 +1,18 @@
+# Gateway route table. Anything not matched here goes to the Java server.
+#
+# Rules are tried in order; the first match wins. Paths are matched after Java's own
+# normalisation (/api/{28..44}/ prefix, one trailing slash, registered extensions such as
+# .json/.xml/.csv), so "/api/schemas" also covers "/api/41/schemas.json".
+#
+# Pattern segments: literal, "*" or "{name}" (one segment), trailing "**" (any rest).
+#
+# Flip an endpoint only after its diffcheck corpus passes and e2e is green, then update
+# docs/inventory/endpoints.csv (status java -> rust-shadow -> rust). Roll back by deleting the
+# rule and sending SIGHUP to the gateway (or restarting it).
+#
+# Example:
+# [[route]]
+# methods = ["GET"]
+# path = "/api/schemas/**"
+# backend = "rust"
+# note = "SchemaController (phase 2)"

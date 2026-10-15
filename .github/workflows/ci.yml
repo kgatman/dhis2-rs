@@ -1,0 +1,52 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_TOOLCHAIN: "1.98"
+
+jobs:
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Read pinned dhis2-core ref
+        id: core
+        run: echo "sha=$(cat ci/dhis2-core.ref)" >> "$GITHUB_OUTPUT"
+
+      # The Java source is the specification: inventory generation and the dhis.conf tests
+      # read it. Shallow checkout of the pinned commit, never modified.
+      - uses: actions/checkout@v7
+        with:
+          repository: dhis2/dhis2-core
+          ref: ${{ steps.core.outputs.sha }}
+          path: dhis2-core
+          fetch-depth: 1
+
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      - run: cargo fmt --all --check
+      - run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - run: cargo test --workspace --locked
+        env:
+          DHIS2_CORE_DIR: ${{ github.workspace }}/dhis2-core
+      - name: Inventory is up to date with the pinned Java source
+        run: cargo run --locked -p dhis-inventory -- --java-root dhis2-core --check

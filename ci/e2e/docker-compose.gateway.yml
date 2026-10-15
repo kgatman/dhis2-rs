@@ -1,0 +1,48 @@
+# Runs dhis2-core's dhis-test-e2e suite through the Rust gateway.
+#
+# Layer it on top of the upstream files, from dhis2-core/dhis-2/dhis-test-e2e:
+#   docker compose -f docker-compose.yml -f docker-compose.e2e.yml \
+#     -f <this file> up --remove-orphans --exit-code-from test
+#
+# Wiring (so that neither the tests nor Java see a difference):
+# - The gateway shares the test container's network namespace, and "web" resolves to 127.0.0.1
+#   inside it. The tests keep calling http://web:8080 (same Host header as upstream), but they
+#   reach the gateway.
+# - Java gets the extra alias "java"; the gateway forwards there. Java sees connections from
+#   172.30.0.10, the test container's fixed IP, exactly as without the gateway. That keeps the
+#   impersonation IP allowlist in dhis.conf valid. For the same reason the gateway does not
+#   inject X-Forwarded-For here (its peer is the test process on loopback).
+# - Selenium-driven flows also go through the gateway ("web" -> 172.30.0.10:8080).
+services:
+  web:
+    networks:
+      default:
+        aliases: [java]
+
+  test:
+    extra_hosts:
+      - "web:127.0.0.1"
+    # Same as docker-compose.e2e.yml, but waits for Java itself before the gateway port, and
+    # without ReportPortal publishing.
+    command: >
+      sh -c './wait-for-it.sh java:8080 -t 900 --
+      ./wait-for-it.sh web:8080 -t 120 --
+      mvn test $$DHIS2_E2E_TEST_ARGS $$DHIS2_E2E_TEST_USER_ARGS --batch-mode --no-transfer-progress
+      -Dinstance.url=http://web:8080/api -Dtest.cleanup=false -Dtest.track_called_endpoints=true'
+
+  selenium:
+    extra_hosts:
+      - "web:172.30.0.10"
+
+  gateway:
+    image: "${GATEWAY_IMAGE:-dhis2-rust/gateway:local}"
+    network_mode: "service:test"
+    environment:
+      GATEWAY_LISTEN: 0.0.0.0:8080
+      GATEWAY_JAVA_UPSTREAM: http://java:8080
+      GATEWAY_INJECT_FORWARDED_FOR: "false"
+      GATEWAY_ROUTES: /etc/dhis2-rust/routes.toml
+      RUST_LOG: "${GATEWAY_LOG:-info}"
+    volumes:
+      # Absolute path (relative paths would resolve against dhis-test-e2e). ci/e2e/run.sh sets it.
+      - "${GATEWAY_ROUTES_FILE:?set GATEWAY_ROUTES_FILE to the absolute path of config/routes.toml}:/etc/dhis2-rust/routes.toml:ro"
