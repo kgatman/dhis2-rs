@@ -4,7 +4,7 @@ _Read this first at the start of every session; update it at the end._
 
 - **Last updated:** 2026-10-15 (session 1, continued)
 - **Java reference:** dhis2-core `2a7855b69e` (2.44-SNAPSHOT), pinned in `ci/dhis2-core.ref`
-- **Current phase:** 1 (Foundations). Phase 0 (inventory) is done.
+- **Current phase:** 1 (Foundations), done except CI on a remote. Next: phase 2.
 
 ## Ledger
 
@@ -48,17 +48,21 @@ Regenerate the inventory with `tools/gen-inventory.sh`. CI fails if it is stale.
     (to be confirmed with a live request).
 - Gateway **shadow mode** (GET/HEAD only, Rust compared off the request path, no added latency).
 - Phase-2 seed corpus `corpus/phase2/*.jsonl` (40 read-only cases).
-- **e2e through the gateway, partial:** the stack starts, the tests reach Java via the gateway,
-  and Java sees the test container IP (`ip: 172.30.0.10`) and the original Host. The full suite
-  did **not** complete locally: Java was OOM-killed twice (see blocker below).
+- **e2e through the gateway: green.** Full `dhis-test-e2e` at the pinned ref, all routes to Java
+  through the gateway: **589 run, 0 failures, 0 errors, 14 skipped**. The direct-to-Java baseline
+  gives the identical result (589/0/0/14), so the gateway is transparent to the suite and there
+  are no known upstream failures at this ref. Java saw the test container IP (`172.30.0.10`) on
+  805 auth events. The single other IP is RouteTest's Java-to-itself call, which bypasses the
+  gateway in both setups. Logs: `target/e2e/` (not committed).
+- Gateway now exits on SIGTERM (it was killed with 137 on `docker stop`).
 
-## Blocker
+## Local e2e notes
 
-- **Local Docker memory.** The Docker VM has 7.75 GB, and other stacks (`bahmni-standard-*`,
-  `vuba-*`) use about 5.5 GB of it. The e2e stack needs about 5 GB more (upstream runs it on 16 GB
-  CI runners). Options: stop those stacks during the run, raise Docker Desktop memory to 12+ GB,
-  or push to GitHub and run `.github/workflows/e2e.yml`. `E2E_LOW_MEMORY=1` (heap caps) was not
-  enough with the other stacks running.
+- The e2e stack needs about 5.5 GB of Docker memory. On this machine (7.75 GB VM), stop other
+  stacks for the run (about 25 min per run). `E2E_LOW_MEMORY=1` alone was not enough while
+  ~5.5 GB was taken by other containers.
+- Use a clone of dhis2-core at `ci/dhis2-core.ref` for `DHIS2_CORE_DIR`; Maven/compose write
+  build output there. The `../dhis2-core` checkout stays untouched.
 
 ## Open problems / risks
 
@@ -79,9 +83,8 @@ Regenerate the inventory with `tools/gen-inventory.sh`. CI fails if it is stale.
 
 ## Next three tasks
 
-1. **Full e2e run through the gateway, plus a direct baseline**, once the memory blocker is
-   resolved (`DHIS2_CORE_DIR=<pinned clone> ci/e2e/run.sh`, then the same suite without the
-   override). Record baseline failures here as known upstream issues.
+1. **Push to a remote** so `ci.yml`/`e2e.yml` run on every change. They have only been exercised
+   locally so far (same commands).
 2. **Start phase 2 with `/api/system/info` and `/api/schemas`.** Read `SystemController`,
    `SchemaController`, `dhis-service-schema` and their tests. Build `dhis-schema` and the
    `WebMessage` error envelope in `dhis-web`. Mount them as `shadow` routes and drive them with
