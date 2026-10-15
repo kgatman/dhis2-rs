@@ -1,0 +1,13 @@
+[package]
+name = "dhis-auth"
+description = "Sessions, PATs, OAuth2/OIDC, LDAP and 2FA."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]

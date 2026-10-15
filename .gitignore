@@ -1,0 +1,4 @@
+/target
+*.swp
+.DS_Store
+/ci/e2e/.dhis2-core

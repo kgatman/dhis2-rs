@@ -1,0 +1,13 @@
+[package]
+name = "dhis-files"
+description = "File resources, apps, static content and icons."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]

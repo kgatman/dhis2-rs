@@ -1,0 +1,13 @@
+[package]
+name = "dhis-acl"
+description = "Authorities, sharing/ACL checks and org-unit scoping."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
