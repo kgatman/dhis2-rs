@@ -1,0 +1,182 @@
+//! Response normalisation rules.
+//!
+//! ```toml
+//! # Headers compared in addition to the status code and body.
+//! compare_headers = ["content-type", "content-disposition", "location"]
+//!
+//! [[ignore_key]]
+//! key = "lastUpdated"
+//! reason = "Set to now() on every write; differs between the two runs."
+//!
+//! [[ignore_key]]
+//! key = "serverDate"
+//! paths = ["/api/system/info"]   # optional: only for cases whose path starts with one of these
+//! reason = "Wall clock time of the server."
+//! ```
+//!
+//! JSON bodies are compared structurally: object key order is ignored (it is not significant in
+//! JSON), array order is kept. Non-JSON bodies are compared byte for byte.
+
+use std::path::Path;
+
+use anyhow::{Context, Result, bail};
+use http::HeaderMap;
+use serde::Deserialize;
+use serde_json::Value;
+
+use crate::corpus::Case;
+
+const DEFAULT_HEADERS: &[&str] = &["content-type", "content-disposition", "location"];
+
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Rules {
+    #[serde(default)]
+    compare_headers: Option<Vec<String>>,
+    #[serde(default)]
+    ignore_key: Vec<IgnoreKey>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct IgnoreKey {
+    pub key: String,
+    #[serde(default)]
+    pub paths: Vec<String>,
+    pub reason: String,
+}
+
+impl Rules {
+    pub fn parse(text: &str) -> Result<Self> {
+        let rules: Rules = toml::from_str(text)?;
+        for (i, r) in rules.ignore_key.iter().enumerate() {
+            if r.reason.trim().len() < 10 {
+                bail!(
+                    "ignore_key[{i}] ({:?}): every rule needs a real `reason` explaining why the \
+                     difference is irrelevant",
+                    r.key
+                );
+            }
+        }
+        Ok(rules)
+    }
+
+    pub fn load(path: &Path) -> Result<Self> {
+        let text =
+            std::fs::read_to_string(path).with_context(|| format!("reading {}", path.display()))?;
+        Self::parse(&text).with_context(|| path.display().to_string())
+    }
+
+    pub fn compared_headers(&self) -> Vec<String> {
+        self.compare_headers
+            .clone()
+            .unwrap_or_else(|| DEFAULT_HEADERS.iter().map(|s| s.to_string()).collect())
+    }
+
+    /// A canonical text form of the body for comparison and diffing.
+    pub fn normalize_body(&self, case: &Case, headers: &HeaderMap, body: &[u8]) -> String {
+        let is_json = headers
+            .get(http::header::CONTENT_TYPE)
+            .and_then(|v| v.to_str().ok())
+            .is_some_and(|ct| ct.contains("json"));
+        if is_json && let Ok(mut v) = serde_json::from_slice::<Value>(body) {
+            let keys: Vec<&str> = self
+                .ignore_key
+                .iter()
+                .filter(|r| r.paths.is_empty() || r.paths.iter().any(|p| case.path.starts_with(p)))
+                .map(|r| r.key.as_str())
+                .collect();
+            strip_keys(&mut v, &keys);
+            // serde_json's default Map is a BTreeMap, so this prints keys sorted.
+            return serde_json::to_string_pretty(&v).unwrap_or_default();
+        }
+        String::from_utf8_lossy(body).into_owned()
+    }
+}
+
+fn strip_keys(v: &mut Value, keys: &[&str]) {
+    match v {
+        Value::Object(map) => {
+            for k in keys {
+                map.remove(*k);
+            }
+            for child in map.values_mut() {
+                strip_keys(child, keys);
+            }
+        }
+        Value::Array(items) => {
+            for child in items {
+                strip_keys(child, keys);
+            }
+        }
+        _ => {}
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use http::HeaderValue;
+
+    fn json_headers() -> HeaderMap {
+        let mut h = HeaderMap::new();
+        h.insert(
+            "content-type",
+            HeaderValue::from_static("application/json;charset=UTF-8"),
+        );
+        h
+    }
+
+    fn case(path: &str) -> Case {
+        Case {
+            name: "t".into(),
+            method: "GET".into(),
+            path: path.into(),
+            headers: Default::default(),
+            body: None,
+            tags: vec![],
+        }
+    }
+
+    #[test]
+    fn rules_require_reasons() {
+        assert!(Rules::parse("[[ignore_key]]\nkey = \"x\"\nreason = \"\"").is_err());
+        assert!(Rules::parse("[[ignore_key]]\nkey = \"x\"").is_err());
+        assert!(
+            Rules::parse("[[ignore_key]]\nkey = \"x\"\nreason = \"wall clock timestamp\"").is_ok()
+        );
+    }
+
+    #[test]
+    fn key_order_is_ignored_array_order_is_not() {
+        let r = Rules::default();
+        let c = case("/api/x");
+        let a = r.normalize_body(&c, &json_headers(), br#"{"a":1,"b":[1,2]}"#);
+        let b = r.normalize_body(&c, &json_headers(), br#"{"b":[1,2],"a":1}"#);
+        let d = r.normalize_body(&c, &json_headers(), br#"{"b":[2,1],"a":1}"#);
+        assert_eq!(a, b);
+        assert_ne!(a, d);
+    }
+
+    #[test]
+    fn ignored_keys_are_scoped_by_path() {
+        let r = Rules::parse(
+            "[[ignore_key]]\nkey = \"serverDate\"\npaths = [\"/api/system/info\"]\n\
+             reason = \"wall clock time of the server\"",
+        )
+        .unwrap();
+        let body = br#"{"serverDate":"2026-01-01","nested":{"serverDate":"x"},"v":1}"#;
+        let n = r.normalize_body(&case("/api/system/info"), &json_headers(), body);
+        assert!(!n.contains("serverDate"));
+        let n = r.normalize_body(&case("/api/me"), &json_headers(), body);
+        assert!(n.contains("serverDate"));
+    }
+
+    #[test]
+    fn non_json_is_compared_verbatim() {
+        let r = Rules::default();
+        let mut h = HeaderMap::new();
+        h.insert("content-type", HeaderValue::from_static("text/csv"));
+        assert_eq!(r.normalize_body(&case("/a"), &h, b"a,b\n"), "a,b\n");
+    }
+}

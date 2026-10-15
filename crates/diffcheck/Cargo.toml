@@ -1,0 +1,29 @@
+[package]
+name = "diffcheck"
+description = "Differential oracle: replays a request corpus against Java and Rust and diffs normalised responses."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow.workspace = true
+base64.workspace = true
+bytes.workspace = true
+clap.workspace = true
+http.workspace = true
+http-body-util.workspace = true
+hyper.workspace = true
+hyper-util.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+similar.workspace = true
+tokio.workspace = true
+toml.workspace = true
+
+[dev-dependencies]
+axum.workspace = true
