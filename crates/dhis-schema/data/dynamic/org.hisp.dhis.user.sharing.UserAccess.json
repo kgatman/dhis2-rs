@@ -1,0 +1,60 @@
+{
+ "__schema__": {
+  "name": "userAccess",
+  "propertyType": "null",
+  "itemPropertyType": "null",
+  "collection": false,
+  "simple": false,
+  "owner": false,
+  "persisted": false,
+  "embeddedObject": false,
+  "readable": false,
+  "writable": false,
+  "propertyTransformer": false
+ },
+ "access": {
+  "name": "access",
+  "fieldName": "access",
+  "klass": "java.lang.String",
+  "propertyType": "TEXT",
+  "itemPropertyType": "null",
+  "collection": false,
+  "simple": true,
+  "owner": false,
+  "persisted": false,
+  "embeddedObject": false,
+  "readable": true,
+  "writable": true,
+  "propertyTransformer": false
+ },
+ "displayName": {
+  "name": "displayName",
+  "fieldName": "displayName",
+  "klass": "java.lang.String",
+  "propertyType": "TEXT",
+  "itemPropertyType": "null",
+  "collection": false,
+  "simple": true,
+  "owner": false,
+  "persisted": false,
+  "embeddedObject": false,
+  "readable": true,
+  "writable": true,
+  "propertyTransformer": false
+ },
+ "id": {
+  "name": "id",
+  "fieldName": "id",
+  "klass": "java.lang.String",
+  "propertyType": "TEXT",
+  "itemPropertyType": "null",
+  "collection": false,
+  "simple": true,
+  "owner": false,
+  "persisted": false,
+  "embeddedObject": false,
+  "readable": true,
+  "writable": true,
+  "propertyTransformer": false
+ }
+}

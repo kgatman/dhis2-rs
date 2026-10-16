@@ -65,3 +65,8 @@ reason = "Schema#getReferences is a HashSet<Class> (identity hashes): its order 
 key = "properties"
 paths = ["/api/schemas"]
 reason = "Schema#getProperties lists a HashMap whose same-bucket entries follow reflection order, which changes between JVM starts."
+
+[[unordered]]
+key = "legends"
+paths = ["/api/legendSets"]
+reason = "LegendSet#legends is a Set of entities with identity hash codes: Java returns them in a different order on each request (measured: two consecutive Java responses differ)."

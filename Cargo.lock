@@ -448,6 +448,9 @@ dependencies = [
 [[package]]
 name = "dhis-acl"
 version = "0.1.0"
+dependencies = [
+ "dhis-schema",
+]
 
 [[package]]
 name = "dhis-aggregate"
@@ -576,6 +579,7 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "bytes",
+ "dhis-acl",
  "dhis-auth",
  "dhis-config",
  "dhis-core-model",

@@ -30,6 +30,10 @@ pub struct RegisteredSchema {
     #[serde(default)]
     pub shareable: bool,
     #[serde(default)]
+    pub data_shareable: bool,
+    #[serde(default)]
+    pub implicit_private_authority: bool,
+    #[serde(default)]
     pub identifiable_object: bool,
     #[serde(default)]
     pub nameable_object: bool,

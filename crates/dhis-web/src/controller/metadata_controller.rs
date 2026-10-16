@@ -166,7 +166,7 @@ fn locale_of(locale: &str) -> Option<String> {
 
 /// `GistPipeline.getTranslationLocale`: the `locale` parameter, else the session's database
 /// locale (`keyDbLocale` of the user settings snapshot, ADR 0006).
-fn translation_locale(user: &CurrentUser, locale_param: &str) -> Option<String> {
+pub(crate) fn translation_locale(user: &CurrentUser, locale_param: &str) -> Option<String> {
     if !locale_param.is_empty() {
         return locale_of(locale_param);
     }
@@ -226,7 +226,7 @@ fn bind_gist_params(
     })
 }
 
-fn json_requested(req: &Request) -> bool {
+pub(crate) fn json_requested(req: &Request) -> bool {
     choose(
         req.headers(),
         req.extensions().get::<RequestContext>(),
@@ -570,7 +570,7 @@ async fn fetch(db: &sqlx::PgPool, plan: &ListPlan) -> Result<Vec<Vec<Cell>>, &'s
     Ok(out)
 }
 
-fn decode(row: &sqlx::postgres::PgRow, i: usize, ty: ColumnType) -> Option<Cell> {
+pub(crate) fn decode(row: &sqlx::postgres::PgRow, i: usize, ty: ColumnType) -> Option<Cell> {
     fn get<'r, T: sqlx::Decode<'r, sqlx::Postgres> + sqlx::Type<sqlx::Postgres>>(
         row: &'r sqlx::postgres::PgRow,
         i: usize,

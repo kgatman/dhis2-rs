@@ -1474,6 +1474,24 @@ fn sharing_filter(entity: &Entity, access: &Access) -> Result<String> {
     sharing_filter_on(entity, access, "e")
 }
 
+/// The read-sharing condition (`JpaQueryUtils.generateSQlQueryForSharingCheck`, `r%`) for a user
+/// on the rows of `entity` aliased `alias`; `None` for values not safe to embed.
+pub fn sharing_condition(
+    alias: &str,
+    entity: &Entity,
+    uid: &str,
+    group_ids: &[String],
+) -> Option<String> {
+    let access = Access {
+        superuser: false,
+        skip_sharing_check: false,
+        can_read_type: true,
+        user: Some((uid.to_string(), group_ids.to_vec())),
+        authorities: Vec::new(),
+    };
+    sharing_filter_on(entity, &access, alias).ok()
+}
+
 /// The sharing filter on the rows of `entity` aliased `alias`.
 fn sharing_filter_on(entity: &Entity, access: &Access, alias: &str) -> Result<String> {
     if access.skip_sharing_check {

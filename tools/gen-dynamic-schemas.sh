@@ -17,6 +17,13 @@ classes=(
   org.hisp.dhis.schema.Property
   org.hisp.dhis.schema.GistPreferences
   org.hisp.dhis.security.Authority
+  org.hisp.dhis.user.sharing.Sharing
+  org.hisp.dhis.user.sharing.UserAccess
+  org.hisp.dhis.user.sharing.UserGroupAccess
+  org.hisp.dhis.security.acl.Access
+  org.hisp.dhis.security.acl.AccessData
+  org.hisp.dhis.translation.Translation
+  'org.hisp.dhis.schema.transformer.UserPropertyTransformer$UserDto'
 )
 cp=$(ls "$app"/libs/*.jar | tr '\n' ':')$app/classes
 out=$(mktemp)

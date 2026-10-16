@@ -273,6 +273,36 @@ pub fn translations_json(column: &str, wrapped: bool) -> Option<String> {
     Some(out)
 }
 
+/// `getTranslation(key, default)` (`BaseIdentifiableObject`, `TranslationProperty`): the first
+/// non-empty value for the locale and key (case-insensitive) in the set's iteration order. When
+/// there are translations but none matches, the default comes back **trimmed**; without any,
+/// unchanged. `None` when the column cannot be read as Java reads it.
+pub fn translate(
+    column: Option<&str>,
+    locale: &Locale,
+    key: &str,
+    default: Option<&str>,
+) -> Option<Option<String>> {
+    let set = match column {
+        None => Vec::new(),
+        Some(c) => translations(c)?,
+    };
+    if set.is_empty() {
+        return Some(default.map(str::to_string));
+    }
+    for t in &set {
+        if t.locale.as_ref() == Some(locale)
+            && t.property
+                .as_deref()
+                .is_some_and(|p| p.eq_ignore_ascii_case(key))
+            && t.value.as_deref().is_some_and(|v| !v.is_empty())
+        {
+            return Some(t.value.clone());
+        }
+    }
+    Some(default.map(|d| crate::java::string::trim(d).to_string()))
+}
+
 /// Attribute values (`jsbAttributeValues`): `(attribute uid, value)` in stored order, from the
 /// object shape `{"uid": {"value": ".."}}`. `None` for shapes not reproduced here.
 pub fn attribute_values(column: &str) -> Option<Vec<(String, String)>> {

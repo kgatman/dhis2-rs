@@ -247,6 +247,13 @@ const DYNAMIC: &[(&str, &str)] = &[
     dynamic!("org.hisp.dhis.schema.Property"),
     dynamic!("org.hisp.dhis.schema.GistPreferences"),
     dynamic!("org.hisp.dhis.security.Authority"),
+    dynamic!("org.hisp.dhis.user.sharing.Sharing"),
+    dynamic!("org.hisp.dhis.user.sharing.UserAccess"),
+    dynamic!("org.hisp.dhis.user.sharing.UserGroupAccess"),
+    dynamic!("org.hisp.dhis.security.acl.Access"),
+    dynamic!("org.hisp.dhis.security.acl.AccessData"),
+    dynamic!("org.hisp.dhis.translation.Translation"),
+    dynamic!("org.hisp.dhis.schema.transformer.UserPropertyTransformer$UserDto"),
 ];
 
 static SCHEMAS: LazyLock<BTreeMap<&'static str, Schema>> = LazyLock::new(|| {
@@ -278,6 +285,7 @@ static SCHEMAS: LazyLock<BTreeMap<&'static str, Schema>> = LazyLock::new(|| {
 });
 
 pub mod hibernate;
+pub mod jackson;
 pub mod registered;
 
 /// `Property.resolveTranslationBasePropertyName`: `displayX` → `x` (first letter lower-cased).
@@ -303,8 +311,32 @@ pub const CAPTURE_API_PATH: &str = "http://rust-capture.invalid/api";
 /// `SchemaService#getSchema(Class)`. Classes Java would describe with a property-less dynamic
 /// schema (JDK types such as `java.lang.String`, `java.util.Map`) have none here (`None`).
 pub fn schema(klass: &str) -> Option<&'static Schema> {
-    SCHEMAS.get(klass)
+    SCHEMAS
+        .get(klass)
+        .or_else(|| REGISTERED_AS_SCHEMAS.get(klass))
 }
+
+/// The registered schemas in the shape of [`Schema`] (properties by `Property#key()`).
+static REGISTERED_AS_SCHEMAS: LazyLock<BTreeMap<String, Schema>> = LazyLock::new(|| {
+    let all: Vec<registered::RegisteredSchema> =
+        serde_json::from_str(REGISTERED_SCHEMAS_JSON).unwrap_or_default();
+    all.into_iter()
+        .map(|s| {
+            let properties = s
+                .properties
+                .iter()
+                .map(|p| (p.key().to_string(), p.clone()))
+                .collect();
+            (
+                s.klass.clone(),
+                Schema {
+                    klass: s.klass,
+                    properties,
+                },
+            )
+        })
+        .collect()
+});
 
 #[cfg(test)]
 mod tests {

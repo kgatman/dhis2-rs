@@ -115,7 +115,6 @@ const NAMEABLE: &[&str] = &[
     "code",
     "created",
     "lastUpdated",
-    "lastUpdatedBy",
 ];
 
 struct Inclusion {

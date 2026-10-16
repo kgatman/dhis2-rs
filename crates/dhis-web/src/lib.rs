@@ -53,6 +53,7 @@ pub fn router(state: Arc<AppState>) -> Router {
         .merge(controller::me_controller::routes())
         .merge(controller::schema_controller::routes())
         .merge(controller::metadata_controller::routes())
+        .merge(controller::metadata_object::routes())
         .layer(axum::middleware::from_fn(crate::http::rfd::layer))
         .layer(axum::middleware::from_fn(crate::http::etag::layer))
         .layer(axum::middleware::from_fn_with_state(
@@ -69,7 +70,9 @@ pub fn auth_probe(normalized_path: &str) -> dhis_auth::delegated::Probe {
     use dhis_auth::delegated::Probe;
     if normalized_path == "/api/me/settings" || normalized_path.starts_with("/api/me/settings/") {
         Probe::Settings
-    } else if controller::metadata_controller::needs_settings(normalized_path) {
+    } else if controller::metadata_controller::needs_settings(normalized_path)
+        || controller::metadata_object::is_object_path(normalized_path)
+    {
         Probe::AuthoritiesAndSettings
     } else {
         Probe::Authorities
@@ -80,6 +83,7 @@ pub fn auth_probe(normalized_path: &str) -> dhis_auth::delegated::Probe {
 /// ids, `CurrentUser::identity`) for sharing checks.
 pub fn needs_identity(normalized_path: &str) -> bool {
     controller::metadata_controller::needs_settings(normalized_path)
+        || controller::metadata_object::is_object_path(normalized_path)
 }
 
 /// Extracts the authenticated user; without one (the gateway did not authenticate), the request

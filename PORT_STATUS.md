@@ -16,8 +16,8 @@ _Read this first at the start of every session; update it at the end._
 
 | Inventory | Total | `java` | `rust-shadow` | `rust` |
 |---|---:|---:|---:|---:|
-| Endpoint rows (method × path), `docs/inventory/endpoints.csv` | 3092 | 3047 | 30 | 15 |
-| — distinct handler methods | 770 | 757 | 2 | 11 |
+| Endpoint rows (method × path), `docs/inventory/endpoints.csv` | 3092 | 3032 | 45 | 15 |
+| — distinct handler methods | 770 | 756 | 3 | 11 |
 | — controllers | 195 | 195 | 0 | 0 |
 | Job types, `docs/inventory/jobs.csv` | 43 | 43 | 0 | 0 |
 | Config keys read by Rust, `docs/inventory/config-keys.csv` | 189 | — | — | 189 loadable |
@@ -104,6 +104,31 @@ Regenerate the inventory with `tools/gen-inventory.sh`. CI fails if it is stale.
   unwrapped nested fields, `style`, `valueTypeOptions`, `geometry`, enum filters, custom user types
   (`category.dataDimensionType`), secondary-table joins (`categoryOptionCombos`), `access`,
   `isEmpty`/`isNotEmpty`/`member`, nested fields.
+
+## Phase 2, slice 6 (session 2): metadata objects (`GET /api/{type}/{uid}`)
+
+- `AbstractFullReadOnlyController#getObject` for the 15 types (`metadata_object`): the entity is
+  read with SQL from the mappings (sharing-filtered as `manager.get`: unreadable is a 404,
+  E1005), turned into a field-filter tree in the order of the field filter's Jackson mapper and
+  filtered by the ported `FieldPathHelper` (now over registered schemas; dynamic schemas added
+  for `Sharing`, `UserAccess`, `UserGroupAccess`, `Access`, `AccessData`, `Translation`,
+  `UserDto`).
+- `tools/gen-jackson-properties.sh`: per class, the properties the field filter's copy of
+  DHIS2's JSON mapper writes, in order (server image, JDK 21; getter-only properties follow the
+  JVM's reflection order, R1).
+- `dhis-acl`: `AclService#getAccess` / `canRead` ported (the `access` block; also usable by Gist).
+- Values: users through `UserPropertyTransformer` (always the five fields, nulls written; `User`
+  has no translations), reference ids, sharing with display names (`concat(firstname,' ',
+  surname)`; group names translated), translations, attribute values (array form), display
+  names via `getTranslation` (first match in the set's hash order, default trimmed only when
+  translations exist), `href`, `access`.
+- Found and fixed: the earlier field-filter port's `:nameable` preset wrongly included
+  `lastUpdatedBy`.
+- Evidence: `corpus/phase2/metadata-objects.jsonl` **119/119**; constants are rendered by Rust
+  (all users); other types still fall back for per-class computed getters (`dimensionItem`,
+  `optionSetValue`, ...) and collections. Full phase-2 corpus **1483/1483**.
+- Java nondeterminism found: `LegendSet#legends` comes back in a different order on each request
+  (diffcheck `unordered` rule).
 
 ## Delegated auth cost (session 2)
 
@@ -296,9 +321,9 @@ Tracer bullet that built the shared Web API layer every later endpoint reuses:
 ## Next three tasks (end of session 2)
 
 1. **CI e2e with the Gist routes on Rust**, then mark the two constants rows `rust`.
-2. **Metadata query engine** (`fields=*`, presets, `GET /api/{type}/{uid}`): QueryService
-   filters/orders/paging over DB-loaded entities rendered through the field filter, `href`,
-   `access`, the Jackson forms of JSONB values (`AttributeValues` as an array there).
+2. **Metadata objects for more types**: collections in entity rendering (lists by index column,
+   sets in load order), per-class computed getters (`DataElement`, `OrganisationUnit`, ...), then
+   the non-Gist lists (`fields=*`, presets): QueryService filters/orders/paging and the pager.
 3. Gist extras: nested filters/orders, collection item fields, enum filters, `access`,
    single-object `/api/{type}/{uid}/gist`, more types. Then `/api/me` (`MeDto`).
 

@@ -300,3 +300,97 @@ methods = ["GET", "HEAD"]
 path = "/api/userRoles/gist"
 backend = "rust"
 note = "UserRoleController#getObjectListGist"
+
+# AbstractFullReadOnlyController#getObject (GET /api/{type}/{uid}) for the same types. diffcheck
+# corpus/phase2/metadata-objects.jsonl: 119/119. Rust renders constants fully; other types fall
+# back where they have computed properties or collections that are not ported yet.
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/constants/{uid}"
+backend = "rust"
+note = "ConstantController#getObject"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/dataElements/{uid}"
+backend = "rust"
+note = "DataElementController#getObject"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/dataElementGroups/{uid}"
+backend = "rust"
+note = "DataElementGroupController#getObject"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/options/{uid}"
+backend = "rust"
+note = "OptionController#getObject"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/optionSets/{uid}"
+backend = "rust"
+note = "OptionSetController#getObject"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/legendSets/{uid}"
+backend = "rust"
+note = "LegendSetController#getObject"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/categoryOptions/{uid}"
+backend = "rust"
+note = "CategoryOptionController#getObject"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/categories/{uid}"
+backend = "rust"
+note = "CategoryController#getObject"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/categoryCombos/{uid}"
+backend = "rust"
+note = "CategoryComboController#getObject"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/indicators/{uid}"
+backend = "rust"
+note = "IndicatorController#getObject"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/indicatorTypes/{uid}"
+backend = "rust"
+note = "IndicatorTypeController#getObject"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/organisationUnits/{uid}"
+backend = "rust"
+note = "OrganisationUnitController#getObject"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/organisationUnitGroups/{uid}"
+backend = "rust"
+note = "OrganisationUnitGroupController#getObject"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/userGroups/{uid}"
+backend = "rust"
+note = "UserGroupController#getObject"
+
+[[route]]
+methods = ["GET", "HEAD"]
+path = "/api/userRoles/{uid}"
+backend = "rust"
+note = "UserRoleController#getObject"

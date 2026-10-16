@@ -1,0 +1,60 @@
+{
+ "__schema__": {
+  "name": "translations",
+  "propertyType": "null",
+  "itemPropertyType": "null",
+  "collection": false,
+  "simple": false,
+  "owner": false,
+  "persisted": false,
+  "embeddedObject": false,
+  "readable": false,
+  "writable": false,
+  "propertyTransformer": false
+ },
+ "locale": {
+  "name": "locale",
+  "fieldName": "locale",
+  "klass": "org.hisp.dhis.common.Locale",
+  "propertyType": "COMPLEX",
+  "itemPropertyType": "null",
+  "collection": false,
+  "simple": false,
+  "owner": false,
+  "persisted": false,
+  "embeddedObject": false,
+  "readable": true,
+  "writable": true,
+  "propertyTransformer": false
+ },
+ "property": {
+  "name": "property",
+  "fieldName": "property",
+  "klass": "java.lang.String",
+  "propertyType": "TEXT",
+  "itemPropertyType": "null",
+  "collection": false,
+  "simple": true,
+  "owner": false,
+  "persisted": false,
+  "embeddedObject": false,
+  "readable": true,
+  "writable": true,
+  "propertyTransformer": false
+ },
+ "value": {
+  "name": "value",
+  "fieldName": "value",
+  "klass": "java.lang.String",
+  "propertyType": "TEXT",
+  "itemPropertyType": "null",
+  "collection": false,
+  "simple": true,
+  "owner": false,
+  "persisted": false,
+  "embeddedObject": false,
+  "readable": true,
+  "writable": true,
+  "propertyTransformer": false
+ }
+}
