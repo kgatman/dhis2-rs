@@ -144,6 +144,9 @@ pub struct Property {
     pub identifiable_object: bool,
     #[serde(default)]
     pub gist_preferences: GistPreferences,
+    /// The enum's constant names (`klass.getEnumConstants()`), for `CONSTANT` properties.
+    #[serde(default)]
+    pub constants: Option<Vec<String>>,
 }
 
 /// `org.hisp.dhis.schema.GistPreferences` (`DEFAULT`: included and transformation `AUTO`).

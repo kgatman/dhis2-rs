@@ -28,6 +28,10 @@ pub struct Entity {
     #[serde(default)]
     pub composite_id: bool,
     pub properties: BTreeMap<String, MappedProperty>,
+    /// `@SecondaryTable`s: table name to its key column (`@PrimaryKeyJoinColumn`; `None`: the
+    /// primary key's column name).
+    #[serde(default)]
+    pub secondary_tables: BTreeMap<String, Option<String>>,
 }
 
 impl Entity {
@@ -79,6 +83,14 @@ pub struct MappedProperty {
     /// The (secondary) table a join column lives in, when not the entity's own.
     #[serde(default)]
     pub column_table: Option<String>,
+    /// List order: the index column (`<list-index>`, `@OrderColumn`) or `@OrderBy` property.
+    #[serde(default)]
+    pub index_column: Option<String>,
+    #[serde(default)]
+    pub order_by: Option<String>,
+    /// Value collections: the element's type as mapped/declared.
+    #[serde(default)]
+    pub element_type: Option<String>,
     /// JPA `mappedBy`: the owning side's property on the element class.
     #[serde(default)]
     pub mapped_by: Option<String>,

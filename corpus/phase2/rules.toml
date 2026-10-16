@@ -70,3 +70,88 @@ reason = "Schema#getProperties lists a HashMap whose same-bucket entries follow 
 key = "legends"
 paths = ["/api/legendSets"]
 reason = "LegendSet#legends is a Set of entities with identity hash codes: Java returns them in a different order on each request (measured: two consecutive Java responses differ)."
+
+[[unordered]]
+key = "categories"
+paths = ["/api/categoryOptions"]
+reason = "A Set of entities (Hibernate PersistentSet): Java writes it in no defined order (measured: dataElementGroups/dataElements differ between consecutive requests)."
+
+[[unordered]]
+key = "categoryCombos"
+paths = ["/api/categories"]
+reason = "A Set of entities (Hibernate PersistentSet): Java writes it in no defined order (measured: dataElementGroups/dataElements differ between consecutive requests)."
+
+[[unordered]]
+key = "categoryOptionCombos"
+paths = ["/api/categoryCombos", "/api/categoryOptions"]
+reason = "A Set of entities (Hibernate PersistentSet): Java writes it in no defined order (measured: dataElementGroups/dataElements differ between consecutive requests)."
+
+[[unordered]]
+key = "categoryOptionGroups"
+paths = ["/api/categoryOptions"]
+reason = "A Set of entities (Hibernate PersistentSet): Java writes it in no defined order (measured: dataElementGroups/dataElements differ between consecutive requests)."
+
+[[unordered]]
+key = "children"
+paths = ["/api/organisationUnits"]
+reason = "A Set of entities (Hibernate PersistentSet): Java writes it in no defined order (measured: dataElementGroups/dataElements differ between consecutive requests)."
+
+[[unordered]]
+key = "dataElementGroups"
+paths = ["/api/dataElements"]
+reason = "A Set of entities (Hibernate PersistentSet): Java writes it in no defined order (measured: dataElementGroups/dataElements differ between consecutive requests)."
+
+[[unordered]]
+key = "dataElements"
+paths = ["/api/dataElementGroups"]
+reason = "A Set of entities (Hibernate PersistentSet): Java writes it in no defined order (measured: dataElementGroups/dataElements differ between consecutive requests)."
+
+[[unordered]]
+key = "dataSetElements"
+paths = ["/api/dataElements"]
+reason = "A Set of entities (Hibernate PersistentSet): Java writes it in no defined order (measured: dataElementGroups/dataElements differ between consecutive requests)."
+
+[[unordered]]
+key = "dataSets"
+paths = ["/api/indicators", "/api/organisationUnits"]
+reason = "A Set of entities (Hibernate PersistentSet): Java writes it in no defined order (measured: dataElementGroups/dataElements differ between consecutive requests)."
+
+[[unordered]]
+key = "groupSets"
+paths = ["/api/dataElementGroups", "/api/organisationUnitGroups"]
+reason = "A Set of entities (Hibernate PersistentSet): Java writes it in no defined order (measured: dataElementGroups/dataElements differ between consecutive requests)."
+
+[[unordered]]
+key = "indicatorGroups"
+paths = ["/api/indicators"]
+reason = "A Set of entities (Hibernate PersistentSet): Java writes it in no defined order (measured: dataElementGroups/dataElements differ between consecutive requests)."
+
+[[unordered]]
+key = "managedByGroups"
+paths = ["/api/userGroups"]
+reason = "A Set of entities (Hibernate PersistentSet): Java writes it in no defined order (measured: dataElementGroups/dataElements differ between consecutive requests)."
+
+[[unordered]]
+key = "managedGroups"
+paths = ["/api/userGroups"]
+reason = "A Set of entities (Hibernate PersistentSet): Java writes it in no defined order (measured: dataElementGroups/dataElements differ between consecutive requests)."
+
+[[unordered]]
+key = "organisationUnitGroups"
+paths = ["/api/organisationUnits"]
+reason = "A Set of entities (Hibernate PersistentSet): Java writes it in no defined order (measured: dataElementGroups/dataElements differ between consecutive requests)."
+
+[[unordered]]
+key = "organisationUnits"
+paths = ["/api/categoryOptions", "/api/organisationUnitGroups"]
+reason = "A Set of entities (Hibernate PersistentSet): Java writes it in no defined order (measured: dataElementGroups/dataElements differ between consecutive requests)."
+
+[[unordered]]
+key = "programs"
+paths = ["/api/organisationUnits"]
+reason = "A Set of entities (Hibernate PersistentSet): Java writes it in no defined order (measured: dataElementGroups/dataElements differ between consecutive requests)."
+
+[[unordered]]
+key = "users"
+paths = ["/api/organisationUnits", "/api/userGroups", "/api/userRoles"]
+reason = "A Set of entities (Hibernate PersistentSet): Java writes it in no defined order (measured: dataElementGroups/dataElements differ between consecutive requests)."

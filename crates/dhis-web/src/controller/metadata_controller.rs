@@ -28,6 +28,8 @@ use dhis_schema::registered::{self, RegisteredSchema};
 use http::{HeaderValue, header};
 use sqlx::Row;
 
+use super::metadata_object::list::{self, ListRequest};
+use super::metadata_object::{NotPorted, RequestParts};
 use crate::http::negotiation::{Representation, choose};
 use crate::http::paths::{context_path, versionless_request_uri};
 use crate::http::{JavaFallback, RequestContext, fallback};
@@ -339,8 +341,16 @@ async fn get_object_list(
         filter: &filter,
         order: &order,
     });
+    if decision == Decision::Metadata {
+        let parts = RequestParts::of(&req);
+        return metadata_list(
+            &state, &user, parts, schema, &params, paging, page, page_size, any_filter, fields,
+            filter,
+        )
+        .await;
+    }
     if decision != Decision::Gist {
-        return fallback("metadata query engine");
+        return fallback("bridge decision unknown");
     }
     // GistBridge.toObjectListParams
     let locale = binder.string("locale").unwrap_or_default();
@@ -370,6 +380,67 @@ async fn get_object_list(
         return fallback("request URL");
     };
     export_list(&state, url, schema, access, request).await
+}
+
+/// The parameters of `GetObjectListParams` (and its subclasses' defaults) this port binds; any
+/// other parameter (`OrganisationUnitController`'s `level`, `UserRoleController`'s `canIssue`,
+/// ...) goes to Java.
+const METADATA_LIST_PARAMS: [&str; 10] = [
+    "fields",
+    "filter",
+    "order",
+    "page",
+    "pageSize",
+    "paging",
+    "rootJunction",
+    "query",
+    "gist",
+    "defaults",
+];
+
+/// `getObjectListInternal` past the bridge: the metadata query engine.
+#[allow(clippy::too_many_arguments)]
+async fn metadata_list(
+    state: &AppState,
+    user: &CurrentUser,
+    parts: RequestParts,
+    schema: &'static RegisteredSchema,
+    params: &Params,
+    paging: bool,
+    page: i32,
+    page_size: i32,
+    any: bool,
+    fields: String,
+    filter: String,
+) -> Response {
+    if params.names().any(|n| !METADATA_LIST_PARAMS.contains(&n)) {
+        return fallback("list parameter not ported");
+    }
+    // defaults=EXCLUDE drops default objects and empty values
+    if params.first("defaults").is_some_and(|d| d != "INCLUDE") {
+        return fallback("defaults parameter");
+    }
+    // `order` binds to List<String>: one value is split at commas; how several values combine
+    // with commas inside is not reproduced
+    let order_values = params.all("order");
+    if order_values.len() > 1 && order_values.iter().any(|v| v.contains(',')) {
+        return fallback("order values");
+    }
+    let query = params.all("query").join(",");
+    let list = ListRequest {
+        fields,
+        filter,
+        orders: dhis_query::metadata::split_orders(&order_values),
+        query: (!query.is_empty()).then_some(query),
+        any,
+        paging,
+        page,
+        page_size,
+    };
+    match list::object_list(state, user, &parts, schema, &list).await {
+        Ok(r) => r,
+        Err(NotPorted(reason)) => fallback(reason),
+    }
 }
 
 fn params_names(params: &Params) -> Vec<&str> {

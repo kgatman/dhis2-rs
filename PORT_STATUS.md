@@ -2,13 +2,15 @@
 
 _Read this first at the start of every session; update it at the end._
 
-- **Last updated:** 2026-10-15 (session 2, continued)
+- **Last updated:** 2026-10-16 (session 2, continued)
 - **Java reference:** dhis2-core `2a7855b69e` (2.44-SNAPSHOT), pinned in `ci/dhis2-core.ref`
 - **Current phase:** 2 (read-only metadata). Slices 1–3 (`/api/system/{uid,id,uuid}`,
   `/api/system/info` + the `fields=` engine, the `/api/me` authorities and settings sub-resources)
   and slice 4 (`/api/schemas`, `/{type}`, `/{type}/{property}`) are `rust`. Slice 5 (the Gist
   engine: `/api/constants` via the Gist bridge and `/api/constants/gist`) is routed to Rust for
   all users with a known session identity (ADR 0009), `rust-shadow` until CI e2e confirms.
+  Slices 6–7 (`GET /api/{type}/{uid}` and the remaining `GET /api/{type}` lists for 15 types)
+  are routed to Rust as well, also `rust-shadow` until CI e2e confirms.
 - **CI:** GitHub `kgatman/dhis2-rs`. `ci` and `e2e-through-gateway` green at `b7f2d1f` (with the
   `/api/schemas` handlers on Rust).
 
@@ -105,6 +107,35 @@ Regenerate the inventory with `tools/gen-inventory.sh`. CI fails if it is stale.
   (`category.dataDimensionType`), secondary-table joins (`categoryOptionCombos`), `access`,
   `isEmpty`/`isNotEmpty`/`member`, nested fields.
 
+## Phase 2, slice 7 (session 2): metadata lists past the Gist bridge
+
+- `getObjectListInternal` for the requests `GistBridge` leaves to `QueryService` (`fields=*`,
+  presets, collections, `access`, `query`, `paging=false`, ...) on the 15 types:
+  `dhis_query::metadata` ports `splitFilters` (the `FILTER_PARTS` regex, checked in jshell),
+  `DefaultQueryParser` (value parsing per type, operators), `Order.parse`,
+  `DefaultQueryPlanner` (default order `name` ignoring case then `id`; anything the planner
+  leaves to the in-memory engine goes to Java) and `JpaCriteriaQueryEngine` (translated orders
+  through `jsonb_get_translated_value`, the JPA sharing predicate with its `'null'` checks).
+  Rows are rendered by the `getObject` renderer (`metadata_object/list.rs`); the response is
+  `StreamingJsonRoot` with `Pager` (`page` clamped, `pageCount`) and the `LinkService` page
+  links (parameters in `HashMap` order, `URLEncoder` encoding).
+- Supported filters: persisted simple root properties of type String, Integer, Double, Boolean
+  and four enums whose `toString()` is checked to be `name()`; operators `eq`, `ieq`, `ne`
+  family, comparisons, the `like`/`ilike` family, `in`, `!in`, `null`, `!null`; `rootJunction`;
+  `query`. Everything else goes to Java: dates, nested paths, `token`, `empty`, collection sizes,
+  attribute filters, `defaults=EXCLUDE`, `pageSize<1`, controller-specific parameters
+  (`OrganisationUnitController` levels and hierarchy, `UserRoleController#canIssue`), any other
+  parameter, and lower-casing that depends on the locale (non-ASCII, or `I`).
+- Sharing for non-superusers uses the user's groups read from the database, as
+  `getCurrentUserGroupInfo` does (not the session's groups).
+- Mapping generator: `@SecondaryTable` key columns (`secondaryTables`), so
+  `CategoryCombo#optionCombos` (an inverse many-to-one kept in `categorycombos_optioncombos`)
+  is rendered; category combos no longer fall back on `fields=*`.
+- Evidence: `corpus/phase2/metadata-lists.jsonl` **214/214** (15 types × 10 variants, 29
+  operator cases, orders, paging and links, three users, and 14 cases that must fall back).
+  Full phase-2 corpus **1863/1863**; 149 tests, clippy `-D warnings`, fmt and the inventory
+  check pass.
+
 ## Phase 2, slice 6 (session 2): metadata objects (`GET /api/{type}/{uid}`)
 
 - `AbstractFullReadOnlyController#getObject` for the 15 types (`metadata_object`): the entity is
@@ -124,9 +155,19 @@ Regenerate the inventory with `tools/gen-inventory.sh`. CI fails if it is stale.
   translations exist), `href`, `access`.
 - Found and fixed: the earlier field-filter port's `:nameable` preset wrongly included
   `lastUpdatedBy`.
-- Evidence: `corpus/phase2/metadata-objects.jsonl` **119/119**; constants are rendered by Rust
-  (all users); other types still fall back for per-class computed getters (`dimensionItem`,
-  `optionSetValue`, ...) and collections. Full phase-2 corpus **1483/1483**.
+- Then: **collections** (`json_agg` over the mapped join: lists by index column or `@OrderBy`,
+  sets in load order since Java's own order is unspecified, measured; value collections, string
+  sets in hash order, users through the transformer; collections not rendered here still work
+  when empty), **per-class getters** read from the Java sources (`dimensionItem`,
+  `dimensionItemType`, `legendSet`, `optionSetValue`, `isDefault`, `leaf`, `ancestors`, category
+  dimension fields and `items`, indicator description translations, role `users`, ...),
+  initial values of unmapped inherited fields, `EnumUserType` columns, null-only `style`,
+  `valueTypeOptions` and geometries. The mapping generator now records list index/`@OrderBy`
+  columns and element collections.
+- Evidence: `corpus/phase2/metadata-objects.jsonl` **285/285**; all 15 types are rendered by
+  Rust except legend sets with legends (embedded items), data element groups whose members
+  disagree on aggregation type (Java picks an arbitrary member), and non-null `style`/geometry.
+  Full phase-2 corpus **1649/1649**. diffcheck compares set-valued collections as sets.
 - Java nondeterminism found: `LegendSet#legends` comes back in a different order on each request
   (diffcheck `unordered` rule).
 
@@ -320,12 +361,17 @@ Tracer bullet that built the shared Web API layer every later endpoint reuses:
 
 ## Next three tasks (end of session 2)
 
-1. **CI e2e with the Gist routes on Rust**, then mark the two constants rows `rust`.
-2. **Metadata objects for more types**: collections in entity rendering (lists by index column,
-   sets in load order), per-class computed getters (`DataElement`, `OrganisationUnit`, ...), then
-   the non-Gist lists (`fields=*`, presets): QueryService filters/orders/paging and the pager.
-3. Gist extras: nested filters/orders, collection item fields, enum filters, `access`,
-   single-object `/api/{type}/{uid}/gist`, more types. Then `/api/me` (`MeDto`).
+1. **CI e2e with the Gist, object and list routes on Rust**, then mark those rows `rust`.
+2. Gist extras: nested filters/orders, collection item fields, enum filters, `access`,
+   single-object `/api/{type}/{uid}/gist`, more types. Metadata-list extras: date values
+   (`DateUtils.parseDate`), nested and collection filters, `defaults=EXCLUDE`.
+3. `/api/me` (`MeDto`).
+
+## Earlier next-tasks (slice 7 start, done or superseded)
+
+1. CI e2e with the Gist routes on Rust (still to do, item 1 above).
+2. Non-Gist metadata lists (done: slice 7).
+3. Gist extras, then `/api/me` (items 2 and 3 above).
 
 ## Earlier next-tasks (start of slice 5, done or superseded)
 

@@ -302,8 +302,8 @@ backend = "rust"
 note = "UserRoleController#getObjectListGist"
 
 # AbstractFullReadOnlyController#getObject (GET /api/{type}/{uid}) for the same types. diffcheck
-# corpus/phase2/metadata-objects.jsonl: 119/119. Rust renders constants fully; other types fall
-# back where they have computed properties or collections that are not ported yet.
+# corpus/phase2/metadata-objects.jsonl: 285/285. Values not ported yet (embedded legends, non-null
+# style/geometry, ...) fall back to Java per request.
 
 [[route]]
 methods = ["GET", "HEAD"]

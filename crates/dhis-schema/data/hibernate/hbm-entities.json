@@ -183,6 +183,7 @@
       "categoryOptions": {
         "elementClass": "org.hisp.dhis.category.CategoryOption",
         "elementColumn": "categoryoptionid",
+        "indexColumn": "sort_order",
         "keyColumn": "categoryid",
         "kind": "list",
         "table": "categories_categoryoptions"
@@ -211,7 +212,7 @@
         "column": "datadimensiontype",
         "kind": "property",
         "notNull": true,
-        "type": "org.hisp.dhis.common.DataDimensionTypeUserType"
+        "type": "enum-string"
       },
       "description": {
         "column": "description",
@@ -268,6 +269,7 @@
       "categories": {
         "elementClass": "org.hisp.dhis.category.Category",
         "elementColumn": "categoryid",
+        "indexColumn": "sort_order",
         "keyColumn": "categorycomboid",
         "kind": "list",
         "table": "categorycombos_categories"
@@ -355,6 +357,7 @@
       "items": {
         "elementClass": "org.hisp.dhis.category.CategoryOption",
         "elementColumn": "categoryoptionid",
+        "indexColumn": "sort_order",
         "keyColumn": "categorydimensionid",
         "kind": "list",
         "table": "categorydimension_items"
@@ -543,6 +546,9 @@
         "notNull": true
       }
     },
+    "secondaryTables": {
+      "categorycombos_optioncombos": "categoryoptioncomboid"
+    },
     "table": "categoryoptioncombo"
   },
   "org.hisp.dhis.category.CategoryOptionGroup": {
@@ -695,6 +701,7 @@
       "members": {
         "elementClass": "org.hisp.dhis.category.CategoryOptionGroup",
         "elementColumn": "categoryoptiongroupid",
+        "indexColumn": "sort_order",
         "keyColumn": "categoryoptiongroupsetid",
         "kind": "list",
         "table": "categoryoptiongroupsetmembers"
@@ -744,6 +751,7 @@
       "items": {
         "elementClass": "org.hisp.dhis.category.CategoryOptionGroup",
         "elementColumn": "categoryoptiongroupid",
+        "indexColumn": "sort_order",
         "keyColumn": "categoryoptiongroupsetdimensionid",
         "kind": "list",
         "table": "categoryoptiongroupsetdimension_items"
@@ -809,6 +817,8 @@
     "mapping": "class",
     "properties": {
       "corsWhitelist": {
+        "elementColumn": "corswhitelist",
+        "elementType": "string",
         "keyColumn": "configurationid",
         "kind": "set",
         "table": "configuration_corswhitelist"
@@ -1004,6 +1014,7 @@
       "items": {
         "elementClass": "org.hisp.dhis.dashboard.DashboardItem",
         "elementColumn": "dashboarditemid",
+        "indexColumn": "sort_order",
         "keyColumn": "dashboardid",
         "kind": "list",
         "table": "dashboard_items"
@@ -1116,6 +1127,7 @@
       "reports": {
         "elementClass": "org.hisp.dhis.report.Report",
         "elementColumn": "reportid",
+        "indexColumn": "sort_order",
         "keyColumn": "dashboarditemid",
         "kind": "list",
         "table": "dashboarditem_reports"
@@ -1123,6 +1135,7 @@
       "resources": {
         "elementClass": "org.hisp.dhis.document.Document",
         "elementColumn": "resourceid",
+        "indexColumn": "sort_order",
         "keyColumn": "dashboarditemid",
         "kind": "list",
         "table": "dashboarditem_resources"
@@ -1151,6 +1164,7 @@
       "users": {
         "elementClass": "org.hisp.dhis.user.User",
         "elementColumn": "userid",
+        "indexColumn": "sort_order",
         "keyColumn": "dashboarditemid",
         "kind": "list",
         "table": "dashboarditem_users"
@@ -1463,6 +1477,8 @@
     "properties": {
       "aggregationLevels": {
         "elementColumn": "aggregationlevel",
+        "elementType": "Integer",
+        "indexColumn": "sort_order",
         "keyColumn": "dataelementid",
         "kind": "element-collection",
         "table": "dataelementaggregationlevels"
@@ -1549,6 +1565,7 @@
       "legendSets": {
         "elementClass": "org.hisp.dhis.legend.LegendSet",
         "elementColumn": "legendsetid",
+        "indexColumn": "sort_order",
         "keyColumn": "dataelementid",
         "kind": "list",
         "table": "dataelementlegendsets"
@@ -1754,6 +1771,7 @@
       "members": {
         "elementClass": "org.hisp.dhis.dataelement.DataElementGroup",
         "elementColumn": "dataelementgroupid",
+        "indexColumn": "sort_order",
         "keyColumn": "dataelementgroupsetid",
         "kind": "list",
         "table": "dataelementgroupsetmembers"
@@ -1802,6 +1820,7 @@
       "items": {
         "elementClass": "org.hisp.dhis.dataelement.DataElementGroup",
         "elementColumn": "dataelementgroupid",
+        "indexColumn": "sort_order",
         "keyColumn": "dataelementgroupsetdimensionid",
         "kind": "list",
         "table": "dataelementgroupsetdimension_items"
@@ -2135,6 +2154,7 @@
       "legendSets": {
         "elementClass": "org.hisp.dhis.legend.LegendSet",
         "elementColumn": "legendsetid",
+        "indexColumn": "sort_order",
         "keyColumn": "datasetid",
         "kind": "list",
         "table": "datasetlegendsets"
@@ -2187,7 +2207,8 @@
         "elementClass": "org.hisp.dhis.dataset.Section",
         "inverse": true,
         "kind": "set",
-        "mappedBy": "dataSet"
+        "mappedBy": "dataSet",
+        "orderBy": "sortOrder"
       },
       "sharing": {
         "column": "sharing",
@@ -2330,6 +2351,7 @@
       "dataElements": {
         "elementClass": "org.hisp.dhis.dataelement.DataElement",
         "elementColumn": "dataelementid",
+        "indexColumn": "sort_order",
         "keyColumn": "sectionid",
         "kind": "list",
         "table": "sectiondataelements"
@@ -2364,6 +2386,7 @@
       "indicators": {
         "elementClass": "org.hisp.dhis.indicator.Indicator",
         "elementColumn": "indicatorid",
+        "indexColumn": "sort_order",
         "keyColumn": "sectionid",
         "kind": "list",
         "table": "sectionindicators"
@@ -2441,6 +2464,7 @@
         "table": "datasetnotification_datasets"
       },
       "deliveryChannels": {
+        "elementColumn": "deliverychannel",
         "keyColumn": "datasetnotificationtemplateid",
         "kind": "set",
         "table": "datasetnotificationtemplate_deliverychannel"
@@ -2982,6 +3006,7 @@
       "attributeDimensions": {
         "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityAttributeDimension",
         "elementColumn": "trackedentityattributedimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_attributedimensions"
@@ -3007,6 +3032,7 @@
       "categoryDimensions": {
         "elementClass": "org.hisp.dhis.category.CategoryDimension",
         "elementColumn": "categorydimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_categorydimensions"
@@ -3014,6 +3040,7 @@
       "categoryOptionGroupSetDimensions": {
         "elementClass": "org.hisp.dhis.category.CategoryOptionGroupSetDimension",
         "elementColumn": "categoryoptiongroupsetdimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_categoryoptiongroupsetdimensions"
@@ -3035,6 +3062,9 @@
         "kind": "property"
       },
       "columnDimensions": {
+        "elementColumn": "dimension",
+        "elementType": "string",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_columns"
@@ -3061,6 +3091,7 @@
       "dataElementDimensions": {
         "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityDataElementDimension",
         "elementColumn": "trackedentitydataelementdimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_dataelementdimensions"
@@ -3094,6 +3125,9 @@
         "type": "jbSet"
       },
       "filterDimensions": {
+        "elementColumn": "dimension",
+        "elementType": "string",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_filters"
@@ -3144,6 +3178,7 @@
       "itemOrganisationUnitGroups": {
         "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroup",
         "elementColumn": "orgunitgroupid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_itemorgunitgroups"
@@ -3179,11 +3214,15 @@
       "organisationUnitGroupSetDimensions": {
         "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroupSetDimension",
         "elementColumn": "orgunitgroupsetdimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_orgunitgroupsetdimensions"
       },
       "organisationUnitLevels": {
+        "elementColumn": "orgunitlevel",
+        "elementType": "integer",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_orgunitlevels"
@@ -3191,6 +3230,7 @@
       "organisationUnits": {
         "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnit",
         "elementColumn": "organisationunitid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_organisationunits"
@@ -3207,6 +3247,7 @@
       "persistedPeriods": {
         "elementClass": "org.hisp.dhis.period.Period",
         "elementColumn": "periodid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_periods"
@@ -3219,6 +3260,7 @@
       "programIndicatorDimensions": {
         "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityProgramIndicatorDimension",
         "elementColumn": "trackedentityprogramindicatordimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_programindicatordimensions"
@@ -3264,6 +3306,9 @@
         "type": "enum-string"
       },
       "rowDimensions": {
+        "elementColumn": "dimension",
+        "elementType": "string",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_rows"
@@ -3470,6 +3515,7 @@
       "attributeDimensions": {
         "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityAttributeDimension",
         "elementColumn": "trackedentityattributedimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_attributedimensions"
@@ -3487,6 +3533,7 @@
       "categoryDimensions": {
         "elementClass": "org.hisp.dhis.category.CategoryDimension",
         "elementColumn": "categorydimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_categorydimensions"
@@ -3494,6 +3541,7 @@
       "categoryOptionGroupSetDimensions": {
         "elementClass": "org.hisp.dhis.category.CategoryOptionGroupSetDimension",
         "elementColumn": "categoryoptiongroupsetdimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_categoryoptiongroupsetdimensions"
@@ -3515,6 +3563,9 @@
         "kind": "property"
       },
       "columnDimensions": {
+        "elementColumn": "dimension",
+        "elementType": "string",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_columns"
@@ -3541,6 +3592,7 @@
       "dataElementDimensions": {
         "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityDataElementDimension",
         "elementColumn": "trackedentitydataelementdimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_dataelementdimensions"
@@ -3585,6 +3637,9 @@
         "type": "jbSet"
       },
       "filterDimensions": {
+        "elementColumn": "dimension",
+        "elementType": "string",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_filters"
@@ -3635,6 +3690,7 @@
       "itemOrganisationUnitGroups": {
         "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroup",
         "elementColumn": "orgunitgroupid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_itemorgunitgroups"
@@ -3670,11 +3726,15 @@
       "organisationUnitGroupSetDimensions": {
         "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroupSetDimension",
         "elementColumn": "orgunitgroupsetdimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_orgunitgroupsetdimensions"
       },
       "organisationUnitLevels": {
+        "elementColumn": "orgunitlevel",
+        "elementType": "integer",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_orgunitlevels"
@@ -3682,6 +3742,7 @@
       "organisationUnits": {
         "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnit",
         "elementColumn": "organisationunitid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_organisationunits"
@@ -3698,6 +3759,7 @@
       "persistedPeriods": {
         "elementClass": "org.hisp.dhis.period.Period",
         "elementColumn": "periodid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_periods"
@@ -3710,6 +3772,7 @@
       "programIndicatorDimensions": {
         "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityProgramIndicatorDimension",
         "elementColumn": "trackedentityprogramindicatordimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_programindicatordimensions"
@@ -3730,6 +3793,9 @@
         "type": "jbList"
       },
       "rowDimensions": {
+        "elementColumn": "dimension",
+        "elementType": "string",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_rows"
@@ -3849,6 +3915,7 @@
       "attributeDimensions": {
         "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityAttributeDimension",
         "elementColumn": "trackedentityattributedimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_attributedimensions"
@@ -3874,6 +3941,7 @@
       "categoryDimensions": {
         "elementClass": "org.hisp.dhis.category.CategoryDimension",
         "elementColumn": "categorydimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_categorydimensions"
@@ -3881,6 +3949,7 @@
       "categoryOptionGroupSetDimensions": {
         "elementClass": "org.hisp.dhis.category.CategoryOptionGroupSetDimension",
         "elementColumn": "categoryoptiongroupsetdimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_categoryoptiongroupsetdimensions"
@@ -3902,6 +3971,9 @@
         "kind": "property"
       },
       "columnDimensions": {
+        "elementColumn": "dimension",
+        "elementType": "string",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_columns"
@@ -3928,6 +4000,7 @@
       "dataElementDimensions": {
         "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityDataElementDimension",
         "elementColumn": "trackedentitydataelementdimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_dataelementdimensions"
@@ -3981,6 +4054,9 @@
         "type": "jbSet"
       },
       "filterDimensions": {
+        "elementColumn": "dimension",
+        "elementType": "string",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_filters"
@@ -4036,6 +4112,7 @@
       "itemOrganisationUnitGroups": {
         "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroup",
         "elementColumn": "orgunitgroupid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_itemorgunitgroups"
@@ -4074,11 +4151,15 @@
       "organisationUnitGroupSetDimensions": {
         "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroupSetDimension",
         "elementColumn": "orgunitgroupsetdimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_orgunitgroupsetdimensions"
       },
       "organisationUnitLevels": {
+        "elementColumn": "orgunitlevel",
+        "elementType": "integer",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_orgunitlevels"
@@ -4086,6 +4167,7 @@
       "organisationUnits": {
         "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnit",
         "elementColumn": "organisationunitid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_organisationunits"
@@ -4102,6 +4184,7 @@
       "persistedPeriods": {
         "elementClass": "org.hisp.dhis.period.Period",
         "elementColumn": "periodid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_periods"
@@ -4114,6 +4197,7 @@
       "programIndicatorDimensions": {
         "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityProgramIndicatorDimension",
         "elementColumn": "trackedentityprogramindicatordimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_programindicatordimensions"
@@ -4159,6 +4243,9 @@
         "type": "enum-string"
       },
       "rowDimensions": {
+        "elementColumn": "dimension",
+        "elementType": "string",
+        "indexColumn": "sort_order",
         "keyColumn": "eventvisualizationid",
         "kind": "list",
         "table": "eventvisualization_rows"
@@ -4640,6 +4727,7 @@
       "legendSets": {
         "elementClass": "org.hisp.dhis.legend.LegendSet",
         "elementColumn": "legendsetid",
+        "indexColumn": "sort_order",
         "keyColumn": "indicatorid",
         "kind": "list",
         "table": "indicatorlegendsets"
@@ -4819,6 +4907,7 @@
       "members": {
         "elementClass": "org.hisp.dhis.indicator.IndicatorGroup",
         "elementColumn": "indicatorgroupid",
+        "indexColumn": "sort_order",
         "keyColumn": "indicatorgroupsetid",
         "kind": "list",
         "table": "indicatorgroupsetmembers"
@@ -4919,6 +5008,7 @@
       "comments": {
         "elementClass": "org.hisp.dhis.interpretation.InterpretationComment",
         "elementColumn": "interpretationcommentid",
+        "indexColumn": "sort_order",
         "keyColumn": "interpretationid",
         "kind": "list",
         "table": "interpretation_comments"
@@ -5385,6 +5475,7 @@
       "mapViews": {
         "elementClass": "org.hisp.dhis.mapping.MapView",
         "elementColumn": "mapviewid",
+        "indexColumn": "sort_order",
         "keyColumn": "mapid",
         "kind": "list",
         "table": "mapmapviews"
@@ -5445,6 +5536,7 @@
       "attributeDimensions": {
         "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityAttributeDimension",
         "elementColumn": "trackedentityattributedimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "mapviewid",
         "kind": "list",
         "table": "mapview_attributedimensions"
@@ -5452,6 +5544,7 @@
       "categoryDimensions": {
         "elementClass": "org.hisp.dhis.category.CategoryDimension",
         "elementColumn": "categorydimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "mapviewid",
         "kind": "list",
         "table": "mapview_categorydimensions"
@@ -5459,6 +5552,7 @@
       "categoryOptionGroupSetDimensions": {
         "elementClass": "org.hisp.dhis.category.CategoryOptionGroupSetDimension",
         "elementColumn": "categoryoptiongroupsetdimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "mapviewid",
         "kind": "list",
         "table": "mapview_categoryoptiongroupsetdimensions"
@@ -5484,6 +5578,9 @@
         "kind": "property"
       },
       "columnDimensions": {
+        "elementColumn": "dimension",
+        "elementType": "string",
+        "indexColumn": "sort_order",
         "keyColumn": "mapviewid",
         "kind": "list",
         "table": "mapview_columns"
@@ -5502,6 +5599,7 @@
       "dataDimensionItems": {
         "elementClass": "org.hisp.dhis.common.DataDimensionItem",
         "elementColumn": "datadimensionitemid",
+        "indexColumn": "sort_order",
         "keyColumn": "mapviewid",
         "kind": "list",
         "table": "mapview_datadimensionitems"
@@ -5509,6 +5607,7 @@
       "dataElementDimensions": {
         "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityDataElementDimension",
         "elementColumn": "trackedentitydataelementdimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "mapviewid",
         "kind": "list",
         "table": "mapview_dataelementdimensions"
@@ -5548,6 +5647,9 @@
         "type": "enum-string"
       },
       "filterDimensions": {
+        "elementColumn": "dimension",
+        "elementType": "string",
+        "indexColumn": "sort_order",
         "keyColumn": "mapviewid",
         "kind": "list",
         "table": "mapview_filters"
@@ -5563,6 +5665,7 @@
       "itemOrganisationUnitGroups": {
         "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroup",
         "elementColumn": "orgunitgroupid",
+        "indexColumn": "sort_order",
         "keyColumn": "mapviewid",
         "kind": "list",
         "table": "mapview_itemorgunitgroups"
@@ -5644,11 +5747,15 @@
       "organisationUnitGroupSetDimensions": {
         "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroupSetDimension",
         "elementColumn": "orgunitgroupsetdimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "mapviewid",
         "kind": "list",
         "table": "mapview_orgunitgroupsetdimensions"
       },
       "organisationUnitLevels": {
+        "elementColumn": "orgunitlevel",
+        "elementType": "integer",
+        "indexColumn": "sort_order",
         "keyColumn": "mapviewid",
         "kind": "list",
         "table": "mapview_orgunitlevels"
@@ -5661,6 +5768,7 @@
       "organisationUnits": {
         "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnit",
         "elementColumn": "organisationunitid",
+        "indexColumn": "sort_order",
         "keyColumn": "mapviewid",
         "kind": "list",
         "table": "mapview_organisationunits"
@@ -5668,6 +5776,7 @@
       "persistedPeriods": {
         "elementClass": "org.hisp.dhis.period.Period",
         "elementColumn": "periodid",
+        "indexColumn": "sort_order",
         "keyColumn": "mapviewid",
         "kind": "list",
         "table": "mapview_periods"
@@ -5864,6 +5973,7 @@
       "messages": {
         "elementClass": "org.hisp.dhis.message.Message",
         "elementColumn": "messageid",
+        "indexColumn": "sort_order",
         "keyColumn": "messageconversationid",
         "kind": "list",
         "table": "messageconversation_messages"
@@ -6353,6 +6463,7 @@
       "members": {
         "elementClass": "org.hisp.dhis.option.OptionGroup",
         "elementColumn": "optiongroupid",
+        "indexColumn": "sort_order",
         "keyColumn": "optiongroupsetid",
         "kind": "list",
         "table": "optiongroupsetmembers"
@@ -6437,7 +6548,8 @@
       "options": {
         "elementClass": "org.hisp.dhis.option.Option",
         "keyColumn": "optionsetid",
-        "kind": "list"
+        "kind": "list",
+        "orderBy": "sortOrder ASC"
       },
       "sharing": {
         "column": "sharing",
@@ -6847,6 +6959,7 @@
       "items": {
         "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroup",
         "elementColumn": "orgunitgroupid",
+        "indexColumn": "sort_order",
         "keyColumn": "orgunitgroupsetdimensionid",
         "kind": "list",
         "table": "orgunitgroupsetdimension_items"
@@ -7739,6 +7852,7 @@
       },
       "programAttributes": {
         "elementClass": "org.hisp.dhis.program.ProgramTrackedEntityAttribute",
+        "indexColumn": "sort_order",
         "keyColumn": "programid",
         "kind": "list"
       },
@@ -7757,7 +7871,8 @@
       "programSections": {
         "elementClass": "org.hisp.dhis.program.ProgramSection",
         "keyColumn": "programid",
-        "kind": "set"
+        "kind": "set",
+        "orderBy": "sortOrder"
       },
       "programStageLabel": {
         "column": "programstagelabel",
@@ -7767,7 +7882,8 @@
       "programStages": {
         "elementClass": "org.hisp.dhis.program.ProgramStage",
         "keyColumn": "programid",
-        "kind": "set"
+        "kind": "set",
+        "orderBy": "sortOrder"
       },
       "programStagesLabel": {
         "column": "programstageslabel",
@@ -8010,6 +8126,7 @@
       "legendSets": {
         "elementClass": "org.hisp.dhis.legend.LegendSet",
         "elementColumn": "legendsetid",
+        "indexColumn": "sort_order",
         "keyColumn": "programindicatorid",
         "kind": "list",
         "table": "programindicatorlegendsets"
@@ -8194,6 +8311,7 @@
       "trackedEntityAttributes": {
         "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityAttribute",
         "elementColumn": "trackedentityattributeid",
+        "indexColumn": "sort_order",
         "keyColumn": "programsectionid",
         "kind": "list",
         "table": "programsection_attributes"
@@ -8528,6 +8646,7 @@
       "dataElements": {
         "elementClass": "org.hisp.dhis.dataelement.DataElement",
         "elementColumn": "dataelementid",
+        "indexColumn": "sort_order",
         "keyColumn": "programstagesectionid",
         "kind": "list",
         "table": "programstagesection_dataelements"
@@ -8561,6 +8680,7 @@
       "programIndicators": {
         "elementClass": "org.hisp.dhis.program.ProgramIndicator",
         "elementColumn": "programindicatorid",
+        "indexColumn": "sort_order",
         "keyColumn": "programstagesectionid",
         "kind": "list",
         "table": "programstagesection_programindicators"
@@ -8694,6 +8814,7 @@
         "type": "timestamp"
       },
       "deliveryChannels": {
+        "elementColumn": "deliverychannel",
         "keyColumn": "programnotificationtemplatedeliverychannelid",
         "kind": "set",
         "table": "programnotificationtemplate_deliverychannel"
@@ -10601,6 +10722,7 @@
       "legendSets": {
         "elementClass": "org.hisp.dhis.legend.LegendSet",
         "elementColumn": "legendsetid",
+        "indexColumn": "sort_order",
         "keyColumn": "trackedentityattributeid",
         "kind": "list",
         "table": "trackedentityattributelegendsets"
@@ -10871,6 +10993,7 @@
       },
       "trackedEntityTypeAttributes": {
         "elementClass": "org.hisp.dhis.trackedentity.TrackedEntityTypeAttribute",
+        "indexColumn": "sort_order",
         "keyColumn": "trackedentitytypeid",
         "kind": "list"
       },
@@ -11442,7 +11565,8 @@
         "elementClass": "org.hisp.dhis.tracker.model.TrackerEvent",
         "inverse": true,
         "kind": "set",
-        "mappedBy": "enrollment"
+        "mappedBy": "enrollment",
+        "orderBy": "occurreddate, scheduleddate"
       },
       "followup": {
         "column": "followup",
@@ -12064,6 +12188,7 @@
       },
       "deliveryChannels": {
         "elementColumn": "deliverychannel",
+        "elementType": "DeliveryChannel",
         "keyColumn": "programmessagedeliverychannelsid",
         "kind": "element-collection",
         "table": "programmessage_deliverychannels"
@@ -12213,6 +12338,9 @@
         "type": "timestamp"
       },
       "apps": {
+        "elementColumn": "app",
+        "elementType": "string",
+        "indexColumn": "sort_order",
         "keyColumn": "userinfoid",
         "kind": "list",
         "table": "userapps"
@@ -12403,6 +12531,9 @@
         "kind": "property"
       },
       "previousPasswords": {
+        "elementColumn": "previouspassword",
+        "elementType": "text",
+        "indexColumn": "list_index",
         "keyColumn": "userid",
         "kind": "list",
         "table": "previouspasswords"
@@ -12593,6 +12724,8 @@
     "mapping": "class",
     "properties": {
       "authorities": {
+        "elementColumn": "authority",
+        "elementType": "string",
         "keyColumn": "userroleid",
         "kind": "set",
         "table": "userroleauthorities"
@@ -12641,6 +12774,8 @@
         "notNull": true
       },
       "restrictions": {
+        "elementColumn": "restriction",
+        "elementType": "string",
         "keyColumn": "userroleid",
         "kind": "set",
         "table": "userrolerestrictions"
@@ -12861,9 +12996,11 @@
         "column": "operator",
         "kind": "property",
         "notNull": true,
-        "type": "org.hisp.dhis.expression.OperatorUserType"
+        "type": "enum-string"
       },
       "organisationUnitLevels": {
+        "elementColumn": "organisationunitlevel",
+        "elementType": "int",
         "keyColumn": "validationruleid",
         "kind": "set",
         "table": "validationruleorganisationunitlevels"
@@ -13124,6 +13261,7 @@
       "categoryDimensions": {
         "elementClass": "org.hisp.dhis.category.CategoryDimension",
         "elementColumn": "categorydimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "visualizationid",
         "kind": "list",
         "table": "visualization_categorydimensions"
@@ -13131,6 +13269,7 @@
       "categoryOptionGroupSetDimensions": {
         "elementClass": "org.hisp.dhis.category.CategoryOptionGroupSetDimension",
         "elementColumn": "categoryoptiongroupsetdimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "visualizationid",
         "kind": "list",
         "table": "visualization_categoryoptiongroupsetdimensions"
@@ -13152,6 +13291,9 @@
         "kind": "property"
       },
       "columnDimensions": {
+        "elementColumn": "dimension",
+        "elementType": "string",
+        "indexColumn": "sort_order",
         "keyColumn": "visualizationid",
         "kind": "list",
         "table": "visualization_columns"
@@ -13178,6 +13320,7 @@
       "dataDimensionItems": {
         "elementClass": "org.hisp.dhis.common.DataDimensionItem",
         "elementColumn": "datadimensionitemid",
+        "indexColumn": "sort_order",
         "keyColumn": "visualizationid",
         "kind": "list",
         "table": "visualization_datadimensionitems"
@@ -13185,6 +13328,7 @@
       "dataElementGroupSetDimensions": {
         "elementClass": "org.hisp.dhis.dataelement.DataElementGroupSetDimension",
         "elementColumn": "dataelementgroupsetdimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "visualizationid",
         "kind": "list",
         "table": "visualization_dataelementgroupsetdimensions"
@@ -13214,6 +13358,9 @@
         "type": "jbSet"
       },
       "filterDimensions": {
+        "elementColumn": "dimension",
+        "elementType": "string",
+        "indexColumn": "sort_order",
         "keyColumn": "visualizationid",
         "kind": "list",
         "table": "visualization_filters"
@@ -13275,6 +13422,7 @@
       "itemOrganisationUnitGroups": {
         "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroup",
         "elementColumn": "orgunitgroupid",
+        "indexColumn": "sort_order",
         "keyColumn": "visualizationid",
         "kind": "list",
         "table": "visualization_itemorgunitgroups"
@@ -13314,6 +13462,7 @@
       "optionalAxes": {
         "elementClass": "org.hisp.dhis.visualization.Axis",
         "elementColumn": "axisid",
+        "indexColumn": "sort_order",
         "keyColumn": "visualizationid",
         "kind": "list",
         "table": "visualization_axis"
@@ -13321,11 +13470,15 @@
       "organisationUnitGroupSetDimensions": {
         "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnitGroupSetDimension",
         "elementColumn": "orgunitgroupsetdimensionid",
+        "indexColumn": "sort_order",
         "keyColumn": "visualizationid",
         "kind": "list",
         "table": "visualization_orgunitgroupsetdimensions"
       },
       "organisationUnitLevels": {
+        "elementColumn": "orgunitlevel",
+        "elementType": "integer",
+        "indexColumn": "sort_order",
         "keyColumn": "visualizationid",
         "kind": "list",
         "table": "visualization_orgunitlevels"
@@ -13333,6 +13486,7 @@
       "organisationUnits": {
         "elementClass": "org.hisp.dhis.organisationunit.OrganisationUnit",
         "elementColumn": "organisationunitid",
+        "indexColumn": "sort_order",
         "keyColumn": "visualizationid",
         "kind": "list",
         "table": "visualization_organisationunits"
@@ -13349,6 +13503,7 @@
       "persistedPeriods": {
         "elementClass": "org.hisp.dhis.period.Period",
         "elementColumn": "periodid",
+        "indexColumn": "sort_order",
         "keyColumn": "visualizationid",
         "kind": "list",
         "table": "visualization_periods"
@@ -13371,6 +13526,9 @@
         "kind": "component"
       },
       "rowDimensions": {
+        "elementColumn": "dimension",
+        "elementType": "string",
+        "indexColumn": "sort_order",
         "keyColumn": "visualizationid",
         "kind": "list",
         "table": "visualization_rows"
@@ -13478,6 +13636,9 @@
         "kind": "property"
       },
       "yearlySeries": {
+        "elementColumn": "yearlyseries",
+        "elementType": "string",
+        "indexColumn": "sort_order",
         "keyColumn": "visualizationid",
         "kind": "list",
         "table": "visualization_yearlyseries"

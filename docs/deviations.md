@@ -43,6 +43,16 @@ the root object's own translations and name (`GistBuilder#createTranslatedFieldH
 uses `e.`); nested fields inner-join their reference, dropping rows without it from the page.
 Requests on which Java fails (`fields=code` with a null code: 500; `pageSize=0`: 500) go to Java.
 
+**Metadata query engine bugs kept on purpose** (`dhis_query::metadata`, lists the Gist bridge
+leaves to `QueryService`): `like`-family filters strip `%` from the value but leave `_` (and `\`)
+as SQL wildcards, while `query=` keeps `%`; `order=code:iasc` does not ignore case, because only
+TEXT, EMAIL and USERNAME properties are lowered and `code`/`id` are IDENTIFIERs; any order on a
+translatable property (`name`, `shortName`, ...) sorts by the value translated into the user's
+database locale; a direction other than `asc`/`desc`/`iasc`/`idesc`, or a third `:` part
+(`name:desc:x`), sorts ascending; explicit orders get no `id` tiebreaker, so ties come back in
+whatever order PostgreSQL returns them; a page past the end returns no items with
+`pager.page` clamped to the last page.
+
 **Bugs kept on purpose:** `Fields.of("a::rename(x)::rename(y)")` yields no field at all, and an
 inherited rename plus one transform drops the transform (`a::rename(x)[b::size]` → `a.b` without
 `size`). See `crates/dhis-query/tests/fixtures/fields.tsv`.

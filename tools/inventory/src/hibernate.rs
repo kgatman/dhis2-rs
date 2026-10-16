@@ -190,6 +190,23 @@ fn parse(xml: &str, file: &str, entities: &mut BTreeMap<String, Value>) -> Resul
         }
         // A collection's join: <key column> (owner side) and the element <many-to-many> or
         // <one-to-many>.
+        // list order (<list-index>/<index>) and plain values (<element>)
+        if matches!(tag.as_str(), "list-index" | "index" | "element")
+            && let Some(top) = stack.last_mut()
+            && let Some((_, _, p)) = top.property.as_mut()
+            && p.contains_key("kind")
+            && !p.contains_key("column")
+            && let Some(c) = attrs.get("column")
+        {
+            if tag == "element" {
+                p.insert("elementColumn".into(), json!(lower(c)));
+                if let Some(t) = attrs.get("type") {
+                    p.insert("elementType".into(), json!(t));
+                }
+            } else {
+                p.insert("indexColumn".into(), json!(lower(c)));
+            }
+        }
         if matches!(tag.as_str(), "key" | "many-to-many" | "one-to-many")
             && let Some(top) = stack.last_mut()
             && let Some((_, _, p)) = top.property.as_mut()
@@ -290,6 +307,28 @@ pub fn extract_with_jpa(dhis2: &Path, idx: &JavaIndex) -> Result<String> {
     for (file, xml) in expanded_hbm_files(dhis2)? {
         parse(&xml, &file, &mut entities).with_context(|| format!("parsing {file}"))?;
     }
+    // custom types extending EnumUserType store Enum#name(): the same as enum-string
+    let enum_user_types: std::collections::BTreeSet<String> = idx
+        .types
+        .iter()
+        .filter(|t| {
+            t.superclass
+                .as_deref()
+                .is_some_and(|s| s.starts_with("EnumUserType"))
+        })
+        .map(|t| t.fqn.clone())
+        .collect();
+    for e in entities.values_mut() {
+        if let Some(Value::Object(props)) = e.get_mut("properties") {
+            for p in props.values_mut() {
+                if let Some(t) = p.get("type").and_then(Value::as_str)
+                    && enum_user_types.contains(t)
+                {
+                    p["type"] = json!("enum-string");
+                }
+            }
+        }
+    }
     let jpa = JpaEntities {
         idx,
         ev: Eval::new(idx),
@@ -366,6 +405,20 @@ impl<'a> JpaEntities<'a> {
         if let Some(tb) = table {
             record.insert("table".into(), json!(tb));
         }
+        // @SecondaryTable: its key column (the @PrimaryKeyJoinColumn, by default the primary
+        // key's column name, resolved by readers)
+        let mut secondary = serde_json::Map::new();
+        for st in t.annotations.iter().filter(|a| a.name == "SecondaryTable") {
+            if let Some(name) = self.col(st, "name", t) {
+                let key = nested(st.arg("pkJoinColumns"))
+                    .first()
+                    .and_then(|c| self.col(c, "name", t));
+                secondary.insert(name, json!(key));
+            }
+        }
+        if !secondary.is_empty() {
+            record.insert("secondaryTables".into(), Value::Object(secondary));
+        }
         let mut chain = vec![t];
         let mut cur = t;
         while let Some(sup) = cur
@@ -413,6 +466,17 @@ impl<'a> JpaEntities<'a> {
     fn class_of(&self, owner: &TypeDecl, ty: &str) -> Option<String> {
         let erased = crate::java::erase(ty);
         self.idx.resolve_type(owner, &erased).map(|t| t.fqn.clone())
+    }
+
+    /// The element type name of `Set<X>`/`List<X>` as written (e.g. `Integer`).
+    fn element_type(&self, _owner: &TypeDecl, ty: &str) -> Option<String> {
+        Some(
+            ty.split_once('<')?
+                .1
+                .trim_end_matches('>')
+                .trim()
+                .to_string(),
+        )
     }
 
     /// The element type of `Set<X>`/`List<X>`.
@@ -484,6 +548,12 @@ impl<'a> JpaEntities<'a> {
                 {
                     p.insert("keyColumn".into(), json!(c));
                 }
+                if let Some(c) = ann(a, "OrderColumn").and_then(|o| self.col(o, "name", owner)) {
+                    p.insert("indexColumn".into(), json!(c));
+                }
+                if let Some(o) = ann(a, "OrderBy").and_then(|o| self.s(o, "value", owner)) {
+                    p.insert("orderBy".into(), json!(o));
+                }
                 if let Some(jt) = ann(a, "JoinTable") {
                     if let Some(t) = self.col(jt, "name", owner) {
                         p.insert("table".into(), json!(t));
@@ -519,6 +589,12 @@ impl<'a> JpaEntities<'a> {
             }
             if let Some(c) = ann(a, "Column").and_then(|c| self.col(c, "name", owner)) {
                 p.insert("elementColumn".into(), json!(c));
+            }
+            if let Some(c) = ann(a, "OrderColumn").and_then(|o| self.col(o, "name", owner)) {
+                p.insert("indexColumn".into(), json!(c));
+            }
+            if let Some(t) = self.element_type(owner, &f.ty) {
+                p.insert("elementType".into(), json!(t));
             }
             return Some(Value::Object(p));
         }
