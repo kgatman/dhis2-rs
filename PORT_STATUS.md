@@ -87,9 +87,23 @@ Regenerate the inventory with `tools/gen-inventory.sh`. CI fails if it is stale.
 - Fixtures: option sets, a legend set, categories/combo, 12 data elements, groups, indicators,
   an org unit tree. Evidence: `corpus/phase2/gist-types.jsonl` **226/226**, with the constants
   corpus 485/485 (345 answered by Rust).
-- Not yet (fall back): JSONB values (`sharing`, `translations`, `attributeValues`, `style`; the
-  `L`/`M`/`XL` auto levels include them), enum filters, custom user types (`category`
-  `dataDimensionType`), `isEmpty`/`isNotEmpty`/`pluck`/`member`, nested fields.
+- Then: **JSONB values** (`dhis_core_model::jsonb`): `Sharing`, translation sets (Java
+  `HashSet` order via `Translation#hashCode`, `java::hash::hash_order`; JPA's
+  `TranslationProperty` wrapper), `AttributeValues`, read as DHIS2's Hibernate JSON types read
+  them. Fixtures from DHIS2's own classes on the server image (`tools/gen-jsonb-fixtures.sh`, 88
+  values incl. resizes and invalid locales). Findings: a stored access entry's `displayName` is
+  never read (read-only for Jackson), unknown sharing members are ignored, invalid translation
+  locales fail the request in Java. Corpus 539/539.
+- Then: **nested fields of references** (`categoryCombo[id,name]`, `lastUpdatedBy.username`): one
+  inner join per referenced property, as Hibernate renders the implicit joins (so rows whose
+  reference is null drop out of the page but not of the total: Java's behaviour); nested
+  `displayName` reproduces Java's bug of translating from the **root** object's columns; nested
+  `href`; members grouped as json-tree's layout tree does; the referenced type's read access is
+  checked (public `User` fields as Java lists them). Full phase-2 corpus **1364/1364**.
+- Not yet (fall back): nested filters/orders, collection item fields (`legendSets.name`),
+  unwrapped nested fields, `style`, `valueTypeOptions`, `geometry`, enum filters, custom user types
+  (`category.dataDimensionType`), secondary-table joins (`categoryOptionCombos`), `access`,
+  `isEmpty`/`isNotEmpty`/`member`, nested fields.
 
 ## Delegated auth cost (session 2)
 
@@ -282,13 +296,11 @@ Tracer bullet that built the shared Web API layer every later endpoint reuses:
 ## Next three tasks (end of session 2)
 
 1. **CI e2e with the Gist routes on Rust**, then mark the two constants rows `rust`.
-2. **Java value serialisation** for JSONB-backed values (`Sharing`, translations sets,
-   `AttributeValues`, `ObjectStyle`) with Jackson's output and `HashSet`/`HashMap` orders: needed
-   by the Gist `L`/`M`/`XL` levels and by the metadata query engine. Then nested fields, enum
-   filters (enum constants from the source), single-object `/api/{type}/{uid}/gist`, more types.
-3. **Metadata query engine** for the non-Gist lists (`fields=*`, presets) and
-   `getObject`: `QueryService`, the field filter over DB-loaded entities, `href`/`access`.
-   `/api/me` (`MeDto`) follows, as it needs the same pieces.
+2. **Metadata query engine** (`fields=*`, presets, `GET /api/{type}/{uid}`): QueryService
+   filters/orders/paging over DB-loaded entities rendered through the field filter, `href`,
+   `access`, the Jackson forms of JSONB values (`AttributeValues` as an array there).
+3. Gist extras: nested filters/orders, collection item fields, enum filters, `access`,
+   single-object `/api/{type}/{uid}/gist`, more types. Then `/api/me` (`MeDto`).
 
 ## Earlier next-tasks (start of slice 5, done or superseded)
 

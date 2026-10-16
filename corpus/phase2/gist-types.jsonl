@@ -226,3 +226,82 @@
 {"name": "userRole gist basic star", "method": "GET", "path": "/api/userRoles/gist?fields=*&pageSize=50&totalPages=true", "tags": ["GistTypes"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
 {"name": "userRole gist locale fr", "method": "GET", "path": "/api/userRoles/gist?fields=id,displayName,displayShortName&locale=fr&pageSize=20", "tags": ["GistTypes"], "headers": {"Accept": "application/json"}}
 {"name": "userRole gist order code", "method": "GET", "path": "/api/userRoles/gist?fields=id,code&order=code:desc,id&pageSize=6", "tags": ["GistTypes"], "headers": {"Accept": "application/json"}}
+# JSONB-backed values (sharing, translations, attribute values)
+{"name": "constants json fields", "method": "GET", "path": "/api/constants/gist?fields=id,sharing,translations,attributeValues&pageSize=60", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "constants json single", "method": "GET", "path": "/api/constants/gist?fields=sharing&pageSize=5", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "constants json translations single", "method": "GET", "path": "/api/constants/gist?fields=translations&pageSize=20", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "constants json basic", "method": "GET", "path": "/api/constants/gist?fields=id,sharing,attributeValues&pageSize=60", "tags": ["GistJson"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "constants list sharing", "method": "GET", "path": "/api/constants?fields=id,sharing&pageSize=10", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "constants gist auto L", "method": "GET", "path": "/api/constants/gist?auto=L&pageSize=4&totalPages=true", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "dataElements json fields", "method": "GET", "path": "/api/dataElements/gist?fields=id,sharing,translations,attributeValues&pageSize=60", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "dataElements json single", "method": "GET", "path": "/api/dataElements/gist?fields=sharing&pageSize=5", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "dataElements json translations single", "method": "GET", "path": "/api/dataElements/gist?fields=translations&pageSize=20", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "dataElements json basic", "method": "GET", "path": "/api/dataElements/gist?fields=id,sharing,attributeValues&pageSize=60", "tags": ["GistJson"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "dataElements list sharing", "method": "GET", "path": "/api/dataElements?fields=id,sharing&pageSize=10", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "dataElements gist auto L", "method": "GET", "path": "/api/dataElements/gist?auto=L&pageSize=4&totalPages=true", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "optionSets json fields", "method": "GET", "path": "/api/optionSets/gist?fields=id,sharing,translations,attributeValues&pageSize=60", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "optionSets json single", "method": "GET", "path": "/api/optionSets/gist?fields=sharing&pageSize=5", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "optionSets json translations single", "method": "GET", "path": "/api/optionSets/gist?fields=translations&pageSize=20", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "optionSets json basic", "method": "GET", "path": "/api/optionSets/gist?fields=id,sharing,attributeValues&pageSize=60", "tags": ["GistJson"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "optionSets list sharing", "method": "GET", "path": "/api/optionSets?fields=id,sharing&pageSize=10", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "optionSets gist auto L", "method": "GET", "path": "/api/optionSets/gist?auto=L&pageSize=4&totalPages=true", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "categoryOptions json fields", "method": "GET", "path": "/api/categoryOptions/gist?fields=id,sharing,translations,attributeValues&pageSize=60", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "categoryOptions json single", "method": "GET", "path": "/api/categoryOptions/gist?fields=sharing&pageSize=5", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "categoryOptions json translations single", "method": "GET", "path": "/api/categoryOptions/gist?fields=translations&pageSize=20", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "categoryOptions json basic", "method": "GET", "path": "/api/categoryOptions/gist?fields=id,sharing,attributeValues&pageSize=60", "tags": ["GistJson"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "categoryOptions list sharing", "method": "GET", "path": "/api/categoryOptions?fields=id,sharing&pageSize=10", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "categoryOptions gist auto L", "method": "GET", "path": "/api/categoryOptions/gist?auto=L&pageSize=4&totalPages=true", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "userGroups json fields", "method": "GET", "path": "/api/userGroups/gist?fields=id,sharing,translations,attributeValues&pageSize=60", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "userGroups json single", "method": "GET", "path": "/api/userGroups/gist?fields=sharing&pageSize=5", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "userGroups json translations single", "method": "GET", "path": "/api/userGroups/gist?fields=translations&pageSize=20", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "userGroups json basic", "method": "GET", "path": "/api/userGroups/gist?fields=id,sharing,attributeValues&pageSize=60", "tags": ["GistJson"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "userGroups list sharing", "method": "GET", "path": "/api/userGroups?fields=id,sharing&pageSize=10", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "userGroups gist auto L", "method": "GET", "path": "/api/userGroups/gist?auto=L&pageSize=4&totalPages=true", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "indicators json fields", "method": "GET", "path": "/api/indicators/gist?fields=id,sharing,translations,attributeValues&pageSize=60", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "indicators json single", "method": "GET", "path": "/api/indicators/gist?fields=sharing&pageSize=5", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "indicators json translations single", "method": "GET", "path": "/api/indicators/gist?fields=translations&pageSize=20", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "indicators json basic", "method": "GET", "path": "/api/indicators/gist?fields=id,sharing,attributeValues&pageSize=60", "tags": ["GistJson"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "indicators list sharing", "method": "GET", "path": "/api/indicators?fields=id,sharing&pageSize=10", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "indicators gist auto L", "method": "GET", "path": "/api/indicators/gist?auto=L&pageSize=4&totalPages=true", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "dataElementGroups json fields", "method": "GET", "path": "/api/dataElementGroups/gist?fields=id,sharing,translations,attributeValues&pageSize=60", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "dataElementGroups json single", "method": "GET", "path": "/api/dataElementGroups/gist?fields=sharing&pageSize=5", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "dataElementGroups json translations single", "method": "GET", "path": "/api/dataElementGroups/gist?fields=translations&pageSize=20", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "dataElementGroups json basic", "method": "GET", "path": "/api/dataElementGroups/gist?fields=id,sharing,attributeValues&pageSize=60", "tags": ["GistJson"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "dataElementGroups list sharing", "method": "GET", "path": "/api/dataElementGroups?fields=id,sharing&pageSize=10", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "dataElementGroups gist auto L", "method": "GET", "path": "/api/dataElementGroups/gist?auto=L&pageSize=4&totalPages=true", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "legendSets json fields", "method": "GET", "path": "/api/legendSets/gist?fields=id,sharing,translations,attributeValues&pageSize=60", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "legendSets json single", "method": "GET", "path": "/api/legendSets/gist?fields=sharing&pageSize=5", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "legendSets json translations single", "method": "GET", "path": "/api/legendSets/gist?fields=translations&pageSize=20", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "legendSets json basic", "method": "GET", "path": "/api/legendSets/gist?fields=id,sharing,attributeValues&pageSize=60", "tags": ["GistJson"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "legendSets list sharing", "method": "GET", "path": "/api/legendSets?fields=id,sharing&pageSize=10", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "legendSets gist auto L", "method": "GET", "path": "/api/legendSets/gist?auto=L&pageSize=4&totalPages=true", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "categoryCombos json fields", "method": "GET", "path": "/api/categoryCombos/gist?fields=id,sharing,translations,attributeValues&pageSize=60", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "categoryCombos json single", "method": "GET", "path": "/api/categoryCombos/gist?fields=sharing&pageSize=5", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "categoryCombos json translations single", "method": "GET", "path": "/api/categoryCombos/gist?fields=translations&pageSize=20", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "categoryCombos json basic", "method": "GET", "path": "/api/categoryCombos/gist?fields=id,sharing,attributeValues&pageSize=60", "tags": ["GistJson"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "categoryCombos list sharing", "method": "GET", "path": "/api/categoryCombos?fields=id,sharing&pageSize=10", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+{"name": "categoryCombos gist auto L", "method": "GET", "path": "/api/categoryCombos/gist?auto=L&pageSize=4&totalPages=true", "tags": ["GistJson"], "headers": {"Accept": "application/json"}}
+# Nested fields of referenced objects (inner joins, root-translation quirk)
+{"name": "de nested combo", "method": "GET", "path": "/api/dataElements/gist?fields=id,categoryCombo[id,name,displayName,code]&pageSize=20", "tags": ["GistNested"], "headers": {"Accept": "application/json"}}
+{"name": "de nested optionSet drops rows", "method": "GET", "path": "/api/dataElements/gist?fields=id,optionSet[id,displayName]&pageSize=20&totalPages=true", "tags": ["GistNested"], "headers": {"Accept": "application/json"}}
+{"name": "de nested two refs", "method": "GET", "path": "/api/dataElements/gist?fields=id,categoryCombo.name,optionSet.name,categoryCombo.id&pageSize=20", "tags": ["GistNested"], "headers": {"Accept": "application/json"}}
+{"name": "de nested href", "method": "GET", "path": "/api/dataElements/gist?fields=id,categoryCombo[id,href]&pageSize=3", "tags": ["GistNested"], "headers": {"Accept": "application/json"}}
+{"name": "de nested href only", "method": "GET", "path": "/api/dataElements/gist?fields=categoryCombo[href]&pageSize=3", "tags": ["GistNested"], "headers": {"Accept": "application/json"}}
+{"name": "de nested and ref", "method": "GET", "path": "/api/dataElements/gist?fields=id,categoryCombo,categoryCombo.name&pageSize=3", "tags": ["GistNested"], "headers": {"Accept": "application/json"}}
+{"name": "de nested displayName locale", "method": "GET", "path": "/api/dataElements/gist?fields=id,categoryCombo.displayName&locale=fr&pageSize=12", "tags": ["GistNested"], "headers": {"Accept": "application/json"}}
+{"name": "de nested unwrapped", "method": "GET", "path": "/api/dataElements/gist?fields=categoryCombo.name&pageSize=3", "tags": ["GistNested"], "headers": {"Accept": "application/json"}}
+{"name": "de nested headless", "method": "GET", "path": "/api/dataElements/gist?fields=id,categoryCombo[name]&headless=true&pageSize=3", "tags": ["GistNested"], "headers": {"Accept": "application/json"}}
+{"name": "de nested basic", "method": "GET", "path": "/api/dataElements/gist?fields=id,categoryCombo[id,name]&pageSize=50", "tags": ["GistNested"], "headers": {"Accept": "application/json"}}
+{"name": "constant user fields", "method": "GET", "path": "/api/constants/gist?fields=id,lastUpdatedBy[id,name,username,firstName]&pageSize=3", "tags": ["GistNested"], "headers": {"Accept": "application/json"}}
+{"name": "constant user email", "method": "GET", "path": "/api/constants/gist?fields=id,lastUpdatedBy.email&pageSize=3", "tags": ["GistNested"], "headers": {"Accept": "application/json"}}
+{"name": "constant nested ordered", "method": "GET", "path": "/api/constants/gist?fields=id,lastUpdatedBy.name&order=name:desc&pageSize=3", "tags": ["GistNested"], "headers": {"Accept": "application/json"}}
+{"name": "indicator type nested", "method": "GET", "path": "/api/indicators/gist?fields=id,indicatorType[id,name,factor]&pageSize=5", "tags": ["GistNested"], "headers": {"Accept": "application/json"}}
+{"name": "option optionSet nested", "method": "GET", "path": "/api/options/gist?fields=id,optionSet[id,name]&pageSize=10", "tags": ["GistNested"], "headers": {"Accept": "application/json"}}
+{"name": "ou parent nested", "method": "GET", "path": "/api/organisationUnits/gist?fields=id,parent[id,name,level]&pageSize=10", "tags": ["GistNested"], "headers": {"Accept": "application/json"}}
+{"name": "list bridge nested", "method": "GET", "path": "/api/dataElements?fields=id,categoryCombo[id,name]&pageSize=10", "tags": ["GistNested"], "headers": {"Accept": "application/json"}}
+{"name": "list bridge nested display", "method": "GET", "path": "/api/dataElements?fields=id,categoryCombo[id,displayName]&pageSize=10", "tags": ["GistNested"], "headers": {"Accept": "application/json"}}
+{"name": "nested collection item", "method": "GET", "path": "/api/dataElements/gist?fields=id,legendSets.name&pageSize=5", "tags": ["GistNested"], "headers": {"Accept": "application/json"}}
+{"name": "nested invalid", "method": "GET", "path": "/api/dataElements/gist?fields=id,categoryCombo.nope&pageSize=5", "tags": ["GistNested"], "headers": {"Accept": "application/json"}}
+{"name": "de nested basic user", "method": "GET", "path": "/api/dataElements/gist?fields=id,categoryCombo[id,name],optionSet.name&pageSize=50", "tags": ["GistNested"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "constant user fields basic", "method": "GET", "path": "/api/constants/gist?fields=id,lastUpdatedBy[id,name,email]&pageSize=5", "tags": ["GistNested"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzYmFzaWM6Q29ycHVzMTIzIQ=="}}
+{"name": "de nested super fr", "method": "GET", "path": "/api/dataElements/gist?fields=id,categoryCombo.displayName,displayName&pageSize=12", "tags": ["GistNested"], "headers": {"Accept": "application/json", "Authorization": "Basic Y29ycHVzc3VwZXI6Q29ycHVzMTIzIQ=="}}

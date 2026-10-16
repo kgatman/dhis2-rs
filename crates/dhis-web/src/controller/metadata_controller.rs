@@ -21,7 +21,9 @@ use dhis_auth::CurrentUser;
 use dhis_query::gist::AutoType;
 use dhis_query::gist::bridge::{self, BridgeInput, Decision};
 use dhis_query::gist::output::{self, Cell, ListOutput, Pager, RequestUrl};
-use dhis_query::gist::plan::{self, Access, ColumnType, ListParams, ListPlan, Slot, SqlParam};
+use dhis_query::gist::plan::{
+    self, Access, ColumnType, JsonKind, ListParams, ListPlan, Slot, SqlParam,
+};
 use dhis_schema::registered::{self, RegisteredSchema};
 use http::{HeaderValue, header};
 use sqlx::Row;
@@ -252,6 +254,7 @@ fn access(user: &CurrentUser, schema: &RegisteredSchema) -> Result<Access, JavaF
             .identity
             .as_ref()
             .map(|i| (i.uid.clone(), i.group_ids.clone())),
+        authorities: authorities.clone(),
     })
 }
 
@@ -581,11 +584,39 @@ fn decode(row: &sqlx::postgres::PgRow, i: usize, ty: ColumnType) -> Option<Cell>
         ColumnType::Long => get::<i64>(row, i)?.map_or(Cell::Null, Cell::Int),
         ColumnType::Bool => get::<bool>(row, i)?.map_or(Cell::Null, Cell::Bool),
         ColumnType::TextArray => get::<Vec<String>>(row, i)?.map_or(Cell::Null, Cell::Array),
+        ColumnType::Json(kind) => match get::<String>(row, i)? {
+            None => Cell::Null,
+            // a value Java cannot read (e.g. an invalid locale) fails the request there
+            Some(text) => Cell::Raw(json_value(&text, kind)?),
+        },
         ColumnType::Timestamp => match get::<String>(row, i)? {
             None => Cell::Null,
             Some(t) => Cell::Text(java_date(&t)?),
         },
     })
+}
+
+/// A JSONB column value as the Gist API writes the Java value it is read into.
+fn json_value(text: &str, kind: JsonKind) -> Option<String> {
+    use dhis_core_model::jsonb;
+    match kind {
+        JsonKind::Sharing => jsonb::sharing_json(text),
+        JsonKind::Translations { wrapped } => jsonb::translations_json(text, wrapped),
+        JsonKind::AttributeValues => {
+            // LazyAttributeValues#addTo: an object of strings (json-tree escaping)
+            let mut out = String::from("{");
+            for (i, (k, v)) in jsonb::attribute_values(text)?.iter().enumerate() {
+                if i > 0 {
+                    out.push(',');
+                }
+                output::write_string(&mut out, k);
+                out.push(':');
+                output::write_string(&mut out, v);
+            }
+            out.push('}');
+            Some(out)
+        }
+    }
 }
 
 /// A `timestamp` (as `YYYY-MM-DD HH24:MI:SS.US`) the way Java renders it: read into a

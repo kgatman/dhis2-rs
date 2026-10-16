@@ -38,7 +38,9 @@ Entries marked **transition** go away at cutover (phase 9).
 **Gist bugs kept on purpose** (ADR 0008): in single-field lists (`unwrap`) json-tree prints
 doubles with up to three decimals through a shortcut that drops leading zeros of the decimals and
 the sign between -1 and 0 (`0.05` → `0.5`, `-0.5` → `0.5`); `name:gt:5` on a text property
-compares the **length** (`isStringLengthFilter`); `order=name` sorts by the translated name.
+compares the **length** (`isStringLengthFilter`); `order=name` sorts by the translated name; a nested `ref.displayName` is translated from
+the root object's own translations and name (`GistBuilder#createTranslatedFieldHQL` always
+uses `e.`); nested fields inner-join their reference, dropping rows without it from the page.
 Requests on which Java fails (`fields=code` with a null code: 500; `pageSize=0`: 500) go to Java.
 
 **Bugs kept on purpose:** `Fields.of("a::rename(x)::rename(y)")` yields no field at all, and an

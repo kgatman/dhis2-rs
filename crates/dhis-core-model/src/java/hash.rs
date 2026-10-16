@@ -72,6 +72,34 @@ where
     Some(set.into_iter().map(|(s, _)| s).collect())
 }
 
+/// The iteration order of a `HashSet`/`HashMap` whose distinct elements, in insertion order,
+/// have these `hashCode()`s: indices into `hashes`. `None` when a bin would be treeified.
+pub fn hash_order(hashes: &[i32], construction: Construction) -> Option<Vec<usize>> {
+    let mut capacity: usize = match construction {
+        Construction::Presized => {
+            let n = hashes.len().max(12) as f64;
+            ((n / 0.75).ceil() as usize).next_power_of_two()
+        }
+        Construction::Default => 16,
+    };
+    let mut table: Vec<(usize, u32)> = Vec::with_capacity(hashes.len());
+    for (i, h) in hashes.iter().enumerate() {
+        let h = *h as u32;
+        let h = h ^ (h >> 16);
+        let mask = (capacity - 1) as u32;
+        if table.iter().filter(|(_, o)| o & mask == h & mask).count() >= TREEIFY_AT {
+            return None;
+        }
+        table.push((i, h));
+        if table.len() > capacity * 3 / 4 {
+            capacity *= 2;
+        }
+    }
+    let mask = (capacity - 1) as u32;
+    table.sort_by_key(|(_, h)| h & mask);
+    Some(table.into_iter().map(|(i, _)| i).collect())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

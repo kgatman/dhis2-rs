@@ -21,6 +21,8 @@ pub enum Cell {
     Bool(bool),
     Map(Vec<(String, String)>),
     Array(Vec<String>),
+    /// Pre-rendered JSON.
+    Raw(String),
 }
 
 /// `GistPager`.
@@ -210,6 +212,7 @@ fn write_value(out: &mut String, ty: OutputType, cell: &Cell, unwrapped: bool) -
             }
             out.push(']');
         }
+        (OutputType::Raw, Cell::Raw(json)) => out.push_str(json),
         (OutputType::StringMap, Cell::Map(m)) => {
             out.push('{');
             for (i, (k, v)) in m.iter().enumerate() {
@@ -226,6 +229,78 @@ fn write_value(out: &mut String, ty: OutputType, cell: &Cell, unwrapped: bool) -
         _ => return Err(Unsupported("value of unexpected type")),
     }
     Ok(true)
+}
+
+/// `JsonStreamOutput`'s layout tree: members in order of first appearance, nested paths
+/// grouped under their parent object (`a.x, b, a.y` writes `a` with `x` and `y`, then `b`).
+enum Layout {
+    Leaf { name: String, index: usize },
+    Object { name: String, members: Vec<Layout> },
+}
+
+fn layout(plan: &ListPlan) -> Result<Vec<Layout>> {
+    let mut root: Vec<Layout> = Vec::new();
+    for (index, prop) in plan.output.iter().enumerate() {
+        let segs: Vec<&str> = prop.path.split('.').collect();
+        let mut level = &mut root;
+        for seg in &segs[..segs.len() - 1] {
+            let pos = level.iter().position(|m| match m {
+                Layout::Object { name, .. } | Layout::Leaf { name, .. } => name == seg,
+            });
+            let pos = match pos {
+                Some(p) => p,
+                None => {
+                    level.push(Layout::Object {
+                        name: seg.to_string(),
+                        members: Vec::new(),
+                    });
+                    level.len() - 1
+                }
+            };
+            level = match &mut level[pos] {
+                Layout::Object { members, .. } => members,
+                // a property node cannot get members (IllegalArgumentException in Java)
+                Layout::Leaf { .. } => return Err(Unsupported("field and nested field clash")),
+            };
+        }
+        level.push(Layout::Leaf {
+            name: segs[segs.len() - 1].to_string(),
+            index,
+        });
+    }
+    Ok(root)
+}
+
+fn write_object(out: &mut String, members: &[Layout], plan: &ListPlan, row: &[Cell]) -> Result<()> {
+    out.push('{');
+    let mut first = true;
+    for m in members {
+        let mut member = String::new();
+        let written = match m {
+            Layout::Leaf { name, index } => {
+                member.push('"');
+                member.push_str(name);
+                member.push_str("\":");
+                write_value(&mut member, plan.output[*index].ty, &row[*index], false)?
+            }
+            Layout::Object { name, members } => {
+                member.push('"');
+                member.push_str(name);
+                member.push_str("\":");
+                write_object(&mut member, members, plan, row)?;
+                true
+            }
+        };
+        if written {
+            if !first {
+                out.push(',');
+            }
+            first = false;
+            out.push_str(&member);
+        }
+    }
+    out.push('}');
+    Ok(())
 }
 
 /// Renders a list response (`GistOutput.toJson(GistObjectList.Output)`).
@@ -246,6 +321,10 @@ pub fn render_list(
         transform(plan, row);
     }
     let unwrap = wrap.unwrap && plan.output.len() == 1;
+    if unwrap && plan.output[0].path.contains('.') {
+        return Err(Unsupported("unwrapped nested field"));
+    }
+    let layout = layout(plan)?;
     let mut elements = String::from("[");
     for (n, row) in rows.iter().enumerate() {
         if n > 0 {
@@ -258,22 +337,7 @@ pub fn render_list(
             }
             continue;
         }
-        elements.push('{');
-        let mut first = true;
-        for (i, prop) in plan.output.iter().enumerate() {
-            let mut member = String::new();
-            member.push('"');
-            member.push_str(&prop.path);
-            member.push_str("\":");
-            if write_value(&mut member, prop.ty, &row[i], false)? {
-                if !first {
-                    elements.push(',');
-                }
-                first = false;
-                elements.push_str(&member);
-            }
-        }
-        elements.push('}');
+        write_object(&mut elements, &layout, plan, row)?;
     }
     elements.push(']');
     if wrap.headless {

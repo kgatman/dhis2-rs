@@ -67,11 +67,17 @@ for i in range(1, 61):
     if i % 4 == 3:
         sharing["userGroups"] = {"Crp0Grp0001": {"id": "Crp0Grp0001", "access": "rw------"}}
     c["sharing"] = sharing
+    if i % 7 == 0:
+        c["attributeValues"] = [{"attribute": {"id": "Crp0Attr001"}, "value": "attr %d \"é\"" % i}]
+        if i % 14 == 0:
+            c["attributeValues"].append({"attribute": {"id": "Crp0Attr002"}, "value": str(i)})
     cs.append(c)
 print(json.dumps({"constants": cs}))
 PY
 )
 post '{"userGroups":[{"id":"Crp0Grp0001","name":"corpus group","users":[{"id":"Crp0User001"}]}]}'
+post '{"attributes":[{"id":"Crp0Attr001","name":"Corpus attribute","valueType":"TEXT","constantAttribute":true,"dataElementAttribute":true},
+                     {"id":"Crp0Attr002","name":"Corpus number attribute","valueType":"INTEGER","constantAttribute":true,"dataElementAttribute":true}]}'
 post "$constants"
 
 # Core metadata for the Gist corpus of more types: option sets with options, a legend set,
@@ -114,7 +120,9 @@ m = {
                     "translations": tr(i, "Corpus data element %02d" % i),
                     **({"categoryCombo": {"id": "Crp0CCmb001"}} if i % 3 == 0 else {}),
                     **({"optionSet": {"id": "Crp0OSet001"}, "valueType": "TEXT"} if i == 5 else {}),
-                    **({"legendSets": [{"id": "Crp0LSet001"}]} if i % 4 == 1 else {})}
+                    **({"legendSets": [{"id": "Crp0LSet001"}]} if i % 4 == 1 else {}),
+                    **({"attributeValues": [{"attribute": {"id": "Crp0Attr001"}, "value": "de %d" % i},
+                                            {"attribute": {"id": "Crp0Attr002"}, "value": str(i)}]} if i % 5 == 0 else {})}
                    for i in range(12)],
   "dataElementGroups": [{"id": "Crp0DEGr%03d" % k, "name": "Corpus data element group %d" % k,
                          "shortName": "CDEG %d" % k, "sharing": sh(k),

@@ -58,6 +58,8 @@ pub struct Access {
     pub can_read_type: bool,
     /// The session's user id and sorted group ids; needed for the sharing filter.
     pub user: Option<(String, Vec<String>)>,
+    /// `UserDetails#getAllAuthorities()`, for `aclService.canRead(user, type)` of other types.
+    pub authorities: Vec<String>,
 }
 
 impl Access {
@@ -67,7 +69,17 @@ impl Access {
             skip_sharing_check: true,
             can_read_type: true,
             user: None,
+            authorities: Vec::new(),
         }
+    }
+
+    /// `aclService.canRead(user, type)`: superusers, types without `READ` authorities, or any of
+    /// them.
+    pub fn can_read(&self, schema: &RegisteredSchema) -> bool {
+        let read = schema.authorities_by_type("READ");
+        self.superuser
+            || read.is_empty()
+            || read.iter().any(|a| self.authorities.iter().any(|u| u == a))
     }
 }
 
@@ -81,9 +93,23 @@ pub enum ColumnType {
     Bool,
     /// `text[]`/`varchar[]` (`array_agg`).
     TextArray,
+    /// A JSONB column read through one of DHIS2's JSON types, selected as text.
+    Json(JsonKind),
     /// `timestamp`; selected as text (`YYYY-MM-DD HH24:MI:SS.US`), rendered as Java renders the
     /// `java.util.Date` it becomes.
     Timestamp,
+}
+
+/// JSONB columns and the Java value they are read into (`dhis_core_model::jsonb`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum JsonKind {
+    /// `jsbObjectSharing`: `Sharing`, written by Jackson.
+    Sharing,
+    /// `jblTranslations`: a `Set<Translation>` (hbm) or a `TranslationProperty` (JPA embedded,
+    /// written wrapped as `{"translations":[...]}`), written by Jackson.
+    Translations { wrapped: bool },
+    /// `jsbAttributeValues`: `AttributeValues`, written by itself (json-tree).
+    AttributeValues,
 }
 
 /// One value per field of the fetch query (Java's `Object[]` row).
@@ -125,6 +151,8 @@ pub enum OutputType {
     StringArray,
     /// `IdObject[]`: `[{"id": ...}]`, null when empty (`toIdObjects`).
     IdObjects,
+    /// JSON text already rendered (Jackson-mapped or self-encoding values), inserted as is.
+    Raw,
 }
 
 #[derive(Debug, Clone)]
@@ -157,17 +185,64 @@ pub struct ListPlan {
     pub page_size: i32,
 }
 
-/// `RelativePropertyContext`, over the registered schemas (non-nested paths only).
+/// `RelativePropertyContext`, over the registered schemas (paths of one or two segments).
 struct Ctx {
     home: &'static RegisteredSchema,
 }
 
 impl Ctx {
     fn resolve(&self, path: &PropertyPath) -> Result<Option<&'static Property>> {
-        if path.is_nested() {
-            return Err(Unsupported("nested property path"));
+        Ok(self.resolve_path(path)?.and_then(|ps| ps.last().copied()))
+    }
+
+    /// `resolvePath`: the property of each segment (`None` when one does not exist).
+    fn resolve_path(&self, path: &PropertyPath) -> Result<Option<Vec<&'static Property>>> {
+        let segs = path.segments();
+        match segs {
+            [_] => Ok(self.home.property(path.property()).map(|p| vec![p])),
+            [head, leaf] => {
+                if head.starts_with([':', '!', '-']) || leaf.starts_with([':', '!', '-']) {
+                    return Err(Unsupported("nested modifier"));
+                }
+                let Some(h) = self.home.property(head) else {
+                    return Ok(None);
+                };
+                let klass = if h.collection {
+                    &h.item_klass
+                } else {
+                    &h.klass
+                };
+                let target = klass
+                    .as_deref()
+                    .and_then(registered::by_klass)
+                    .ok_or(Unsupported("nested in unregistered type"))?;
+                Ok(target.property(leaf).map(|l| vec![h, l]))
+            }
+            _ => Err(Unsupported("deeply nested path")),
         }
-        Ok(self.home.property(path.property()))
+    }
+
+    /// The schema owning the last segment (`switchedTo(path).getHome()`).
+    fn owner_of(&self, path: &PropertyPath) -> Result<&'static RegisteredSchema> {
+        match path.segments() {
+            [_] => Ok(self.home),
+            [head, _] => {
+                let h = self
+                    .home
+                    .property(head)
+                    .ok_or(Unsupported("no such property"))?;
+                let klass = if h.collection {
+                    &h.item_klass
+                } else {
+                    &h.klass
+                };
+                klass
+                    .as_deref()
+                    .and_then(registered::by_klass)
+                    .ok_or(Unsupported("nested in unregistered type"))
+            }
+            _ => Err(Unsupported("deeply nested path")),
+        }
     }
 
     fn resolve_name(&self, name: &str) -> Result<Option<&'static Property>> {
@@ -306,9 +381,6 @@ fn plan_fields(ctx: &Ctx, params: &ListParams) -> Result<Vec<Field>> {
     if fields.is_empty() {
         fields = vec![field(":all", Transform::None)?];
     }
-    if fields.iter().any(|f| f.property_path.is_nested()) {
-        return Err(Unsupported("nested field"));
-    }
 
     // withPresetFields
     let explicit: HashSet<String> = fields.iter().map(|f| f.property_path.to_string()).collect();
@@ -377,6 +449,7 @@ fn plan_fields(ctx: &Ctx, params: &ListParams) -> Result<Vec<Field>> {
     // withAttributeFields
     for f in &fields {
         if f.transformation == Transform::Auto
+            && !f.property_path.is_nested()
             && is_uid_path(&f.property_path)
             && ctx.resolve(&f.property_path)?.is_none()
         {
@@ -393,17 +466,32 @@ fn plan_fields(ctx: &Ctx, params: &ListParams) -> Result<Vec<Field>> {
             continue;
         };
         let name = resolve_translation_base_property_name(&p.name);
-        let Some(b) = ctx.resolve_name(&name)? else {
+        // path.withTail(name): same parent
+        let base_path = match f.property_path.parent() {
+            Some(parent) => format!("{parent}.{name}"),
+            None => name.clone(),
+        };
+        let base_path = PropertyPath::of(&base_path).map_err(|_| Unsupported("invalid path"))?;
+        let Some(b) = ctx.resolve(&base_path)? else {
             continue;
         };
         if !b.translatable || name == p.name {
             continue;
         }
         let renamed = f.path().clone();
-        f.property_path = PropertyPath::of(&name).map_err(|_| Unsupported("invalid path"))?;
+        f.property_path = base_path;
         f.renamed_path = Some(renamed);
         f.transformation = Transform::Translate;
         f.args.clear();
+    }
+
+    // withCollectionItemPropertyAsTransformation: items of a collection become a transformation
+    for f in &fields {
+        if let Some(parent) = f.property_path.parent()
+            && ctx.resolve_mandatory(&parent)?.collection
+        {
+            return Err(Unsupported("collection item field"));
+        }
     }
 
     // withEffectiveTransformation
@@ -498,11 +586,37 @@ fn validate_order(ctx: &Ctx, order: &Order) -> Result<()> {
 }
 
 /// `GistValidator#validateField` (superusers pass every access check).
-fn validate_field(ctx: &Ctx, f: &Field) -> Result<()> {
+fn validate_field(ctx: &Ctx, f: &Field, access: &Access) -> Result<()> {
     if is_refs(f) {
         return Ok(());
     }
     let p = ctx.resolve_mandatory(&f.property_path)?;
+    if f.property_path.is_nested() {
+        let path = ctx
+            .resolve_path(&f.property_path)?
+            .ok_or(Unsupported("no such property"))?;
+        if path[0].collection && path[0].persisted {
+            return Err(Unsupported("field computes to many values"));
+        }
+        // validateFieldAccess: the field's owner type must be readable (some User properties are
+        // public)
+        let owner = ctx.owner_of(&f.property_path)?;
+        const PUBLIC: [&str; 3] = ["sharing", "access", "translations"];
+        const PUBLIC_USER: [&str; 7] = [
+            "id",
+            "code",
+            "displayName",
+            "name",
+            "surname",
+            "firstName",
+            "username",
+        ];
+        let public = PUBLIC.contains(&p.name.as_str())
+            || (owner.klass == "org.hisp.dhis.user.User" && PUBLIC_USER.contains(&p.name.as_str()));
+        if owner.identifiable_object && !public && !access.can_read(owner) {
+            return Err(Unsupported("field of a type the user cannot read"));
+        }
+    }
     if matches!(
         f.transformation,
         Transform::Pluck | Transform::Member | Transform::NotMember | Transform::From
@@ -570,6 +684,7 @@ fn output_type(ty: ColumnType) -> OutputType {
         ColumnType::Bool => OutputType::Boolean,
         ColumnType::Timestamp => OutputType::Date,
         ColumnType::TextArray => OutputType::StringArray,
+        ColumnType::Json(_) => OutputType::Raw,
     }
 }
 
@@ -867,7 +982,7 @@ pub fn plan_list(
         validate_order(&ctx, o)?;
     }
     for f in &planned {
-        validate_field(&ctx, f)?;
+        validate_field(&ctx, f, &access)?;
     }
 
     // addSupportFields
@@ -880,10 +995,15 @@ pub fn plan_list(
         if is_access_property(p) {
             return Err(Unsupported("access field"));
         }
+        // the same-parent id (`path.withTail("id")`)
+        let id_path = match f.property_path.parent() {
+            Some(parent) => format!("{parent}.id"),
+            None => "id".to_string(),
+        };
         if (is_persistent_collection_field(p) || is_href_property(p))
-            && !fetch.iter().any(|g| g.property_path.to_string() == "id")
+            && !fetch.iter().any(|g| g.property_path.to_string() == id_path)
         {
-            fetch.push(field("id", Transform::Auto)?);
+            fetch.push(field(&id_path, Transform::Auto)?);
         }
     }
 
@@ -911,7 +1031,7 @@ pub fn plan_list(
     let mut selects: Vec<String> = Vec::new();
     let mut slots: Vec<Slot> = Vec::new();
     let mut ref_entries: Vec<RefEntry> = Vec::new();
-    let mut joins: Vec<(String, String)> = Vec::new();
+    let mut joins = Joins::default();
     let mut output: Vec<OutputProperty> = Vec::new();
     for (i, f) in fetch.iter().enumerate() {
         if is_refs(f) {
@@ -924,6 +1044,64 @@ pub fn plan_list(
         }
         let p = ctx.resolve_mandatory(&f.property_path)?;
         let out_path = f.path().to_string();
+        if let Some(parent) = f.property_path.parent() {
+            // a field of a referenced object (`ref.field`): the reference is joined
+            let head = ctx.resolve_mandatory(&parent)?;
+            if !is_persistent_reference_field(head) || head.collection {
+                return Err(Unsupported("nested field of this kind"));
+            }
+            let target = reference_target(entity, head)?;
+            let alias = joins.alias(head.key(), &target, i);
+            let (expr, ty, out) =
+                if f.transformation == Transform::Translate && p.can_be_translated() {
+                    // GistBuilder#createTranslatedFieldHQL always uses the root's translations and
+                    // the root's property of that name (`e.`), whatever the path: reproduced
+                    (
+                        translated_expr(entity, p, &params.translation_locale)?,
+                        ColumnType::Text,
+                        OutputType::String,
+                    )
+                } else if is_href_property(p) {
+                    let id_slot = index.get(&format!("{parent}.id")).copied();
+                    slots.push(Slot::Href {
+                        id_slot,
+                        prefix: target.schema.relative_api_endpoint.as_ref().map(|rel| {
+                            let root = if params.absolute_urls {
+                                format!("{}/api", params.context_root)
+                            } else {
+                                "/api".to_string()
+                            };
+                            format!("{root}{rel}/")
+                        }),
+                        suffix: format!("/gist{url_params}"),
+                    });
+                    output.push(OutputProperty {
+                        path: out_path,
+                        ty: OutputType::String,
+                    });
+                    continue;
+                } else if p.collection
+                    || is_persistent_reference_field(p)
+                    || json_column(target.entity, p).is_some()
+                    || f.transformation == Transform::From
+                {
+                    return Err(Unsupported("nested field of this kind"));
+                } else {
+                    let (col, ty) = column(target.entity, p)?;
+                    (
+                        select_expr(&format!("{alias}.{col}"), ty),
+                        ty,
+                        output_type(ty),
+                    )
+                };
+            selects.push(expr);
+            slots.push(Slot::Sql(ty));
+            output.push(OutputProperty {
+                path: out_path,
+                ty: out,
+            });
+            continue;
+        }
         if f.transformation == Transform::Translate && p.can_be_translated() {
             selects.push(translated_expr(entity, p, &params.translation_locale)?);
             slots.push(Slot::Sql(ColumnType::Text));
@@ -944,9 +1122,7 @@ pub fn plan_list(
         } else if f.transformation == Transform::From {
             return Err(Unsupported("from transformation"));
         } else if is_persistent_reference_field(p) {
-            let r = reference_expr(entity, p, i)?;
-            selects.push(r.select);
-            joins.extend(r.join);
+            selects.push(reference_expr(entity, p, i, &mut joins)?);
             slots.push(Slot::Sql(ColumnType::Text));
             if p.identifiable_object
                 && params.references
@@ -984,6 +1160,13 @@ pub fn plan_list(
             output.push(OutputProperty {
                 path: out_path,
                 ty: out,
+            });
+        } else if let Some((col, kind)) = json_column(entity, p) {
+            selects.push(format!("e.{col}::text"));
+            slots.push(Slot::Sql(ColumnType::Json(kind)));
+            output.push(OutputProperty {
+                path: out_path,
+                ty: OutputType::Raw,
             });
         } else if p.collection && p.owning_role.is_some() {
             // other mapped collections (element collections): `size(e.path)`, an Integer
@@ -1045,8 +1228,16 @@ pub fn plan_list(
         return Err(Unsupported("no selected column"));
     }
     let select_list = selects.join(", ");
-    let join_from: String = joins.iter().map(|(j, _)| j.as_str()).collect();
-    let join_where: String = joins.iter().map(|(_, c)| format!("{c} and ")).collect();
+    let join_from: String = joins
+        .entries
+        .iter()
+        .map(|(_, _, j, _)| j.as_str())
+        .collect();
+    let join_where: String = joins
+        .entries
+        .iter()
+        .map(|(_, _, _, c)| format!("{c} and "))
+        .collect();
     let fetch_sql = format!(
         "select {select_list} from {table} e{join_from} where {join_where}({filter_sql}) and ({access_sql}) order by {order} limit {} offset {offset}",
         size.max(1)
@@ -1064,6 +1255,23 @@ pub fn plan_list(
         page: 1 + offset / size,
         page_size: size,
     })
+}
+
+/// A JSONB column of one of the supported DHIS2 JSON types.
+fn json_column(entity: &Entity, p: &Property) -> Option<(String, JsonKind)> {
+    let m = entity.properties.get(p.field_name.as_deref()?)?;
+    if m.kind != "property" || m.formula || m.column_table.is_some() {
+        return None;
+    }
+    let kind = match m.hibernate_type.as_deref()? {
+        "jsbObjectSharing" => JsonKind::Sharing,
+        "jblTranslations" => JsonKind::Translations {
+            wrapped: m.embedded,
+        },
+        "jsbAttributeValues" => JsonKind::AttributeValues,
+        _ => return None,
+    };
+    Some((m.column.clone()?, kind))
 }
 
 /// How a persistent collection is stored.
@@ -1303,35 +1511,28 @@ fn sharing_filter_on(entity: &Entity, access: &Access, alias: &str) -> Result<St
 
 /// `GistBuilder#createReferenceFieldHQL` for a non-required reference to an identifiable type
 /// with its own endpoint: `(select R.uid from Target R where R = e.ref)`.
-/// How a reference field is selected.
-struct Reference {
-    /// The selected expression.
-    select: String,
-    /// For required references: the inner join Hibernate makes for `e.ref.uid` (fetch query only).
-    join: Option<(String, String)>,
+/// The mapping behind a persistent reference to an identifiable type with its own endpoint.
+struct RefTarget {
+    schema: &'static RegisteredSchema,
+    entity: &'static Entity,
+    /// Foreign-key column on the owner.
+    fk: &'static str,
+    table: &'static str,
+    id: &'static str,
 }
 
-fn reference_expr(entity: &Entity, p: &Property, index: usize) -> Result<Reference> {
+fn reference_target(owner: &'static Entity, p: &Property) -> Result<RefTarget> {
     let target_klass = p.klass.as_deref().ok_or(Unsupported("no class"))?;
     if target_klass.ends_with(".PeriodType") || target_klass.ends_with(".Period") {
         return Err(Unsupported("period reference"));
     }
-    let target = registered::by_klass(target_klass).ok_or(Unsupported("unregistered target"))?;
-    if target.relative_api_endpoint.is_none() {
-        return Err(Unsupported("embedded reference"));
-    }
-    let id = target
-        .property("id")
-        .filter(|p| p.persisted)
-        .ok_or(Unsupported("target without id"))?;
-    let target_entity =
-        hibernate::entity(target_klass).ok_or(Unsupported("target not hbm-mapped"))?;
-    if !target_entity.is_plain_class() {
+    let schema = registered::by_klass(target_klass).ok_or(Unsupported("unregistered target"))?;
+    let entity = hibernate::entity(target_klass).ok_or(Unsupported("target not mapped"))?;
+    if !entity.is_plain_class() {
         return Err(Unsupported("target mapping shape"));
     }
-    let (uid_col, _) = column(target_entity, id)?;
     let field_name = p.field_name.as_deref().ok_or(Unsupported("no field"))?;
-    let mapped = entity
+    let mapped = owner
         .properties
         .get(field_name)
         .ok_or(Unsupported("reference not in the mapping"))?;
@@ -1341,44 +1542,73 @@ fn reference_expr(entity: &Entity, p: &Property, index: usize) -> Result<Referen
     {
         return Err(Unsupported("reference mapping"));
     }
-    let fk = mapped
-        .column
-        .as_deref()
-        .ok_or(Unsupported("no fk column"))?;
-    let t_table = target_entity
-        .table
-        .as_deref()
-        .ok_or(Unsupported("no table"))?;
-    let t_id = &target_entity
-        .id
-        .as_ref()
-        .ok_or(Unsupported("no id"))?
-        .column;
-    // alias as GistBuilder#alias: upper-case letters of the simple name plus the field index
-    let alias: String = target
-        .simple_name()
-        .chars()
-        .filter(char::is_ascii_uppercase)
-        .collect::<String>()
-        .to_lowercase()
-        + &index.to_string();
-    if p.required {
-        // `e.ref.uid`: Hibernate 5 renders an inner (theta) join, so rows without the reference
-        // drop out of the page (not of the count, which has no join)
-        return Ok(Reference {
-            select: format!("{alias}.{uid_col}"),
-            join: Some((
-                format!(" cross join {t_table} {alias}"),
-                format!("e.{fk}={alias}.{t_id}"),
-            )),
-        });
-    }
-    Ok(Reference {
-        select: format!(
-            "(select {alias}.{uid_col} from {t_table} {alias} where {alias}.{t_id} = e.{fk})"
-        ),
-        join: None,
+    Ok(RefTarget {
+        schema,
+        entity,
+        fk: mapped
+            .column
+            .as_deref()
+            .ok_or(Unsupported("no fk column"))?,
+        table: entity.table.as_deref().ok_or(Unsupported("no table"))?,
+        id: &entity.id.as_ref().ok_or(Unsupported("no id"))?.column,
     })
+}
+
+/// The inner joins of the fetch query: one per referenced property, shared by every field
+/// that navigates it (Hibernate 5 renders implicit joins as `cross join` plus a condition).
+#[derive(Default)]
+struct Joins {
+    /// (property key, alias, from clause, condition)
+    entries: Vec<(String, String, String, String)>,
+}
+
+impl Joins {
+    fn alias(&mut self, key: &str, target: &RefTarget, index: usize) -> String {
+        if let Some((_, a, _, _)) = self.entries.iter().find(|(k, ..)| k == key) {
+            return a.clone();
+        }
+        let alias = format!("r{index}");
+        self.entries.push((
+            key.to_string(),
+            alias.clone(),
+            format!(" cross join {} {alias}", target.table),
+            format!("e.{}={alias}.{}", target.fk, target.id),
+        ));
+        alias
+    }
+}
+
+/// `GistBuilder#createReferenceFieldHQL` for a reference to an identifiable type with its own
+/// endpoint: its uid; `(select R.uid from Target R where R = e.ref)`, or for required ones
+/// `e.ref.uid` (an inner join).
+fn reference_expr(
+    entity: &'static Entity,
+    p: &Property,
+    index: usize,
+    joins: &mut Joins,
+) -> Result<String> {
+    let t = reference_target(entity, p)?;
+    if t.schema.relative_api_endpoint.is_none() {
+        return Err(Unsupported("embedded reference"));
+    }
+    let id = t
+        .schema
+        .property("id")
+        .filter(|p| p.persisted)
+        .ok_or(Unsupported("target without id"))?;
+    let (uid_col, _) = column(t.entity, id)?;
+    if p.required {
+        // rows without the reference drop out of the page (not of the count, which has no join)
+        let alias = joins.alias(p.key(), &t, index);
+        return Ok(format!("{alias}.{uid_col}"));
+    }
+    let alias = format!("s{index}");
+    Ok(format!(
+        "(select {alias}.{uid_col} from {table} {alias} where {alias}.{id} = e.{fk})",
+        table = t.table,
+        id = t.id,
+        fk = t.fk
+    ))
 }
 
 #[cfg(test)]
@@ -1487,10 +1717,20 @@ mod tests {
             q.filter = filter.into();
             plan_list(constant(), &q, sup()).err()
         };
-        assert!(un("sharing", "").is_some());
+        assert!(un("sharing", "").is_none());
+        assert!(un("translations", "").is_none());
         assert!(un("access", "").is_some());
-        assert!(un("translations", "").is_some());
-        assert!(un("lastUpdatedBy.name", "").is_some());
+        assert!(un("lastUpdatedBy.name", "").is_none());
+        assert!(un("lastUpdatedBy.lastUpdatedBy", "").is_some());
+        let p = plan_list(
+            constant(),
+            &params("id,lastUpdatedBy.username,lastUpdatedBy[id,name]"),
+            sup(),
+        )
+        .unwrap();
+        assert!(p.fetch_sql.contains(
+            "select e.uid, r1.username, r1.uid, r1.name from constant e cross join userinfo r1 where e.lastupdatedby=r1.userinfoid and (1=1)"
+        ), "{}", p.fetch_sql);
         assert!(un("nope", "").is_some());
         assert!(un("id", "value:like:3").is_some());
         assert!(un("id", "lastUpdatedBy:eq:x").is_some());
@@ -1507,6 +1747,7 @@ mod tests {
             skip_sharing_check: false,
             can_read_type: readable,
             user: id,
+            authorities: vec![],
         };
         assert!(plan_list(constant(), &params("id"), user(None, true)).is_err());
         assert!(
@@ -1529,6 +1770,7 @@ mod tests {
                 "Crp0User001".into(),
                 vec!["Crp0Grp0001".into(), "Grp2".into()],
             )),
+            authorities: vec![],
         };
         let p = plan_list(constant(), &params("id"), a.clone()).unwrap();
         assert!(p.fetch_sql.contains(
@@ -1555,6 +1797,7 @@ mod tests {
             skip_sharing_check: false,
             can_read_type: true,
             user: Some(("x'y".into(), vec![])),
+            authorities: vec![],
         };
         assert!(plan_list(constant(), &params("id"), bad).is_err());
     }
@@ -1577,12 +1820,17 @@ mod tests {
         let de = registered::by_singular("dataElement").unwrap();
         let p = plan_list(de, &params("id,categoryCombo"), sup()).unwrap();
         assert!(p.fetch_sql.contains(
-            "from dataelement e cross join categorycombo cc1 where e.categorycomboid=cc1.categorycomboid and (1=1)"
+            "from dataelement e cross join categorycombo r1 where e.categorycomboid=r1.categorycomboid and (1=1)"
         ), "{}", p.fetch_sql);
         assert!(p.count_sql.is_none());
         let opt = registered::by_singular("option").unwrap();
         let p = plan_list(opt, &params("id"), sup()).unwrap();
-        assert!(p.fetch_sql.contains("order by e.optionsetid asc, e.code asc"), "{}", p.fetch_sql);
+        assert!(
+            p.fetch_sql
+                .contains("order by e.optionsetid asc, e.code asc"),
+            "{}",
+            p.fetch_sql
+        );
     }
 
     #[test]
